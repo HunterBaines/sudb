@@ -2,9 +2,13 @@
 
 from distutils.core import setup
 
+import sudb
+
+
 setup(name='sudb',
-      author='Hunter Baines',
-      author_email='0x68@protonmail.com',
+      author=sudb.__author__,
+      author_email=sudb.__email__,
+      license=sudb.__license__,
       packages=['sudb'],
       scripts=['scripts/sudb']
      )
