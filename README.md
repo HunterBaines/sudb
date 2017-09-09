@@ -80,6 +80,8 @@ brief description of what COMMAND does and how to use it.
 The command `quit` exits the session associated with the current puzzle (though
 not necessarily the program itself if any puzzles are left to be solved).
 
+The command `print` prints the current state of the puzzle board.
+
 
 ### Commands for Controlling the Solver ###
 The command `step` (or `s`) moves the solver one clue forward. You can also
@@ -95,8 +97,8 @@ number that goes in the cell at that row and column. (Breakpoints can be listed
 via `info breakpoint`.)
 
 The command `x ROW COLUMN` lists all candidates the solver is currently
-entertaining for a given cell. (The command `print candidates` does the
-same but inline and for all cells.)
+entertaining for the cell at the given location. (The command `print candidates`
+does the same but inline and for all cells.)
 
 The command `explain` indicates how the solver deduced the previous move.
 
@@ -109,7 +111,8 @@ The command `unstep` undoes the last step (whether made via `step` or `stepm`).
 
 The command `checkpoint LABEL` saves the board state under the given LABEL,
 which can be returned to using `restart LABEL`. (Checkpoints can be listed via
-`info checkpoint`.)
+`info checkpoint`, and `print checkpoint LABEL` displays the state of the board
+at the given LABEL with differences between it and the current state noted.)
 
 The command `mark ROW COLUMN NUMBER` stores NUMBER as a candidate for the cell
 at the given location. This collection of candidates is kept separate from the
