@@ -8,6 +8,8 @@ generated from a random seed. These puzzles can also be made harder by
 removing unnecessary clues or easier by adding in clues that seem to
 require guessing.
 
+![screenshot](screenshots/step_and_explain.png)
+
 
 Running
 -------
@@ -74,51 +76,49 @@ Note that all commands can be shortened if doing so causes no ambiguity.
 
 
 ### Basic Commands ###
-The command `help` displays a list of all commands, and `help COMMAND` gives a
-brief description of what COMMAND does and how to use it.
+* `help` displays a list of all commands, and `help COMMAND` gives a brief
+  description of what COMMAND does and how to use it.
 
-The command `quit` exits the session associated with the current puzzle (though
-not necessarily the program itself if any puzzles are left to be solved).
+* `quit` exits the session associated with the current puzzle (though not
+  necessarily the program itself if any puzzles are left to be solved).
 
-The command `print` prints the current state of the puzzle board.
+* `print` prints the current state of the puzzle board.
 
 
 ### Commands for Controlling the Solver ###
-The command `step` (or `s`) moves the solver one clue forward. You can also
-use something like `step 3` or `step 10` to move the solver a specified
-number of steps forward.
+* `step` (or `s`) moves the solver one clue forward. You can also use something
+  like `step 3` or `step 10` to move the solver a specified number of steps
+  forward.
 
-The command `finish` steps until the puzzle is solved or the solver is at a
-breakpoint.
+* `finish` steps until the puzzle is solved or the solver is at a breakpoint.
 
-The command `break ROW COLUMN` sets a breakpoint at the given row and column in
-the puzzle, which will force the solver to pause itself if it discovers the
-number that goes in the cell at that row and column. (Breakpoints can be listed
-via `info breakpoint`.)
+* `break ROW COLUMN` sets a breakpoint at the given row and column in the
+  puzzle, which will force the solver to pause itself if it discovers the number
+  that goes in the cell at that row and column. (Breakpoints can be listed via
+  `info breakpoint`.)
 
-The command `x ROW COLUMN` lists all candidates the solver is currently
-entertaining for the cell at the given location. (The command `print candidates`
-does the same but inline and for all cells.)
+* `x ROW COLUMN` lists all candidates the solver is currently entertaining for
+  the cell at the given location. (The command `print candidates` does the same
+  but inline and for all cells.)
 
-The command `explain` indicates how the solver deduced the previous move.
+* `explain` indicates how the solver deduced the previous move.
 
 
 ### Commands for Playing Along ###
-The command `stepm ROW COLUMN NUMBER` (or `sm ROW COLUMN NUMBER` or simply `ROW
-COLUMN NUMBER`) sets the value at the cell specified by (ROW, COLUMN) to NUMBER.
+* `stepm ROW COLUMN NUMBER` (or `sm ROW COLUMN NUMBER` or simply `ROW COLUMN
+  NUMBER`) sets the value at the cell specified by (ROW, COLUMN) to NUMBER.
 
-The command `unstep` undoes the last step (whether made via `step` or `stepm`).
+* `unstep` undoes the last step (whether made via `step` or `stepm`).
 
-The command `checkpoint LABEL` saves the board state under the given LABEL,
-which can be returned to using `restart LABEL`. (Checkpoints can be listed via
-`info checkpoint`, and `print checkpoint LABEL` displays the state of the board
-at the given LABEL with differences between it and the current state noted.)
+* `checkpoint LABEL` saves the board state under the given LABEL, which can be
+  returned to using `restart LABEL`. (Checkpoints can be listed via `info
+  checkpoint`, and `print checkpoint LABEL` displays the state of the board at
+  the given LABEL with differences between it and the current state noted.)
 
-The command `mark ROW COLUMN NUMBER` stores NUMBER as a candidate for the cell
-at the given location. This collection of candidates is kept separate from the
-solver's.
+* `mark ROW COLUMN NUMBER` stores NUMBER as a candidate for the cell at the
+  given location. This collection of candidates is kept separate from the
+  solver's.
 
-The command `info mark ROW COL` lists all user-defined candidates at the given
-location. (The command `print marks` does the same but inline and for all
-cells.)
+* `info mark ROW COL` lists all user-defined candidates at the given location.
+  (The command `print marks` does the same but inline and for all cells.)
 
