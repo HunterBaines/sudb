@@ -1,7 +1,7 @@
 sudb
 ====
 
-sudb is a Sudoku solver that can solve puzzles automatically or
+sudb is a 9x9 Sudoku solver that can solve puzzles automatically or
 interactively using GDB-style commands to query or control the solver.
 Puzzles can be entered row by row, imported from text or image files, or
 generated from a random seed. These puzzles can also be made harder by
@@ -21,8 +21,8 @@ then invoke that file directly. For a quick demo, try this:
 ```
 
 (The `--auto` option tells the program to solve the puzzles without
-interaction; `--difference` tells it to colorize the cells in its solved
-puzzle output that were originally blank.)
+interaction; `--difference` tells it to colorize the cells in the solved
+puzzles it outputs that were originally blank.)
 
 
 Importing
@@ -69,8 +69,8 @@ Interacting
 -----------
 sudb defaults to an interactive mode in which one controls the solver using
 an interface and commands modeled after the GNU Debugger. This is a brief
-overview of some of those commands. To play along, import a puzzle without using
-`--auto` (`./sudb.py --random 1979` will work just fine).
+overview of some of those commands. To try them out, import a puzzle without
+using `--auto` (`./sudb.py --random 1979` will work just fine).
 
 Note that all commands can be shortened if doing so causes no ambiguity. 
 
