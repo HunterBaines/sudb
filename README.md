@@ -11,13 +11,14 @@ require guessing.
 ![screenshot](screenshots/step_and_explain.png)
 
 
-Running
--------
-Add execute permission to the file sudb.py (e.g., `chmod +x sudb.py`) and
-then invoke that file directly. For a quick demo, try this:
+Installing
+----------
+Simply use `python setup.py install`, which will install the sudb module
+and copy the script invoking that module's main method into a directory in
+your `PATH`. To test it out, try this:
 
 ```
-./sudb.py --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
+sudb --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
 ```
 
 (The `--auto` option tells the program to solve the puzzles without
@@ -27,7 +28,7 @@ puzzles it outputs that were originally blank.)
 
 Importing
 ---------
-To enter lines manually via stdin, invoke sudb without any import option
+To enter lines manually via stdin, invoke sudb without an import option
 (e.g., `--lines`, `--file`, or `--random`). Each puzzle entered this way
 should specify one row of the puzzle per line with 0 or any non-numeric,
 non-whitespace character used for blank cells. Here is an example using '0'
@@ -50,7 +51,7 @@ the puzzle passed to it as arguments (using the puzzle format just
 described). One could import the above puzzle using this:
 
 ```
-./sudb.py --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000
+sudb --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000
 ```
 
 The option `--file FILENAME` imports puzzles from text or image files (or
@@ -70,7 +71,7 @@ Interacting
 sudb defaults to an interactive mode in which one controls the solver using
 an interface and commands modeled after the GNU Debugger. This is a brief
 overview of some of those commands. To try them out, import a puzzle without
-using `--auto` (`./sudb.py --random 1979` will work just fine).
+using `--auto` (`sudb --random 1979` will work just fine).
 
 Note that all commands can be shortened if doing so causes no ambiguity. 
 
