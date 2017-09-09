@@ -15,7 +15,9 @@ Installing
 ----------
 Simply use `python setup.py install`, which will install the sudb module
 and copy the script invoking that module's main method into a directory in
-your `PATH`. To test it out, try this:
+your `PATH`. (If this complains about `No module named enum`, you'll need
+to install enum34, the backport of Enum from Python 3.4: if pip is
+installed, `pip install enum34` will do it.) To test it out, try this:
 
 ```
 sudb --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
