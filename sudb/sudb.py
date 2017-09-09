@@ -98,7 +98,7 @@ def main():
     args = _get_parser().parse_args()
 
     # Warn if the UTF-8 output will look like garbage on this terminal
-    if not args.ascii and sys.getfilesystemencoding() in ['ascii', 'ANSI_X3.4-1968']:
+    if not args.ascii and sys.stdout.encoding in ['ascii', 'ANSI_X3.4-1968']:
         msg = 'your terminal does not seem to support UTF-8 output;'
         msg += ' consider changing your terminal\'s character encoding'
         msg += ' settings or calling this program with the --ascii option.'
