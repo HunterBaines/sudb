@@ -6,4 +6,5 @@ setup(name='sudb',
       author='Hunter Baines',
       author_email='0x68@protonmail.com',
       packages=['sudb'],
+      scripts=['scripts/sudb']
      )
