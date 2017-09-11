@@ -1,3 +1,5 @@
+# Author: Hunter Baines <0x68@protonmail.com>
+# Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
 import sys
