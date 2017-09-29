@@ -143,8 +143,15 @@ class SolverController(object):
         """
 
         def __init__(self):
-            self.aliases = {r'(^|\s)s(\s|$)': r'step ', r'(^|\s)sm(\s|$)': r'stepm ',
-                            r'(^\d\s*\d\s*\d)': r'stepm \1'}
+            # The leading space in the expansion of patterns that can begin
+            # either at the start of the line ('^') or with whitespace
+            # ('\s') is needed to avoid expanding something like 'help s'
+            # into 'helpstep '. (The spaces will be stripped when dealing
+            # with '^' matches, so distinguishing between it and the '\s'
+            # matches with slightly different patterns is unnecessary.)
+            self.aliases = {r'(^|\s)s(\s|$)': r' step ',
+                            r'(^|\s)sm(\s|$)': r' stepm ',
+                            r'(^\s*\d\s*\d\s*\d)': r'stepm \1'}
             self.ascii = False
             self.markview = False
             self.prompt = '(sudb) '
