@@ -350,11 +350,10 @@ class Board(object):
 
         #TODO: cache clues?
         clues = []
-        for row in self.SUDOKU_ROWS:
-            for col in self.SUDOKU_COLS:
-                number = self.get_cell(row, col)
-                if number != self.BLANK:
-                    clues.append((number, row, col))
+        for (row, col) in self.SUDOKU_CELLS:
+            number = self.get_cell(row, col)
+            if number != self.BLANK:
+                clues.append((number, row, col))
         return clues
 
     def clue_count(self):
@@ -378,8 +377,7 @@ class Board(object):
             False if blanks found, True otherwise.
         """
 
-        # TODO: change to `return self.clue_count() == len(self.SUDOKU_CELLS)`
-        return self.clue_count() == len(self.SUDOKU_ROWS) * len(self.SUDOKU_COLS)
+        return self.clue_count() == len(self.SUDOKU_CELLS)
 
     def is_consistent(self):
         """Return whether any inconsistencies exist in the board.
@@ -476,10 +474,9 @@ class Board(object):
         """
 
         diff_coordinates = []
-        for row in self.SUDOKU_ROWS:
-            for col in self.SUDOKU_COLS:
-                if self.get_cell(row, col) != board_instance.get_cell(row, col):
-                    diff_coordinates.append((row, col))
+        for (row, col) in self.SUDOKU_CELLS:
+            if self.get_cell(row, col) != board_instance.get_cell(row, col):
+                diff_coordinates.append((row, col))
         return diff_coordinates
 
     def possibilities(self, row, col):
