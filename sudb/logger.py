@@ -201,6 +201,7 @@ class ErrorLogger(object):
 
         Returns
         -------
+        int
             An error count for all objects if `obj` is not given, or an
             error count for `obj` if given.
         """

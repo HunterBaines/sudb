@@ -9,21 +9,21 @@ Examples
 >>> import sudokuimg
 >>> import formatter as frmt
 >>> from board import Board
->>> puzzle_lines = sudokuimg.puzzle_lines('../puzzles/picpuz1.png')
+>>> puzzle_lines = sudokuimg.puzzle_lines('../examples/puzzle.png')
 >>> puzzle = Board(lines=puzzle_lines)
 >>> print frmt.strfboard(puzzle, ascii_mode=True)
 .........................
-! _ _ _ ! _ 6 _ ! _ 3 _ !
-! 2 4 _ ! _ _ _ ! 1 _ _ !
-! _ _ 7 ! _ _ 2 ! _ _ 8 !
+! 1 _ _ ! 6 2 4 ! _ _ 8 !
+! 3 6 _ ! 7 _ _ ! 5 2 _ !
+! 4 _ _ ! _ _ _ ! _ _ 9 !
 !.......!.......!.......!
-! _ _ 1 ! 4 _ _ ! 3 _ 9 !
-! 7 _ _ ! 3 1 9 ! _ _ 2 !
-! 3 _ 6 ! _ _ 7 ! 5 _ _ !
+! _ _ _ ! 2 _ 7 ! _ _ _ !
+! _ _ _ ! _ _ _ ! _ 3 7 !
+! _ 3 _ ! 1 8 _ ! _ 9 _ !
 !.......!.......!.......!
-! 5 _ _ ! 7 _ _ ! 8 _ _ !
-! _ _ 2 ! _ _ _ ! _ 1 3 !
-! _ 7 _ ! _ 2 _ ! _ _ _ !
+! 2 _ 9 ! 3 1 _ ! _ _ _ !
+! _ _ _ ! _ _ 6 ! 1 _ _ !
+! _ 7 _ ! _ _ _ ! _ _ _ !
 !.......!.......!.......!
 
 """
@@ -276,16 +276,3 @@ def _get_rows_from_grid(image, threshold=0):
             in_cell = True
 
     return rows
-
-"""
-def main():
-    from sys import argv
-    filename = argv[1]
-    basename, ext = os.path.splitext(filename)
-    target_filename = "{}_bw{}".format(basename, ext)
-    _binarize_image(filename, target_filename)
-
-
-if __name__ == "__main__":
-    main()
-"""

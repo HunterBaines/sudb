@@ -8,9 +8,34 @@ import readline
 import rlcompleter
 
 class CommandMapper(object):
+    """A tool for automatically mapping command names to methods.
+
+    Parameters
+    ----------
+    obj : object instance
+        The instance whose methods are to be mapped.
+    pattern : str, optional
+        A regex string to use in filtering which methods to map (default
+        match all method names).
+    sep : str
+        The text to replace underscores in method names with (default ' ').
+
+    Attributes
+    ----------
+    LocalCompleter : class
+        A Completer instance that only matches the namespace it is
+        initialized with (instead of also matching Python built-ins).
+    commands : str-keyed dict with method items
+        A mapping of cleaned-up method names (e.g., 'help') to the method
+        itself (e.g., '_cmd_help').
+    completer : LocalCompleter instance
+        The engine for getting a full command name (e.g., 'help') from a
+        partial one (e.g., 'h').
+    """
 
     class LocalCompleter(rlcompleter.Completer):
         def global_matches(self, text):
+            # Patch global_matches in Completer to not match built-ins
             matches = []
             seen = set()
             n = len(text)
@@ -58,6 +83,20 @@ class CommandMapper(object):
 
 
     def completions(self, command_name):
+        """Return possible command completions for the given text.
+
+        Parameters
+        ----------
+        command_name : str
+            The text to attempt to complete (e.g., 'p').
+
+        Returns
+        -------
+        list of str
+            A list of possible command completions for the given text (e.g,
+            ['print', 'put']).
+        """
+
         if not command_name:
             return self.commands.keys()
 

@@ -154,9 +154,9 @@ def similar_puzzle(puzzle, seed, min_clues=17):
 
     See Also
     --------
-    minimize : another method for generating a puzzle from a given puzzle that
-            is (unlike this one) likely to generate a puzzle with the same
-            solution as the original.
+    minimize : another method for generating a puzzle from a given puzzle
+               that is (unlike this one) likely to generate a puzzle with
+               the same solution as the original.
 
     Notes
     -----

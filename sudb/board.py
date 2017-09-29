@@ -224,7 +224,8 @@ class Board(object):
         Returns
         -------
         int
-            The value at the given row, column of the board, or 0 if blank.
+            The value at the given row, column of the board, which will be
+            the value of BLANK if the location is empty.
 
         Raises
         ------
@@ -243,7 +244,7 @@ class Board(object):
         number : int
             The value to set the cell at (`row`, `col`) to, which should be
             in SUDOKU_NUMBERS unless the value represents a blank, in which
-            case, anything else will work, though 0 is preferred.
+            case, anything else will work, though BLANK is preferred.
         row : int
             The row in `board` to change, which must be in SUDOKU_ROWS.
             inclusive.
@@ -371,15 +372,13 @@ class Board(object):
     def is_complete(self):
         """Return whether the board has no blank cells.
 
-        Check for any cells in the board that are non-integers or 0 and
-        return False if any are found or True otherwise.
-
         Returns
         -------
         bool
             False if blanks found, True otherwise.
         """
 
+        # TODO: change to `return self.clue_count() == len(self.SUDOKU_CELLS)`
         return self.clue_count() == len(self.SUDOKU_ROWS) * len(self.SUDOKU_COLS)
 
     def is_consistent(self):

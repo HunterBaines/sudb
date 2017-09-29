@@ -64,8 +64,7 @@ class SolverController(object):
     options : Options instance
         The set of options to use during this session.
     command_history : list of str
-        A list of all commands entered during the session (excluding the
-        commands run from the `commands` parameter).
+        A list of all commands entered during the session.
     command_queue : collections.deque of str
         A deque of commands to run before taking additional input in the
         `solve` method.
@@ -114,7 +113,6 @@ class SolverController(object):
         STUCK = 2
         BREAK = 4
         QUIT = 8
-        # Used to allow a command to be called again just by typing RETURN
         REPEAT = 16
         MANGLE = 32
         OTHER = 64
@@ -180,12 +178,6 @@ class SolverController(object):
 
         Interpret commands entered by the user and work toward moving the
         instance's `puzzle` to its solved state.
-
-        Parameters
-        ----------
-        commands : list of str, optional
-            An optional list of commands to run before taking input
-            (default None).
 
         Returns
         -------

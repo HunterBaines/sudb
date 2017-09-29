@@ -251,6 +251,8 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
 
     Parameters
     ----------
+    board : Board instance
+        The board to format into a string.
     colormap : dict of tuple to Color constant, optional
         A mapping of row, column locations to a string constant in the
         Color class (default None).
@@ -488,6 +490,7 @@ def _candidate_cell_chars(candidates, size_id):
 
     if 1 in candidates or 2 in candidates or 9 in candidates:
         if 9 in candidates:
+            # 9 is represented by a circle
             if 1 in candidates and 2 not in candidates:
                 cell_chars[0] = '①'
             elif 1 not in candidates and 2 in candidates:

@@ -31,7 +31,7 @@ class Solver(object):
     solved_puzzle : Board instance
         The solved version of `puzzle` from which to draw guesses.
     move_history : list of namedtuple
-        A list of namedtuples describing the moves made in order from
+        A list of Move namedtuples describing the moves made in order from
         oldest to latest.
     """
 
@@ -223,6 +223,13 @@ class Solver(object):
         Attempt to solve the puzzle first using deduction and, if that
         proves insufficient, using guesses drawn from the solved board.
 
+        Parameters
+        ----------
+        allow_guessing : bool
+            False if all moves should be deduced or True if some may be
+            guessed (i.e., pulled from a version of the board solved by
+            non-deductive means).
+
         Returns
         -------
         bool
@@ -235,6 +242,7 @@ class Solver(object):
 
         while not solved:
             # If here, a guess is in order
+            #TODO: flip order to avoid unnecessary work
             if not self.step_best_guess() or not allow_guessing:
                 # The last move can't be a guess, so if here is_complete() would also be False
                 return False
@@ -405,10 +413,6 @@ class Solver(object):
         int tuple
             The (row, column) location changed, or an empty tuple if
             nothing changed.
-
-        See Also
-        --------
-        unstep : the undo method for this method.
         """
 
         guess = self.best_guess()
