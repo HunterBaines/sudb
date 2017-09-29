@@ -133,6 +133,9 @@ class SolverController(object):
             candidates displayed should be the default, and False if the
             most compact version (just clues and blanks) should be the
             default.
+        guessbreak : bool
+            True if the solver should always break on guessed moves, and
+            False otherwise.
         prompt : str
             The string to display on each line of command entry.
         width : int
@@ -154,6 +157,7 @@ class SolverController(object):
                             r'(^\s*\d\s*\d\s*\d)': r'stepm \1'}
             self.ascii = False
             self.markview = False
+            self.guessbreak = False
             self.prompt = '(sudb) '
             self.width = 0
             self.comment_char = '#'
@@ -1273,6 +1277,21 @@ class SolverController(object):
         print('UTF-8 output {}.'.format('enabled' if not ascii_mode else 'disabled'))
         return self.Status.OK
 
+    def _subcmd_set_guessbreak(self, argv, print_help=0):
+        if print_help == 1:
+            print('Toggle whether to break on guesses.')
+            return self.Status.OK
+        elif print_help == 2:
+            self._subcmd_set_guessbreak([], print_help=1)
+            print('Usage: set guessbreak')
+            return self.Status.OK
+
+        guessbreak = not self.options.guessbreak
+        self.options.guessbreak = guessbreak
+
+        print('Break on guesses {}.'.format('enabled' if guessbreak else 'disabled'))
+        return self.Status.OK
+
     def _subcmd_set_markview(self, argv, print_help=0):
         if print_help == 1:
             print('Toggle whether to always print the board with marks noted.')
@@ -1405,6 +1424,11 @@ class SolverController(object):
             # Check if at breakpoint
             user_location = self._zero_correct(*location, inverted=True)
             if self._is_breakpoint(*user_location):
+                return status | self.Status.BREAK
+
+            # Check if guessed move and if breaking should occur on guesses
+            if self.options.guessbreak and move_type == Solver.MoveType.GUESSED:
+                print('Breaking on guess; use "set guessbreak" to toggle off.')
                 return status | self.Status.BREAK
 
         return status | self.Status.OK
