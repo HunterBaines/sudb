@@ -63,6 +63,9 @@ class Solver(object):
         history_equal = (self.move_history == other.move_history)
         return puzzles_equal and history_equal
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
     def duplicate(self):
         """Return a duplicate of the solver instance.

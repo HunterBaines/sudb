@@ -13,7 +13,7 @@ class Error(object):
     ----------
     strerror : str
         A string description of the error.
-   
+
     Attributes
     ----------
     next_errno : int
@@ -35,6 +35,9 @@ class Error(object):
 
     def __eq__(self, other):
         return self.errno == other.errno
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __hash__(self):
         return self.errno
