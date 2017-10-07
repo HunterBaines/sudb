@@ -57,6 +57,12 @@ class Solver(object):
         self.solved_puzzle = None
         self.move_history = []
 
+    def __eq__(self, other):
+        puzzles_equal = (self.puzzle == other.puzzle)
+        puzzles_equal = puzzles_equal and (self.solved_puzzle == other.solved_puzzle)
+        history_equal = (self.move_history == other.move_history)
+        return puzzles_equal and history_equal
+
 
     def duplicate(self):
         """Return a duplicate of the solver instance.
