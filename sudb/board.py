@@ -167,7 +167,7 @@ class Board(object):
         return self.__key() == other.__key()
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        return not self == other
 
     def __hash__(self):
         return hash(self.__key())

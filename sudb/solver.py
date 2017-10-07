@@ -64,7 +64,7 @@ class Solver(object):
         return puzzles_equal and history_equal
 
     def __ne__(self, other):
-        return not self.__eq__(other)
+        return not self == other
 
 
     def duplicate(self):
