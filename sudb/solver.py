@@ -475,28 +475,30 @@ class Solver(object):
 
         Returns
         -------
-        list of int tuple
-            A list of number, row, column tuples that represent moves one
+        set of int tuple
+            A set of number, row, column tuples that represent moves one
             step removed from the current board that do not leave the board
             in an inconsistent state.
         """
 
-        next_moves = []
+        next_moves = set()
 
         for row in Board.SUDOKU_ROWS:
             for number in Board.SUDOKU_NUMBERS:
                 possible_locations = self.possible_locations_in_row(number, row)
-                next_moves.extend(list(possible_locations))
                 if row in Board.SUDOKU_COLS:
-                    possible_locations = self.possible_locations_in_column(number, row)
-                    next_moves.extend(list(possible_locations))
+                    other_possible_locations = self.possible_locations_in_column(number, row)
+                    possible_locations = possible_locations.union(other_possible_locations)
+                possible_moves = set([(number, r, c) for (r, c) in possible_locations])
+                next_moves = next_moves.union(possible_moves)
 
         # Finish up any column numbers not already seen in Board.SUDOKU_ROWS
         unique_cols = set(Board.SUDOKU_COLS) - set(Board.SUDOKU_ROWS)
         for col in unique_cols:
             for number in Board.SUDOKU_NUMBERS:
                 possible_locations = self.possible_locations_in_column(number, col)
-                next_moves.extend(list(possible_locations))
+                possible_moves = set([(number, r, c) for (r, c) in possible_locations])
+                next_moves = next_moves.union(possible_moves)
 
         return next_moves
 
