@@ -127,7 +127,7 @@ class Solver(object):
 
 
     def annotated_moves(self):
-        """Return a list of all moves with each's move type noted.
+        """Return a list of all moves in order with each's move type noted.
 
         Returns
         -------
@@ -145,7 +145,7 @@ class Solver(object):
         return moves
 
     def moves(self):
-        """Return a list of all moves made.
+        """Return a list of all moves made ordered from first to last.
 
         Returns
         -------
@@ -161,7 +161,7 @@ class Solver(object):
         return moves
 
     def deduced_moves(self):
-        """Return a list of all deduced moves.
+        """Return a list of all deduced moves ordered from first to last.
 
         Returns
         -------
@@ -175,7 +175,7 @@ class Solver(object):
         return self._filtered_moves(move_types)
 
     def guessed_moves(self):
-        """Return a list of all guessed moves.
+        """Return a list of all guessed moves ordered from first to last.
 
         Returns
         -------
@@ -189,7 +189,7 @@ class Solver(object):
         return self._filtered_moves(move_types)
 
     def manual_moves(self):
-        """Return a list of all guessed moves.
+        """Return a list of all guessed moves ordered from first to last.
 
         Returns
         -------
@@ -662,11 +662,11 @@ class Solver(object):
 
 
     def reasons(self):
-        """Return a list of locations that necessitated the last move.
+        """Return a set of locations that necessitated the last move.
 
         Returns
         -------
-        list of int tuple
+        set of int tuple
             The (row, column) locations that prevented the number in the
             last move from being placed at any row or column but the one it
             ended up in.
@@ -709,7 +709,7 @@ class Solver(object):
 
         reasons_for_last_move = reasons_for_last_move - set([(move_row, move_col)])
 
-        return list(reasons_for_last_move)
+        return reasons_for_last_move
 
 
     def all_solutions(self, algorithm=None):

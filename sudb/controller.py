@@ -424,9 +424,9 @@ class SolverController(object):
         move_type : MoveType constant, optional
             A move type, which tells the method what color to use on the
             location tuples in `locations` (default type of last move).
-        locations : list of int tuple, optional
-            A list of row, column tuples that represent locations to color
-            (default None).
+        locations : iterable of int tuple, optional
+            An iterable of row, column tuples that represent locations to
+            color (default None).
         solver : Solver instance, optional
             The solver whose board and move count to use (default
             `self.solver`).

@@ -220,8 +220,8 @@ def get_colormap(locations, color):
 
     Parameters
     ----------
-    locations : list of int tuple
-        A list of row, column locations to associate with the given
+    locations : iterable of int tuple
+        An iterable of row, column locations to associate with the given
         color.
     color : Color constant
         A string constant from Color to associate with the given locations.
