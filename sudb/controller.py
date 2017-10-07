@@ -757,11 +757,13 @@ class SolverController(object):
             return self.Status.OK
 
         if not numbers:
-            self.marks[(actual_row, actual_col)].clear()
+            del self.marks[(actual_row, actual_col)]
             print('Deleted all marks at ({}, {}).'.format(row, col))
             return self.Status.OK
 
         self.marks[(actual_row, actual_col)] -= set(numbers)
+        if not self.marks[(actual_row, actual_col)]:
+            del self.marks[(actual_row, actual_col)]
         print('Deleted from candidates for ({}, {}): {}.'.format(row, col, sorted(numbers)))
         return self.Status.OK
 
