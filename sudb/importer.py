@@ -189,6 +189,7 @@ def get_puzzles_from_file(filename=None):
     """
 
     lines = []
+    specify_lineno_in_name = False
 
     if filename is not None:
         try:
@@ -206,6 +207,7 @@ def get_puzzles_from_file(filename=None):
                 error.error(err.strerror.lower(), prelude=filename)
                 return []
         else:
+            specify_lineno_in_name = True
             # If we made it past urllib.urlretrieve, this shouldn't raise an IOError
             with open(filename, 'r') as puzzle_file:
                 lines = puzzle_file.read().split('\n')
@@ -224,10 +226,10 @@ def get_puzzles_from_file(filename=None):
                 break
         print
 
-    return get_puzzles_from_lines(lines, name=filename)
+    return get_puzzles_from_lines(lines, name=filename, specify_lineno=specify_lineno_in_name)
 
 
-def get_puzzles_from_lines(lines, name=None):
+def get_puzzles_from_lines(lines, name=None, specify_lineno=False):
     """Return a list of puzzles formed from the given lines.
 
     Parameters
@@ -238,6 +240,9 @@ def get_puzzles_from_lines(lines, name=None):
         exactly 9 elements and no whitespace.
     name : str, optional
         The name to save in the Board instances (default 'stdin').
+    specify_lineno : bool, optional
+        Whether to specify the line number the puzzle begins at in the
+        puzzle's name (e.g., 'puzzle.txt:1') (default False).
 
     Returns
     -------
@@ -249,14 +254,24 @@ def get_puzzles_from_lines(lines, name=None):
         name = 'stdin'
 
     puzzles = []
+    start_lineno = 0
 
     puzzle_lines = []
-    for line in lines:
+    for i, line in enumerate(lines):
         if len(line) != 9 or ' ' in line:
             continue
+
+        if specify_lineno and start_lineno == 0:
+            start_lineno = i + 1
         puzzle_lines.append(line)
+
         if len(puzzle_lines) == 9:
-            puzzle = Board(lines=puzzle_lines, name=name)
+            final_name = name
+            if specify_lineno:
+                final_name += ':{}'.format(start_lineno)
+                start_lineno = 0
+
+            puzzle = Board(lines=puzzle_lines, name=final_name)
             if puzzle is not None:
                 puzzles.append(puzzle)
             puzzle_lines = []
