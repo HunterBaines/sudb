@@ -1,0 +1,163 @@
+# For puzzle defined in puzzle1.txt:
+#080000000
+#000100875
+#106020003
+#004000001
+#700008000
+#009010280
+#360050007
+#000006000
+#000740030
+explain # To invoke explanation "initial board given"
+step 17
+explain # To invoke explanation "last blank in row"
+step 14
+explain # To invoke explanation "last blank in column"
+step 2
+explain # To invoke explanation "last blank in box"
+unstep 33
+checkpoint unstuck
+stepm 127
+finish # The solver will get stuck due to the previous stepm
+restart unstuck
+delete checkpoint unstuck
+step
+explain # To invoke row-wise coloring in explanation
+step 3 
+explain # To invoke column-wise coloring in explanation
+break 6 1 # To invoke already-passed comment
+del b 1
+restart myimaginarylabel # To invoke no-state-mapped-to-checkpoint code
+source # To invoke no-file-given code
+unstep 81 # To invoke no-steps-left-to-undo code
+b 1 1
+break 11 # To invoke redefined-breakpoint comment
+break 99
+check
+step 2
+checkpoint mylabel
+unstep
+s
+u 2
+stepm 118  # To invoke move-left-board-incosistent code
+stepm 115  # Breakpoint in stepm
+unstep
+stepm 1234 # To invoke exactly-three-args-required code
+stepm 256
+sm 3 4 8
+step   # This comment will be removed when parsing this command
+s 2
+858
+explain # To invoke explanation "manual move"
+step
+e
+mark 1 7 1
+m 1 7 4
+m 181
+m 012 # To invoke invalid-row code
+i m 01
+m 102 # To invoke invalid-col code
+i m 10
+i m 99 # To invoke no-matching-locations code
+x 01   # To invoke invalid-row code
+x 10   # To invoke invalid-col code
+x 9    # To invoke too-few-args code
+x 1 7
+x 18
+finish
+restart 0
+fin
+restart mylabel
+info checkpoint
+delete checkpoint 0
+del check mylabel
+i ch
+info breakpoint
+del break 1
+i break
+i marks
+del mark 171
+del mark 18
+print marks
+set width 70
+set width blah # To invoke arg-must-be-integer code
+set width      # To invoke one-arg-required code
+p m
+set width 0
+del mark 11 # To invoke no-marks-at-X code
+del mark 17
+print mark
+del mark    # To invoke no-marks-to-delete code
+# Undefined command
+oeubr c
+# Ambiguous command
+print c
+p candidates
+set width 70
+p can
+print
+check mynewlabel
+i check
+st 5
+p checkpoint mynewlabel
+del check mynewlabellll # invoke no-matching-checkpoints code
+del check mynewlabel myimaginarylabel # invoke no-checkpoint-matching-X code
+del check # invoke no-checkpoints-to-delete code
+set ascii
+p
+set ascii
+set guessbreak
+set guess
+set markview
+p
+set mark
+set prompt (sdb) 
+set prompt "sudb" 
+set prompt 's' 'd' 'b' 
+set prompt (sudb) 
+info
+help
+help delete
+help help
+help info
+help print
+help set
+help break
+help checkpoint
+help delete
+help delete breakpoints
+help delete checkpoints
+help delete marks
+help explain
+help finish
+help help help
+help info
+help info breakpoints
+help info checkpoints
+help info marks
+help mark
+help print
+help print candidates
+help print checkpoints
+help print marks
+help quit
+help restart
+help set
+help set ascii
+help set guessbreak
+help set markview
+help set prompt
+help set width
+help source
+help s
+help step
+help sm
+help stepm
+help unstep
+help x
+del b 2
+del b 3-9 # invoke no-breakpoint-number-X code
+del b 82  # invoke no-matching-breakpoints code
+del b     # invoke no-breakpoints code
+finish
+quit
