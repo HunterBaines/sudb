@@ -95,36 +95,6 @@ class Solver(object):
 
         return len(self.move_history)
 
-    def deduced_count(self):
-        """Return the number of deduced moves taken so far.
-
-        Returns
-        -------
-        int
-        """
-
-        return len(self.deduced_moves())
-
-    def guessed_count(self):
-        """Return the number of guessed moves taken so far.
-
-        Returns
-        -------
-        int
-        """
-
-        return len(self.guessed_moves())
-
-    def manual_count(self):
-        """Return the number of manual moves taken so far.
-
-        Returns
-        -------
-        int
-        """
-
-        return len(self.manual_moves())
-
 
     def annotated_moves(self):
         """Return a list of all moves in order with each's move type noted.
