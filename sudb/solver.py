@@ -645,7 +645,7 @@ class Solver(object):
         move_type = self.last_move_type()
         if move_type != self.MoveType.ROWWISE and move_type != self.MoveType.COLWISE:
             # No moves, or the move type is itself the reason for the move
-            return []
+            return set()
         # `last_move_type` would have reported MoveType.NONE if no moves
         number, move_row, move_col, _, _ = self.move_history[-1]
 
