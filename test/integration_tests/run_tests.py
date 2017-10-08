@@ -1,98 +1,56 @@
+#!/usr/bin/env python
+
 import os
 import sys
+import shutil
+import subprocess
+import tempfile
+
+
+# Path to test script relative to this script
+TEST_SCRIPT = 'tests.py'
+# The file containing the expected output
+EXPECTED_OUTFILE = 'expected_output.txt'
+# The filename to use for automatically saving output on failure
+SAVED_OUTFILE = 'actual_output.txt'
 
 
 def main():
-    #interpreter = 'python'
-    interpreter = 'coverage run --append --omit="/usr/local/lib/*"'
-    executable = '../../sudb/sudb.py'
-    test_all(interpreter, executable)
+    dir_of_script = os.path.dirname(os.path.realpath(__file__))
+    # So this script can be run from outside of its containing directory
+    os.chdir(dir_of_script)
 
+    actual_outfile = tempfile.NamedTemporaryFile()
 
-def run(command, print_command=True):
-    if print_command:
-        # To help with figuring out where things went wrong
-        sys.stderr.write('$ {}\n'.format(command))
-    os.system(command)
+    retval = subprocess.call(['python', TEST_SCRIPT], stdout=actual_outfile, stderr=actual_outfile)
+    if retval != 0:
+        test_path = os.path.join(dir_of_script, TEST_SCRIPT)
+        sys.stderr.write('ERROR: Attempt to run test script "{}" failed.\n'.format(test_path))
+        sys.exit(retval)
 
+    diff_command = 'diff {} {}'.format(EXPECTED_OUTFILE, actual_outfile.name)
+    retval = subprocess.call(diff_command.split())
+    if retval == 0:
+        try:
+            # This also relies on the working directory being the same as the script
+            subprocess.call(['coverage', 'report'])
+            print
+        except OSError:
+            # `coverage` isn't installed
+            pass
+        # `diff` returns 0 when the files are the same
+        print 'OK'
+    elif retval == 1:
+        # `diff` returns 1 when the files are different
+        saved_outfile_name = os.path.join(tempfile.tempdir, SAVED_OUTFILE)
+        shutil.copyfile(actual_outfile.name, saved_outfile_name)
+        print 'FAILED: Test output saved to "{}".'.format(saved_outfile_name)
+    elif retval == 2:
+        # `diff` returns 2 when an error has occurred
+        sys.stderr.write('ERROR: Command "{}" failed.\n'.format(diff_command))
 
-def test_all(interpreter, executable):
-    base_command = '{} {}'.format(interpreter, executable)
-
-    puzzle = 'puzzle1.txt'
-    # Test auto mode
-    command = '{} --file {} --auto --difference --ascii'.format(base_command, puzzle)
-    run(command)
-
-    # Test interactive mode
-    script = 'puzzle1_test_script.txt'
-    command = '{} --file {} --execute "source {}"'.format(base_command, puzzle, script)
-    run(command)
-
-    # Test line import
-    lines = '100624008 360700520 400000009 000207000 000000037'
-    lines += ' 030180090 209310000 000006100 070000000'
-    command = '{} --lines {} --auto'.format(base_command, lines)
-    run(command)
-
-    # Test minimizing
-    command = '{} --file {} --minimize --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test guessing
-    puzzle = 'puzzle2.txt'
-    script = 'puzzle2_test_script.txt'
-    command = '{} --file {} --execute "source {}"'.format(base_command, puzzle, script)
-    run(command)
-
-    # Test making satisfactory
-    command = '{} --file {} --satisfactory --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test minimizing and making satisfactory
-    command = '{} --file {} --minimize --satisfactory --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test generating
-    command = '{} --random 12345 --auto'.format(base_command)
-    run(command)
-    command = '{} --random 1 2 3 4 5 --auto'.format(base_command)
-    run(command)
-
-    # Test importing from image
-    puzzle = 'puzzle3.png'
-    command = '{} --file {} --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test importing from stdin
-    puzzle = 'puzzle4.txt'
-    command = 'cat {} | {} --auto'.format(puzzle, base_command)
-    run(command)
-
-    # Test importing multiple puzzles with alternate formats and titles
-    puzzle = 'puzzle5.txt'
-    command = '{} --file {} --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test importing from non-existent file
-    puzzle = 'fakefile.txt'
-    command = '{} --file {} --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test importing inconsistent puzzle
-    puzzle = 'puzzle6.txt'
-    command = '{} --file {} --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test importing improper puzzle
-    puzzle = 'puzzle7.txt'
-    command = '{} --file {} --auto'.format(base_command, puzzle)
-    run(command)
-
-    # Test importing and running script from stdin
-    puzzle = 'puzzle8.txt'
-    command = 'cat {} | {}'.format(puzzle, base_command)
-    run(command)
+    actual_outfile.close()
+    sys.exit(retval)
 
 
 if __name__ == '__main__':
