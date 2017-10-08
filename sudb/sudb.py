@@ -223,11 +223,8 @@ def _feed_mushroom(puzzle, one_side=False, other_side=False):
     if not one_side and not other_side:
         return
 
-    clue_change = puzzle.clue_count()
-
     if one_side:
-        generator.minimize(puzzle)
-        clue_change = puzzle.clue_count() - clue_change
+        clue_change = -1 * generator.minimize(puzzle)
         puzzle.name += ', {:+}'.format(clue_change)
 
         if other_side:
@@ -236,13 +233,10 @@ def _feed_mushroom(puzzle, one_side=False, other_side=False):
             puzzle.name += ' clue{}'.format('s' if clue_change != -1 else '')
 
     if other_side:
-        if one_side:
-            clue_change = puzzle.clue_count()
-        else:
+        if not one_side:
             puzzle.name += ', '
 
-        generator.make_satisfactory(puzzle)
-        clue_change = puzzle.clue_count() - clue_change
+        clue_change = generator.make_satisfactory(puzzle)
         puzzle.name += '{:+} clue{}'.format(clue_change, 's' if clue_change != 1 else '')
 
 
