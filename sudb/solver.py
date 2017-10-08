@@ -57,14 +57,17 @@ class Solver(object):
         self.solved_puzzle = None
         self.move_history = []
 
+    def __key(self):
+        return (hash(self.puzzle), hash(self.solved_puzzle), hash(tuple(self.move_history)))
+
     def __eq__(self, other):
-        puzzles_equal = (self.puzzle == other.puzzle)
-        puzzles_equal = puzzles_equal and (self.solved_puzzle == other.solved_puzzle)
-        history_equal = (self.move_history == other.move_history)
-        return puzzles_equal and history_equal
+        return self.__key() == other.__key()
 
     def __ne__(self, other):
         return not self == other
+
+    def __hash__(self):
+        return hash(self.__key())
 
 
     def duplicate(self):
