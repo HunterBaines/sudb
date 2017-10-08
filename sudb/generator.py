@@ -232,10 +232,15 @@ def minimize(puzzle, threshold=17):
 
     Notes
     -----
-    This method does not guarantee that the minimized puzzle will have the
-    same solution as the original, but that outcome is likely. The default
-    for `threshold` is 17 because that's the minimum number of clues needed
-    to guarantee a unique solution to the puzzle.[1]_
+    The default for `threshold` is 17 because that's the minimum number of
+    clues needed to guarantee a unique solution to the puzzle.[1]_ This
+    function does not check that the minimized puzzle has the same solution
+    as the original one, but that outcome should be inevitable: the
+    function only ever removes clues, and removing a clue from a Sudoku
+    will never remove a solution from the solution set; at most, doing so
+    adds one or more new solutions, and since the function undoes any
+    removals that increase the size of the solution set, the solution sets
+    of the original and the minimized puzzle have to be the same.
 
     References
     ----------
