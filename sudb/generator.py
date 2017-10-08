@@ -180,26 +180,34 @@ def similar_puzzle(puzzle, seed, min_clues=17):
 
 
 def make_satisfactory(puzzle):
-    """Add all clues that seem to require guessing.
+    """Add all clues that seem to require guessing; return amount added.
 
     Parameters
     ----------
     puzzle : Board instance
         The puzzle to make satisfactory by adding in non-deducible moves.
 
+    Returns
+    -------
+    int
+        The number of clues added.
+
     See Also
     --------
     minimize : a method that makes puzzles harder by removing clues.
     """
 
+    clues_added = 0
     solver = Solver(puzzle.duplicate())
     solver.autosolve()
     for move in solver.guessed_moves():
         puzzle.set_cell(*move)
+        clues_added += 1
+    return clues_added
 
 
 def minimize(puzzle, threshold=17):
-    """Remove clues not needed to guarantee a unique solution.
+    """Remove clues not needed for a unique solution; return amount removed.
 
     Remove all clues from `puzzle` that are not needed for it to have a
     single solution (provided it's initial clue count is above
@@ -212,6 +220,11 @@ def minimize(puzzle, threshold=17):
     threshold : int, optional
         Puzzles with their number of clues less than or equal to this value
         will not be minimized further (default 17).
+
+    Returns
+    -------
+    int
+        The number of clues removed.
 
     See Also
     --------
@@ -234,8 +247,9 @@ def minimize(puzzle, threshold=17):
     """
 
     if threshold < 17 or puzzle.clue_count() <= threshold:
-        return
+        return 0
 
+    overall_clues_removed = 0
     solver = Solver(puzzle)
 
     while True:
@@ -248,8 +262,12 @@ def minimize(puzzle, threshold=17):
                 puzzle.set_cell(num, row, col)
             else:
                 clues_removed += 1
+                overall_clues_removed += 1
         if not clues_removed:
             break
+
+    return overall_clues_removed
+
 
 def random_seed(rand_min=0, rand_max=2147483647):
     """Return a random integer between the given min and max.
