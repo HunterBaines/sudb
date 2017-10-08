@@ -1,4 +1,4 @@
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle1.txt --auto --difference --ascii
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle1.txt --auto --difference --ascii
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -18,7 +18,7 @@ End Board for Puzzle 1:
 (puzzle1.txt:1)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle1.txt --execute "source puzzle1_test_script.txt"
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle1.txt --execute "source puzzle1_test_script.txt"
 1 puzzle to solve.
 Starting solver on puzzle with ID "puzzle1.txt:1".
 
@@ -4744,7 +4744,7 @@ End Board for Puzzle 1:
 (puzzle1.txt:1)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000 --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000 --auto
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -4764,7 +4764,7 @@ End Board for Puzzle 1:
 (lines argument)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle1.txt --minimize --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle1.txt --minimize --auto
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -4784,7 +4784,7 @@ End Board for Puzzle 1:
 (puzzle1.txt:1, -1 clue)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle2.txt --execute "source puzzle2_test_script.txt"
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle2.txt --execute "source puzzle2_test_script.txt"
 1 puzzle to solve.
 Starting solver on puzzle with ID "puzzle2.txt:1".
 
@@ -5846,7 +5846,7 @@ End Board for Puzzle 1:
 (puzzle2.txt:1)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle2.txt --satisfactory --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle2.txt --satisfactory --auto
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -5866,7 +5866,7 @@ End Board for Puzzle 1:
 (puzzle2.txt:1, +1 clue)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle2.txt --minimize --satisfactory --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle2.txt --minimize --satisfactory --auto
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -5886,7 +5886,7 @@ End Board for Puzzle 1:
 (puzzle2.txt:1, -1/+1 clue)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --random 12345 --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --random 12345 --auto
 1 puzzle to solve.
 
 End Board for Puzzle 1:
@@ -5906,7 +5906,7 @@ End Board for Puzzle 1:
 (seed 12345)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --random 1 2 3 4 5 --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --random 1 2 3 4 5 --auto
 5 puzzles to solve.
 
 End Board for Puzzle 1:
@@ -5994,7 +5994,7 @@ End Board for Puzzle 5:
 (seed 5)
 
 Solved 5 of 5.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle3.png --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle3.png --auto
 warning: importing from image will likely work only on cleanly cropped
          images with sharp text and a high-contrast grid, and even
          then sometimes the resultant puzzle may have missing or
@@ -6018,7 +6018,7 @@ End Board for Puzzle 1:
 (puzzle3.png)
 
 Solved 1 of 1.
-$ cat puzzle4.txt | coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --auto
+$ cat puzzle4.txt | coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --auto
 Enter the 9 characters in each row of the puzzle(s) from top to
 bottom. Use 0 or any non-numerical, non-whitespace character to
 represent a blank in the puzzle. When done, type a period on a
@@ -6044,7 +6044,7 @@ End Board for Puzzle 1:
 (stdin)
 
 Solved 1 of 1.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle5.txt --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle5.txt --auto
 2 puzzles to solve.
 
 End Board for Puzzle 1:
@@ -6081,7 +6081,7 @@ End Board for Puzzle 2:
 (puzzle5.txt:13)
 
 Solved 2 of 2.
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file fakefile.txt --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file fakefile.txt --auto
 fakefile.txt: no such file or directory
 
 0 puzzles to solve.
@@ -6089,7 +6089,7 @@ Solved 0 of 0.
 
 Error Summary:
 1 case of import error
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle6.txt --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle6.txt --auto
 puzzle6.txt:2: puzzle has an inconsistent board:
 
                .........................
@@ -6128,7 +6128,7 @@ Solved 0 of 1.
 
 Error Summary:
 1 case of inconsistent board
-$ coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py --file puzzle7.txt --auto
+$ coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py --file puzzle7.txt --auto
 puzzle7.txt:2: puzzle contains fewer clues than the 17 required for a
                proper, single-solution Sudoku board
 1 puzzle to solve.
@@ -6153,7 +6153,7 @@ Solved 1 of 1.
 
 Error Summary:
 1 case of too few clues
-$ cat puzzle8.txt | coverage run --append --omit="/usr/local/lib/*" ../sudb/sudb.py
+$ cat puzzle8.txt | coverage run --append --omit="/usr/local/lib/*" ../../sudb/sudb.py
 Enter the 9 characters in each row of the puzzle(s) from top to
 bottom. Use 0 or any non-numerical, non-whitespace character to
 represent a blank in the puzzle. When done, type a period on a

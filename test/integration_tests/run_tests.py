@@ -5,7 +5,7 @@ import sys
 def main():
     #interpreter = 'python'
     interpreter = 'coverage run --append --omit="/usr/local/lib/*"'
-    executable = '../sudb/sudb.py'
+    executable = '../../sudb/sudb.py'
     test_all(interpreter, executable)
 
 
