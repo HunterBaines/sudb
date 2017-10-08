@@ -49,6 +49,42 @@ class TestSolverMethods(unittest.TestCase):
         self.assertTrue(duplicate_solver != self.solver)
         self.assertFalse(duplicate_solver == self.solver)
 
+    def test_hash(self):
+        duplicate_solver = self.solver.duplicate()
+
+        # Basic hash test
+        self.assertEqual(hash(duplicate_solver), hash(self.solver))
+        # Things that hash the same should report being equal
+        self.assertEqual(duplicate_solver, self.solver)
+
+        # Test use with sets
+        solver_set = {self.solver}
+        solver_set.add(duplicate_solver)
+        self.assertEqual(len(solver_set), 1)
+
+        # Test use with dicts
+        solver_dict = {self.solver: 1}
+        solver_dict[duplicate_solver] = 2
+        self.assertEqual(len(solver_dict), 1)
+        self.assertEqual(solver_dict[self.solver], 2)
+
+        # Test that changing an attribute changes the hash
+        different_board_solver = self.solver.duplicate()
+        different_board_solver.puzzle = Board()
+        self.assertNotEqual(hash(different_board_solver), hash(self.solver))
+        self.assertNotEqual(different_board_solver, self.solver)
+
+        different_solved_board_solver = self.solver.duplicate()
+        different_solved_board_solver.solved_puzzle = Board()
+        self.assertNotEqual(hash(different_solved_board_solver), hash(self.solver))
+        self.assertNotEqual(different_solved_board_solver, self.solver)
+
+        different_move_history_solver = self.solver.duplicate()
+        different_move_history_solver.step_manual(0, 0, 0)
+        self.assertNotEqual(hash(different_move_history_solver), hash(self.solver))
+        self.assertNotEqual(different_move_history_solver, self.solver)
+
+
     def test_all_solutions(self):
         for alg in self.algorithms:
             duplicate_solver = self.solver.duplicate()
