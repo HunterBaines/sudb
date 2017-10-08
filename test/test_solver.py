@@ -143,6 +143,13 @@ class TestSolverMethods(unittest.TestCase):
         duplicate_solver.step()
         # Changing one should not change the other
         self.assertNotEqual(self.solver, duplicate_solver)
+        duplicate_solver = self.solver.duplicate()
+        # Test duplicating when `solved_puzzle` is defined
+        duplicate_solver.solved_puzzle = self.solved_board.duplicate()
+        new_duplicate_solver = duplicate_solver.duplicate()
+        # Changing `solved_puzzle` here should not change it in `new_duplicate_solver`
+        duplicate_solver.solved_puzzle.set_cell(Board.BLANK, 0, 0)
+        self.assertEqual(new_duplicate_solver.solved_puzzle, self.solved_board)
 
     def test_guessed_moves(self):
         duplicate_solver = self.solver.duplicate()
@@ -157,6 +164,8 @@ class TestSolverMethods(unittest.TestCase):
 
     def test_last_move_type(self):
         duplicate_solver = self.solver.duplicate()
+        # When no moves have been made, the move type should be NONE
+        self.assertEqual(duplicate_solver.last_move_type(), Solver.MoveType.NONE)
         for given_move_type in self.INITIAL_MOVE_TYPES:
             location = duplicate_solver.step()
             if not location:
@@ -205,10 +214,24 @@ class TestSolverMethods(unittest.TestCase):
             actual_location_set = self.solver.possible_locations_in_column(num, col)
             self.assertEqual(actual_location_set, expected_location_set)
 
+        with self.assertRaises(ValueError):
+            # Invalid number
+            self.solver.possible_locations_in_column(-1, 1)
+        with self.assertRaises(ValueError):
+            # Invalid column
+            self.solver.possible_locations_in_column(1, -1)
+
     def test_possible_locations_in_row(self):
         for ((num, row), expected_location_set) in self.POSSIBLE_IN_ROW.items():
             actual_location_set = self.solver.possible_locations_in_row(num, row)
             self.assertEqual(actual_location_set, expected_location_set)
+
+        with self.assertRaises(ValueError):
+            # Invalid number
+            self.solver.possible_locations_in_row(-1, 1)
+        with self.assertRaises(ValueError):
+            # Invalid row
+            self.solver.possible_locations_in_row(1, -1)
 
     def test_possible_next_moves(self):
         expected_next_moves = set()
@@ -227,6 +250,10 @@ class TestSolverMethods(unittest.TestCase):
 
     def test_reasons(self):
         duplicate_solver = self.solver.duplicate()
+        locations = duplicate_solver.reasons()
+        # If no move has been made, `reasons` should return empty set
+        self.assertFalse(locations)
+
         breakpoints = self.REASONS.keys()
         while breakpoints and not duplicate_solver.puzzle.is_complete():
             location = duplicate_solver.step()
@@ -260,14 +287,40 @@ class TestSolverMethods(unittest.TestCase):
         self.assertEqual(duplicate_solver.move_count(), 1)
         self.assertEqual(duplicate_solver.last_move_type(), Solver.MoveType.GUESSED)
 
+        # Test how it reacts to an unsolvable puzzle
+        duplicate_solver.autosolve()
+        correct_num = duplicate_solver.puzzle.get_cell(0, 0)
+        inconsistent_num = (set(Board.SUDOKU_NUMBERS) - {correct_num}).pop()
+        duplicate_solver.puzzle.set_cell(inconsistent_num, 0, 0)
+        location = duplicate_solver.step_best_guess()
+        # `step_best_guess` should return an empty tuple if `best_guess` fails
+        self.assertFalse(location)
+
     def test_step_manual(self):
         duplicate_solver = self.solver.duplicate()
+
+        with self.assertRaises(ValueError):
+            # Invalid row
+            duplicate_solver.step_manual(0, -1, 0)
+        with self.assertRaises(ValueError):
+            # Invalid column
+            duplicate_solver.step_manual(0, 0, -1)
+
         blank_locations = duplicate_solver.puzzle.differences(self.solved_board)
         for (row, col) in blank_locations:
             num = self.solved_board.get_cell(row, col)
             duplicate_solver.step_manual(num, row, col)
         self.assertEqual(len(duplicate_solver.manual_moves()), len(blank_locations))
         self.assertEqual(duplicate_solver.puzzle, self.solved_board)
+
+        correct_num = duplicate_solver.puzzle.get_cell(0, 0)
+        inconsistent_num = (set(Board.SUDOKU_NUMBERS) - {correct_num}).pop()
+        location = duplicate_solver.step_manual(inconsistent_num, 0, 0)
+        # Test that `step_manual` rejects inconsistent moves by returning empty tuple
+        self.assertFalse(location)
+        # Test that the puzzle was not actually changed
+        self.assertTrue(duplicate_solver.puzzle.is_consistent())
+
 
     def test_step_until_stuck(self):
         duplicate_solver = self.solver.duplicate()
@@ -285,6 +338,8 @@ class TestSolverMethods(unittest.TestCase):
 
     def test_unstep(self):
         duplicate_solver = self.solver.duplicate()
+        # `unstep` should return empty tuple if nothing to unstep
+        self.assertFalse(self.solver.unstep())
         location = duplicate_solver.step()
         if not location:
             duplicate_solver.step_best_guess()
