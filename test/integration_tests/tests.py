@@ -1,10 +1,22 @@
-import os
+# Author: Hunter Baines <0x68@protonmail.com>
+# Copyright: (C) 2017 Hunter Baines
+# License: GNU GPL version 3
+
 import sys
+import subprocess
 
 
 def main():
-    #interpreter = 'python'
-    interpreter = 'coverage run --append --omit="/usr/local/lib/*"'
+    interpreter = 'python'
+    null = open('/dev/null', 'w')
+    try:
+        # See if `coverage` is installed
+        subprocess.call('coverage', stdout=null, stderr=null)
+        interpreter = 'coverage run --append --omit="/usr/local/lib/*"'
+    except OSError:
+        pass
+    finally:
+        null.close()
     executable = '../../sudb/sudb.py'
     test_all(interpreter, executable)
 
@@ -13,14 +25,14 @@ def run(command, print_command=True):
     if print_command:
         # To help with figuring out where things went wrong
         sys.stderr.write('$ {}\n'.format(command))
-    os.system(command)
+    return subprocess.call(command, shell=True)
 
 
 def test_all(interpreter, executable):
     base_command = '{} {}'.format(interpreter, executable)
 
-    puzzle = 'puzzle1.txt'
     # Test auto mode
+    puzzle = 'puzzle1.txt'
     command = '{} --file {} --auto --difference --ascii'.format(base_command, puzzle)
     run(command)
 
