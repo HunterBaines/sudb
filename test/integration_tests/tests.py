@@ -10,8 +10,8 @@ def main():
     interpreter = 'python'
     null = open('/dev/null', 'w')
     try:
-        # See if `coverage` is installed
-        subprocess.call('coverage', stdout=null, stderr=null)
+        # See if `coverage` is installed, and erase previous results if so
+        subprocess.call(['coverage', 'erase'], stdout=null, stderr=null)
         interpreter = 'coverage run --append --omit="/usr/local/lib/*"'
     except OSError:
         pass
