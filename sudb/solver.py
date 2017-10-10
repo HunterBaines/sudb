@@ -26,6 +26,8 @@ class Solver(object):
         column of the cell), replaced (the value in the cell before this
         move), and move_type (the MoveType constant associated with the
         move).
+    DEDUCTIVE_MOVE_TYPES : list of MoveType constant
+        A list of MoveType constants that indicate a deduced move.
     puzzle : Board instance
         The puzzle board to solve.
     solved_puzzle : Board instance
@@ -50,6 +52,8 @@ class Solver(object):
         DIFFERENCE = 7
 
     Move = namedtuple('Move', 'number row column replaced move_type')
+
+    DEDUCTIVE_MOVE_TYPES = [MoveType.ROWWISE, MoveType.COLWISE]
 
 
     def __init__(self, puzzle):
@@ -144,8 +148,7 @@ class Solver(object):
             that location was assigned based on a deduction.
         """
 
-        move_types = [self.MoveType.ROWWISE, self.MoveType.COLWISE]
-        return self._filtered_moves(move_types)
+        return self._filtered_moves(self.DEDUCTIVE_MOVE_TYPES)
 
     def guessed_moves(self):
         """Return a list of all guessed moves ordered from first to last.
@@ -634,8 +637,15 @@ class Solver(object):
         return possible_numbers
 
 
-    def reasons(self):
+    def reasons(self, override_move_type=None):
         """Return a set of locations that necessitated the last move.
+
+        Parameters
+        ----------
+        override_move_type : MoveType constant, optional
+            A MoveType constant to use in place of the actual move type,
+            which can be used to find reasons for move types that cannot
+            otherwise be explained (e.g., MoveType.MANUAL) (default None).
 
         Returns
         -------
@@ -645,11 +655,12 @@ class Solver(object):
             ended up in.
         """
 
-        move_type = self.last_move_type()
-        if move_type != self.MoveType.ROWWISE and move_type != self.MoveType.COLWISE:
+        move_type = self.last_move_type() if override_move_type is None else override_move_type
+
+        if move_type not in self.DEDUCTIVE_MOVE_TYPES:
             # No moves, or the move type is itself the reason for the move
             return set()
-        # `last_move_type` would have reported MoveType.NONE if no moves
+        # `move_type` would have been MoveType.NONE if no moves
         number, move_row, move_col, _, _ = self.move_history[-1]
 
         reasons_for_last_move = set()
@@ -661,10 +672,13 @@ class Solver(object):
             chosen_line = rows[move_row]
             other_lines = columns
             rowwise = True
-        else:
+        elif move_type == self.MoveType.COLWISE:
             chosen_line = columns[move_col]
             other_lines = rows
             rowwise = False
+        else:
+            # This should never occur
+            return set()
 
         for other, value in enumerate(chosen_line):
             location = (move_row, other) if rowwise else (other, move_col)
