@@ -102,19 +102,85 @@ class Board(object):
             return Board.box_containing_cell(row, col)
 
     @staticmethod
+    def band_containing_cell(row, col):
+        """Return the id of the band containing the given location.
+
+        Parameters
+        ----------
+        row : int
+            A row of the board, which must be in the range defined in
+            SUDOKU_ROWS.
+        col : int
+            A column of the board, which must be in the range defined in
+            SUDOKU_COLS.
+
+        Returns
+        -------
+        int
+            An int between 0 and 2 inclusive that identifies which band the
+            location occurs in (where 0 is the topmost band, 1 is the
+            middle, and 2 is the bottommost).
+
+        Raises
+        ------
+        KeyError
+            When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
+            respectively.
+        """
+
+        box, _ = Board.box_containing_cell(row, col)
+        return box / 3
+
+    @staticmethod
+    def stack_containing_cell(row, col):
+        """Return the id of the stack containing the given location.
+
+        Parameters
+        ----------
+        row : int
+            A row of the board, which must be in the range defined in
+            SUDOKU_ROWS.
+        col : int
+            A column of the board, which must be in the range defined in
+            SUDOKU_COLS.
+
+        Returns
+        -------
+        int
+            An int between 0 and 2 inclusive that identifies which stack
+            the location occurs in (where 0 is the leftmost band, 1 is the
+            middle, and 2 is the rightmost).
+
+        Raises
+        ------
+        KeyError
+            When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
+            respectively.
+        """
+
+        box, _ = Board.box_containing_cell(row, col)
+        return box % 3
+
+
+    @staticmethod
     def cells_in_box(box):
         """Return a list of cell locations in the given box.
 
         Parameters
         ----------
         box : int
-            The box to get locations for.
+            The box index (between 0 and 8 inclusive) to get locations for.
 
         Returns
         -------
         list of int tuple
-            A list of (row, column) tuples representing cell locations the
+            A list of (row, column) tuples representing cell locations that
             lie within the given box.
+
+        Raises
+        ------
+        ValueError
+            When `box` is not between 0 and 8 inclusive.
         """
 
         try:
@@ -126,6 +192,72 @@ class Board(object):
                     box_, _ = Board.box_containing_cell(row, col)
                     Board.cells_in_box.box_cells_map[box_].append((row, col))
             return Board.cells_in_box(box)
+        except KeyError:
+            raise ValueError('box argument {} not between 0 and 8 inclusive'.format(box))
+
+    @staticmethod
+    def cells_in_band(band):
+        """Return a list of cell locations in the given band.
+
+        Parameters
+        ----------
+        band : int
+            The band id (between 0 and 2 inclusive) to get locations for.
+
+        Returns
+        -------
+        list of int tuple
+            A list of (row, column) tuples representing cell locations that
+            lie within the given band.
+
+        Raises
+        ------
+        ValueError
+            When `band` is not between 0 and 2 inclusive.
+        """
+
+        if band < 0 or band > 2:
+            raise ValueError('band argument {} not between 0 and 2 inclusive'.format(band))
+
+        cells = []
+        leftmost_box = band * 3
+        # Map band=0 to boxes=[0,1,2]; band=1 to boxes=[3,4,5]; etc.
+        for box in range(leftmost_box, leftmost_box + 3):
+            cells.extend(Board.cells_in_box(box))
+
+        return cells
+
+    @staticmethod
+    def cells_in_stack(stack):
+        """Return a list of cell locations in the given stack.
+
+        Parameters
+        ----------
+        stack : int
+            The stack id (between 0 and 2 inclusive) to get locations for.
+
+        Returns
+        -------
+        list of int tuple
+            A list of (row, column) tuples representing cell locations that
+            lie within the given stack.
+
+        Raises
+        ------
+        ValueError
+            When `stack` is not between 0 and 2 inclusive.
+        """
+
+        if stack < 0 or stack > 2:
+            raise ValueError('stack argument {} not between 0 and 2 inclusive'.format(stack))
+
+        cells = []
+        uppermost_box = stack
+        # Map stack=0 o boxes=[0,3,6]; stack=1 to boxes=[1,4,7]; etc.
+        for box in range(uppermost_box, uppermost_box + 7, 3):
+            cells.extend(Board.cells_in_box(box))
+
+        return cells
 
 
     def __init__(self, lines=None, board=None, name=None):
