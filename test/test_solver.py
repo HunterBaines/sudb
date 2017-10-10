@@ -300,6 +300,15 @@ class TestSolverMethods(unittest.TestCase):
                 expected_reasons = self.REASONS[location]
                 actual_reasons = duplicate_solver.reasons()
                 self.assertEqual(actual_reasons, expected_reasons)
+
+                # Test that making same move manually returns same reasons
+                move_type = duplicate_solver.last_move_type()
+                num = duplicate_solver.puzzle.get_cell(*location)
+                duplicate_solver.unstep()
+                duplicate_solver.step_manual(num, *location)
+                manual_reasons = duplicate_solver.reasons(override_move_type=move_type)
+                self.assertEqual(manual_reasons, actual_reasons)
+
         self.assertFalse(breakpoints)
 
     def test_solution_count(self):
