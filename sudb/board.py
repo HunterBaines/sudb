@@ -33,6 +33,15 @@ class Board(object):
     SUDOKU_COLS : list of int
         A list of column numbers that methods with a `col` parameter will
         accept.
+    SUDOKU_BOXES : list of int
+        A list of box numbers that methods with a `box` parameter will
+        accept.
+    SUDOKU_BANDS : list of int
+        A list of band numbers that methods with a `band` parameter will
+        accept.
+    SUDOKU_STACKS : list of int
+        A list of stack numbers that methods with a `stack` parameter will
+        accept.
     SUDOKU_CELLS : list of int tuple
         A list of (row, column) pairs representing the locations for every
         cell in the board.
@@ -58,6 +67,9 @@ class Board(object):
     # The rows and columns are zero-indexed
     SUDOKU_ROWS = range(9)
     SUDOKU_COLS = SUDOKU_ROWS
+    SUDOKU_BOXES = SUDOKU_ROWS
+    SUDOKU_BANDS = range(3)
+    SUDOKU_STACKS = SUDOKU_BANDS
     SUDOKU_CELLS = [(row, col) for row in SUDOKU_ROWS for col in SUDOKU_COLS]
     BLANK = 0
 
@@ -169,7 +181,8 @@ class Board(object):
         Parameters
         ----------
         box : int
-            The box index (between 0 and 8 inclusive) to get locations for.
+            The box index to get locations for, which must be in
+            SUDOKU_BOXES.
 
         Returns
         -------
@@ -180,7 +193,7 @@ class Board(object):
         Raises
         ------
         ValueError
-            When `box` is not between 0 and 8 inclusive.
+            When `box` is not in SUDOKU_BOXES.
         """
 
         try:
@@ -193,7 +206,7 @@ class Board(object):
                     Board.cells_in_box.box_cells_map[box_].append((row, col))
             return Board.cells_in_box(box)
         except KeyError:
-            raise ValueError('box argument {} not between 0 and 8 inclusive'.format(box))
+            raise ValueError('invalid box argument {}'.format(box))
 
     @staticmethod
     def cells_in_band(band):
@@ -202,7 +215,8 @@ class Board(object):
         Parameters
         ----------
         band : int
-            The band id (between 0 and 2 inclusive) to get locations for.
+            The band id to get locations for, which must be in
+            SUDOKU_BANDS.
 
         Returns
         -------
@@ -213,11 +227,11 @@ class Board(object):
         Raises
         ------
         ValueError
-            When `band` is not between 0 and 2 inclusive.
+            When `band` is not in SUDOKU_BANDS.
         """
 
-        if band < 0 or band > 2:
-            raise ValueError('band argument {} not between 0 and 2 inclusive'.format(band))
+        if band not in Board.SUDOKU_BANDS:
+            raise ValueError('invalid band argument {}'.format(band))
 
         cells = []
         leftmost_box = band * 3
@@ -234,7 +248,8 @@ class Board(object):
         Parameters
         ----------
         stack : int
-            The stack id (between 0 and 2 inclusive) to get locations for.
+            The stack id to get locations for, which must be in
+            SUDOKU_STACKS.
 
         Returns
         -------
@@ -245,11 +260,11 @@ class Board(object):
         Raises
         ------
         ValueError
-            When `stack` is not between 0 and 2 inclusive.
+            When `stack` is not in SUDOKU_STACKS.
         """
 
-        if stack < 0 or stack > 2:
-            raise ValueError('stack argument {} not between 0 and 2 inclusive'.format(stack))
+        if stack not in Board.SUDOKU_STACKS:
+            raise ValueError('invalid stack argument {}'.format(stack))
 
         cells = []
         uppermost_box = stack
@@ -258,6 +273,58 @@ class Board(object):
             cells.extend(Board.cells_in_box(box))
 
         return cells
+
+    @staticmethod
+    def cells_in_row(row):
+        """Return a list of cell locations in the given row.
+
+        Parameters
+        ----------
+        stack : int
+            The row index to get locations for, which must be in
+            SUDOKU_ROWS.
+
+        Returns
+        -------
+        list of int tuple
+            A list of (row, column) tuples representing cell locations that
+            lie within the given row.
+
+        Raises
+        ------
+        ValueError
+            When `row` is not in SUDOKU_ROWS.
+        """
+
+        if row not in Board.SUDOKU_ROWS:
+            raise ValueError('invalid row argument {}'.format(row))
+        return [(row, col) for col in Board.SUDOKU_COLS]
+
+    @staticmethod
+    def cells_in_column(col):
+        """Return a list of cell locations in the given column.
+
+        Parameters
+        ----------
+        stack : int
+            The column index to get locations for, which must be in
+            SUDOKU_COLS.
+
+        Returns
+        -------
+        list of int tuple
+            A list of (row, column) tuples representing cell locations that
+            lie within the given column.
+
+        Raises
+        ------
+        ValueError
+            When `col` is not in SUDOKU_COLS.
+        """
+
+        if col not in Board.SUDOKU_COLS:
+            raise ValueError('invalid column argument {}'.format(col))
+        return [(row, col) for row in Board.SUDOKU_ROWS]
 
 
     def __init__(self, lines=None, board=None, name=None):
