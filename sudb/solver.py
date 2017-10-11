@@ -9,7 +9,7 @@ from board import Board
 
 
 class Solver(object):
-    """A Sudoku solver with a move history.
+    """A 9x9 Sudoku solver with a move history.
 
     Parameters
     ----------
@@ -35,6 +35,12 @@ class Solver(object):
     move_history : list of namedtuple
         A list of Move namedtuples describing the moves made in order from
         oldest to latest.
+    step_order : list of tuple
+        A list of (int, int, bool) tuples where the first element is a
+        number in `Board.SUDOKU_NUMBERS`, the second element is a row in
+        `Board.SUDOKU_ROWS` or a column in `Board.SUDOKU_COLS`, and the
+        third element is a bool that's True if the previous element
+        represents a row and False if it represents a column.
     """
 
     class MoveType(IntEnum):
@@ -61,8 +67,17 @@ class Solver(object):
         self.solved_puzzle = None
         self.move_history = []
 
+        self.step_order = []
+        assert Board.SUDOKU_ROWS == Board.SUDOKU_COLS
+        for row in Board.SUDOKU_ROWS:
+            for number in Board.SUDOKU_NUMBERS:
+                self.step_order.append((number, row, True))
+                # Treat `row` as a column value (hence assertion above)
+                self.step_order.append((number, row, False))
+
     def __key(self):
-        return (hash(self.puzzle), hash(self.solved_puzzle), hash(tuple(self.move_history)))
+        return (hash(self.puzzle), hash(self.solved_puzzle),
+                hash(tuple(self.move_history)), hash(tuple(self.step_order)))
 
     def __eq__(self, other):
         return self.__key() == other.__key()
@@ -89,6 +104,7 @@ class Solver(object):
         if self.solved_puzzle:
             new_solver.solved_puzzle = self.solved_puzzle.duplicate()
         new_solver.move_history = self.move_history[:]
+        new_solver.step_order = self.step_order[:]
         return new_solver
 
 
@@ -273,28 +289,12 @@ class Solver(object):
         unstep : the undo method for this method.
         """
 
-        for row in Board.SUDOKU_ROWS:
-            for number in Board.SUDOKU_NUMBERS:
-                move_type = self.MoveType.ROWWISE
-                possible_locations = self.possible_locations_in_row(number, row)
-                if len(possible_locations) != 1 and row in Board.SUDOKU_COLS:
-                    # Row-wise deduction failed, so try column-wise
-                    move_type = self.MoveType.COLWISE
-                    possible_locations = self.possible_locations_in_column(number, row)
-
-                if len(possible_locations) == 1:
-                    move_row, move_col = possible_locations.pop()
-                    return self._install_move(number, move_row, move_col, move_type)
-
-        # Finish up any column numbers not already seen in Board.SUDOKU_ROWS
-        unique_cols = set(Board.SUDOKU_COLS) - set(Board.SUDOKU_ROWS)
-        for col in unique_cols:
-            for number in Board.SUDOKU_NUMBERS:
-                possible_locations = self.possible_locations_in_column(number, col)
-                if len(possible_locations) == 1:
-                    move_row, move_col = possible_locations.pop()
-                    return self._install_move(number, move_row, move_col, self.MoveType.COLWISE)
-
+        for number, line, rowwise in self.step_order:
+            possible_locations = self._possible_locations_in_line(number, line, rowwise)
+            if len(possible_locations) == 1:
+                move_row, move_col = possible_locations.pop()
+                move_type = self.MoveType.ROWWISE if rowwise else self.MoveType.COLWISE
+                return self._install_move(number, move_row, move_col, move_type)
         return ()
 
     def _install_move(self, number, row, col, move_type):
