@@ -8,35 +8,43 @@
 #360050007
 #000006000
 #000740030
-checkpoint unstuck
+checkpoint beginning
 explain # To invoke explanation "initial board given"
-step 17
-explain # To invoke explanation "last blank in row"
-step 14
-explain # To invoke explanation "last blank in column"
-step 2
-explain # To invoke explanation "last blank in box"
-restart unstuck
+step 15
+exp     # To invoke explanation "last blank in column"
+step 3
+ex      # To invoke explanation "last blank in row"
+step 6
+e       # To invoke explanation "last blank in box"
+step 6
+explain # To invoke compound explanation "last blank in row and box"
+restart beginning
 stepm 256 # To get a rowwise explanation on a manual move
 explain
 step 2
-stepm 61 6 # To get a colwise explanation on a manual move
+stepm 47 7 # To get a colwise explanation on a manual move
 explain
-restart unstuck
+restart beginning
 stepm 8 29 # To get a partial rowwise explanation on a manual move
 explain
 unstep
  5 2 1 # To get a partial colwise explanation on a manual move
 explain
-unstep
+un
 sm 630 # Blank out (6, 3) to remove reason for next stepm
 stepm 829 # To invoke no-reason-found code
 explain
-restart unstuck
+u 2 # Back to start
+s 13
+expl # A boxwise explanation
+uns
+858 # Redo boxwise move manually
+explain # Is it explained boxwise or rowwise?
+restart beginning
 stepm 127
 finish # The solver will get stuck due to the previous stepm
-restart unstuck
-delete checkpoint unstuck
+restart beginning
+delete checkpoint beginning
 step
 explain # To invoke row-wise coloring in explanation
 step 3 
@@ -46,6 +54,9 @@ del b 1
 restart myimaginarylabel # To invoke no-state-mapped-to-checkpoint code
 source # To invoke no-file-given code
 unstep 81 # To invoke no-steps-left-to-undo code
+st 9
+explain # To inokve box-wise coloring in explanation
+unstep 9
 b 1 1
 break 11 # To invoke redefined-breakpoint comment
 break 99
@@ -61,10 +72,9 @@ unstep
 stepm 1234 # To invoke exactly-three-args-required code
 stepm 256
 sm 3 4 8
-step   # This comment will be removed when parsing this command
+step
 s 2
-858    # This is equivalent to stepm 858
-explain # To invoke explanation "manual move"
+858     # This is equivalent to stepm 858
 step
 e
 mark 1 7 1
@@ -99,10 +109,11 @@ set width 70
 set width blah # To invoke arg-must-be-integer code
 set width      # To invoke one-arg-required code
 p m
-set width 0
+set width 0  # restore defaults
 del mark 11 # To invoke no-marks-at-X code
 del mark 17
 print mark
+i marks  # To invoke no-matching-locations code
 del mark    # To invoke no-marks-to-delete code
 # Undefined command
 oeubr c
@@ -170,11 +181,34 @@ help step
 help sm
 help stepm
 help unstep
+help sb
+help stepb
+help sc
+help stepc
+help sr
+help stepr
 help x
 del b 2
 del b 3-9 # invoke no-breakpoint-number-X code
 del b 82  # invoke no-matching-breakpoints code
 del b     # invoke no-breakpoints code
+step -1   # invoke integer-out-of-range code
+unstep 81
+s 10
+stepr 8 3 # step with priority on row 8 for 3 steps
+sr 8
+stepc 9 4 # step with priority on col 9 for 4 steps
+sc 9 2
+stepb 6   # step with priority on box 6 for 1 steps
+sb 6 2
+sb 5 4
+stepr # invoke row-arg-required code
+stepc # invoke col-arg-required code
+stepb # invoke box-arg-required code
+sr 0  # invoke invalid-row code
+sc 0  # invoke invalid-col code
+sb 0  # invoke invalid-box code
+stepr 1 81 # finish off puzzle
 f
 e  # invoke last-blank-in-row-column-and-box code
 quit
