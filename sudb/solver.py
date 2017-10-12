@@ -372,9 +372,9 @@ class Solver(object):
             # `self._necessary_move_cache` may suggests deductions no longer
             # necessary on the new board with fewer clues; or it could be
             # because a known clue was overwritten or some other bad clue was
-            # added---too much can go wrong to make trying to reset
-            # `self._necessary_move_cache` to `{}` conditionally worth it.
-            self._necessary_move_cache = {}
+            # added---too much can go wrong to make flushing the cache
+            # conditionally worth it
+            self.flush_step_cache()
             self._fill_necessary_move_cache()
 
         for row, col in reversed(self.step_order):
@@ -393,6 +393,18 @@ class Solver(object):
 
         return ()
 
+    def flush_step_cache(self):
+        """Remove all cached necessary moves.
+
+        Notes
+        -----
+        This, unlike other methods operating on `_necessary_move_cache`, is
+        public because flushing the cache can be useful, for example, when
+        trying to prevent `step` from getting hung up on cached moves while
+        trying to prioritize some locations.
+        """
+
+        self._necessary_move_cache = {}
 
     def _necessary_move_cache_valid(self):
         if not self._necessary_move_cache:
