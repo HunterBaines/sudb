@@ -2,7 +2,7 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from enum import IntEnum
 
 from board import Board
@@ -35,12 +35,10 @@ class Solver(object):
     move_history : list of namedtuple
         A list of Move namedtuples describing the moves made in order from
         oldest to latest.
-    step_order : list of tuple
-        A list of (int, int, bool) tuples where the first element is a
-        number in `Board.SUDOKU_NUMBERS`, the second element is a row in
-        `Board.SUDOKU_ROWS` or a column in `Board.SUDOKU_COLS`, and the
-        third element is a bool that's True if the previous element
-        represents a row and False if it represents a column.
+    step_order : int-tuple-keyed OrderedDict with None items
+        An OrderedDict mapping (row, column) locations to None; `step` will
+        attempt deductions proceeding backwards starting from the location
+        at the end of this dict.
     """
 
     class MoveType(IntEnum):
@@ -51,33 +49,38 @@ class Solver(object):
         NONE = 0
         ROWWISE = 1
         COLWISE = 2
-        GUESSED = 3
-        MANUAL = 4
-        CORRECTED = 5
-        REASON = 6
-        DIFFERENCE = 7
+        BOXWISE = 3
+        GUESSED = 4
+        MANUAL = 5
+        CORRECTED = 6
+        REASON = 7
+        DIFFERENCE = 8
 
     Move = namedtuple('Move', 'number row column replaced move_type')
 
-    DEDUCTIVE_MOVE_TYPES = [MoveType.ROWWISE, MoveType.COLWISE]
+    DEDUCTIVE_MOVE_TYPES = [MoveType.ROWWISE, MoveType.COLWISE, MoveType.BOXWISE]
 
 
     def __init__(self, puzzle):
+        assert isinstance(puzzle, Board)
+        # Other methods rely on these assumptions
+        assert Board.SUDOKU_ROWS == Board.SUDOKU_COLS
+        assert Board.SUDOKU_ROWS == Board.SUDOKU_BOXES
+
         self.puzzle = puzzle
         self.solved_puzzle = None
         self.move_history = []
 
-        self.step_order = []
-        assert Board.SUDOKU_ROWS == Board.SUDOKU_COLS
-        for row in Board.SUDOKU_ROWS:
-            for number in Board.SUDOKU_NUMBERS:
-                self.step_order.append((number, row, True))
-                # Treat `row` as a column value (hence assertion above)
-                self.step_order.append((number, row, False))
+        # For fast, key-based delete and append
+        self.step_order = OrderedDict()
+        # `step` iterates through `step_order` in reverse
+        for row, col in reversed(Board.SUDOKU_CELLS):
+            # The value doesn't matter; `step_order` is used like an ordered set
+            self.step_order[(row, col)] = None
 
     def __key(self):
-        return (hash(self.puzzle), hash(self.solved_puzzle),
-                hash(tuple(self.move_history)), hash(tuple(self.step_order)))
+        return (hash(self.puzzle), hash(self.solved_puzzle), hash(tuple(self.move_history)),
+                hash(tuple(self.step_order.keys())))
 
     def __eq__(self, other):
         return self.__key() == other.__key()
@@ -104,7 +107,7 @@ class Solver(object):
         if self.solved_puzzle:
             new_solver.solved_puzzle = self.solved_puzzle.duplicate()
         new_solver.move_history = self.move_history[:]
-        new_solver.step_order = self.step_order[:]
+        new_solver.step_order = self.step_order.copy()
         return new_solver
 
 
@@ -218,6 +221,77 @@ class Solver(object):
         return self.move_history[-1].move_type
 
 
+    def prioritize_row(self, row):
+        """Prioritize the cells in the given row when stepping.
+
+        Parameters
+        ----------
+        row : int
+            The row to prioritize, which must be in `Board.SUDOKU_ROWS`.
+
+        Raises
+        ------
+        ValueError
+            When `row` is not in `Board.SUDOKU_ROWS`.
+        """
+
+        self.prioritize_cells(Board.cells_in_row(row))
+
+    def prioritize_column(self, col):
+        """Prioritize the cells in the given column when stepping.
+
+        Parameters
+        ----------
+        col : int
+            The column to prioritize, which must be in `Board.SUDOKU_COLS`.
+
+        Raises
+        ------
+        ValueError
+            When `col` is not in `Board.SUDOKU_COLS`.
+        """
+
+        self.prioritize_cells(Board.cells_in_column(col))
+
+    def prioritize_box(self, box):
+        """Prioritize the cells in the given box when stepping.
+
+        Parameters
+        ----------
+        box : int
+            The box to prioritize, which must be `Board.SUDOKU_BOXES`.
+
+        Raises
+        ------
+        ValueError
+            When `box` is not in `Board.SUDOKU_BOXES`.
+        """
+
+        self.prioritize_cells(Board.cells_in_box(box))
+
+    def prioritize_cells(self, cells):
+        """Prioritize the given cells when stepping.
+
+        Parameters
+        ----------
+        cells : iterable of int tuple
+            An iterable of (row, column) locations to prioritize, which
+            each must be in `Board.SUDOKU_CELLS`.
+
+        Raises
+        ------
+        ValueError
+            When an int tuple in `cells` is not in `Board.SUDOKU_CELLS`.
+        """
+
+        for location in reversed(cells):
+            if location not in Board.SUDOKU_CELLS:
+                raise ValueError('invalid location {}'.format(location))
+            del self.step_order[location]
+            # Add to end of dict (which is where `step` starts)
+            self.step_order[location] = None
+
+
     def autosolve(self, allow_guessing=True):
         """Solve the puzzle while maintaining a move history.
 
@@ -226,10 +300,10 @@ class Solver(object):
 
         Parameters
         ----------
-        allow_guessing : bool
+        allow_guessing : bool, optional
             False if all moves should be deduced or True if some may be
             guessed (i.e., pulled from a version of the board solved by
-            non-deductive means).
+            non-deductive means) (default True).
 
         Returns
         -------
@@ -243,8 +317,7 @@ class Solver(object):
 
         while not solved:
             # If here, a guess is in order
-            #TODO: flip order to avoid unnecessary work
-            if not self.step_best_guess() or not allow_guessing:
+            if not allow_guessing or not self.step_best_guess():
                 # The last move can't be a guess, so if here is_complete() would also be False
                 return False
             self.step_until_stuck()
@@ -289,12 +362,34 @@ class Solver(object):
         unstep : the undo method for this method.
         """
 
-        for number, line, rowwise in self.step_order:
-            possible_locations = self._possible_locations_in_line(number, line, rowwise)
-            if len(possible_locations) == 1:
-                move_row, move_col = possible_locations.pop()
-                move_type = self.MoveType.ROWWISE if rowwise else self.MoveType.COLWISE
-                return self._install_move(number, move_row, move_col, move_type)
+        necessary_move_dict = {}
+
+        # This assumes SUDOKU_ROWS == SUDOKU_COLS == SUDOKU_BOXES
+        for line in Board.SUDOKU_ROWS:
+            for number in Board.SUDOKU_NUMBERS:
+                for move_type in self.DEDUCTIVE_MOVE_TYPES:
+                    locations = set()
+
+                    if move_type == self.MoveType.ROWWISE:
+                        locations = self.possible_locations_in_row(number, line)
+                    elif move_type == self.MoveType.COLWISE:
+                        locations = self.possible_locations_in_column(number, line)
+                    elif move_type == self.MoveType.BOXWISE:
+                        locations = self.possible_locations_in_box(number, line)
+
+                    if len(locations) == 1:
+                        row, col = locations.pop()
+                        necessary_move_dict[(row, col)] = (number, move_type)
+                        # No other move types need to be considered
+                        break
+
+        for row, col in reversed(self.step_order):
+            try:
+                number, move_type = necessary_move_dict[(row, col)]
+                return self._install_move(number, row, col, move_type)
+            except KeyError:
+                pass
+
         return ()
 
     def _install_move(self, number, row, col, move_type):
@@ -468,15 +563,57 @@ class Solver(object):
                 possible_moves = set([(number, r, c) for (r, c) in possible_locations])
                 next_moves = next_moves.union(possible_moves)
 
-        # Finish up any column numbers not already seen in Board.SUDOKU_ROWS
-        unique_cols = set(Board.SUDOKU_COLS) - set(Board.SUDOKU_ROWS)
-        for col in unique_cols:
-            for number in Board.SUDOKU_NUMBERS:
-                possible_locations = self.possible_locations_in_column(number, col)
-                possible_moves = set([(number, r, c) for (r, c) in possible_locations])
-                next_moves = next_moves.union(possible_moves)
-
         return next_moves
+
+    def possible_locations_in_box(self, number, box):
+        """Return viable locations for number in a specified box.
+
+        Parameters
+        ----------
+        number : int
+            The value in Board.SUDOKU_NUMBERS to attempt to find viable
+            locations in the box for.
+        box : int
+            The box to try placing `number` in, which must be in
+            Board.SUDOKU_BOXES.
+
+        Returns
+        -------
+        set of int tuple
+            A set of (row, column) locations in the `box` where `number`
+            could be placed in `puzzle` without making the board
+            inconsistent.
+
+        Raises
+        ------
+        ValueError
+            When `number` is not in Board.SUDOKU_NUMBERS or `box` is not in
+            Board.SUDOKU_BOXES.
+        """
+
+        if number not in Board.SUDOKU_NUMBERS:
+            min_val, max_val = min(Board.SUDOKU_NUMBERS), max(Board.SUDOKU_NUMBERS)
+            raise ValueError('number must be between {} and {} inclusive'.format(min_val, max_val))
+
+        if box not in Board.SUDOKU_BOXES:
+            min_val, max_val = min(Board.SUDOKU_BOXES), max(Board.SUDOKU_BOXES)
+            raise ValueError('box must be between {} and {} inclusive'.format(min_val, max_val))
+
+        possible_locations = set()
+
+        rows = self.puzzle.rows()
+        columns = self.puzzle.columns()
+
+        for (row, col) in Board.cells_in_box(box):
+            cell_number = self.puzzle.get_cell(row, col)
+            if cell_number == Board.BLANK:
+                if number not in rows[row] and number not in columns[col]:
+                    possible_locations.add((row, col))
+            elif cell_number == number:
+                # Number already in box
+                return set()
+
+        return possible_locations
 
     def possible_locations_in_row(self, number, row):
         """Return viable locations for number in a specified row.
@@ -493,7 +630,7 @@ class Solver(object):
         Returns
         -------
         set of int tuple
-            A set of (row, column) locations in the box where `number`
+            A set of (row, column) locations in the `row` where `number`
             could be placed in `puzzle` without making the board
             inconsistent.
 
@@ -526,7 +663,7 @@ class Solver(object):
         Returns
         -------
         set of int tuple
-            A set of (row, column) locations in the box where `number`
+            A set of (row, column) locations in the `col` where `number`
             could be placed in `puzzle` without making the board
             inconsistent.
 
@@ -676,9 +813,25 @@ class Solver(object):
             chosen_line = columns[move_col]
             other_lines = rows
             rowwise = False
+        elif move_type == self.MoveType.BOXWISE:
+            move_box, _ = Board.box_containing_cell(move_row, move_col)
+            for (row, col) in Board.cells_in_box(move_box):
+                if self.puzzle.get_cell(row, col) != Board.BLANK:
+                    continue
+
+                if number in rows[row]:
+                    associated_col = rows[row].index(number)
+                    reasons_for_last_move.add((row, associated_col))
+
+                if number in columns[col]:
+                    associated_row = columns[col].index(number)
+                    reasons_for_last_move.add((associated_row, col))
+            # Remove location of move from set if its in there
+            reasons_for_last_move -= {(move_row, move_col)}
+            return reasons_for_last_move
         else:
             # This should never occur
-            return set()
+            raise NotImplementedError('no code to handle deductive move type {}'.format(move_type))
 
         for other, value in enumerate(chosen_line):
             location = (move_row, other) if rowwise else (other, move_col)
