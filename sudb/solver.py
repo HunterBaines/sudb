@@ -78,6 +78,9 @@ class Solver(object):
             # The value doesn't matter; `step_order` is used like an ordered set
             self.step_order[(row, col)] = None
 
+        self._necessary_move_cache = {}
+        self._puzzle_hash_cache = None
+
     def __key(self):
         return (hash(self.puzzle), hash(self.solved_puzzle), hash(tuple(self.move_history)),
                 hash(tuple(self.step_order.keys())))
@@ -362,35 +365,83 @@ class Solver(object):
         unstep : the undo method for this method.
         """
 
-        necessary_move_dict = {}
-
-        # This assumes SUDOKU_ROWS == SUDOKU_COLS == SUDOKU_BOXES
-        for line in Board.SUDOKU_ROWS:
-            for number in Board.SUDOKU_NUMBERS:
-                for move_type in self.DEDUCTIVE_MOVE_TYPES:
-                    locations = set()
-
-                    if move_type == self.MoveType.ROWWISE:
-                        locations = self.possible_locations_in_row(number, line)
-                    elif move_type == self.MoveType.COLWISE:
-                        locations = self.possible_locations_in_column(number, line)
-                    elif move_type == self.MoveType.BOXWISE:
-                        locations = self.possible_locations_in_box(number, line)
-
-                    if len(locations) == 1:
-                        row, col = locations.pop()
-                        necessary_move_dict[(row, col)] = (number, move_type)
-                        # No other move types need to be considered
-                        break
+        if not self._necessary_move_cache_valid():
+            # Start over clean in case here because `self._puzzle_hash_cache`
+            # didn't match current hash: this could be because the puzzle has
+            # been unstepped or clues have otherwise been removed, so
+            # `self._necessary_move_cache` may suggests deductions no longer
+            # necessary on the new board with fewer clues; or it could be
+            # because a known clue was overwritten or some other bad clue was
+            # added---too much can go wrong to make trying to reset
+            # `self._necessary_move_cache` to `{}` conditionally worth it.
+            self._necessary_move_cache = {}
+            self._fill_necessary_move_cache()
 
         for row, col in reversed(self.step_order):
             try:
-                number, move_type = necessary_move_dict[(row, col)]
-                return self._install_move(number, row, col, move_type)
+                number, move_type = self._necessary_move_cache[(row, col)]
+                self._install_move(number, row, col, move_type)
+
+                # Update row/column/boxes that the move may have affected
+                box, _ = Board.box_containing_cell(row, col)
+                self._fill_necessary_move_cache(rows=[row], columns=[col], boxes=[box])
+                del self._necessary_move_cache[(row, col)]
+
+                return (row, col)
             except KeyError:
                 pass
 
         return ()
+
+
+    def _necessary_move_cache_valid(self):
+        if not self._necessary_move_cache:
+            return False
+        if self._puzzle_hash_cache != hash(self.puzzle):
+            return False
+        return True
+
+    def _fill_necessary_move_cache(self, numbers=None, rows=None, columns=None, boxes=None):
+        numbers = Board.SUDOKU_NUMBERS if numbers is None else numbers
+        rows = Board.SUDOKU_ROWS if rows is None else rows
+        columns = Board.SUDOKU_COLS if columns is None else columns
+        boxes = Board.SUDOKU_BOXES if boxes is None else boxes
+
+        for number in numbers:
+            columns_to_skip = set()
+            boxes_to_skip = set()
+
+            for row in rows:
+                locations = self.possible_locations_in_row(number, row)
+                if len(locations) == 1:
+                    move_row, move_col = locations.pop()
+                    move_type = self.MoveType.ROWWISE
+                    self._necessary_move_cache[(move_row, move_col)] = (number, move_type)
+                    columns_to_skip.add(move_col)
+                    box, _ = Board.box_containing_cell(move_row, move_col)
+                    boxes_to_skip.add(box)
+
+            for col in columns:
+                if col in columns_to_skip:
+                    continue
+                locations = self.possible_locations_in_column(number, col)
+                if len(locations) == 1:
+                    move_row, move_col = locations.pop()
+                    move_type = self.MoveType.COLWISE
+                    self._necessary_move_cache[(move_row, move_col)] = (number, move_type)
+                    box, _ = Board.box_containing_cell(move_row, move_col)
+                    boxes_to_skip.add(box)
+
+            for box in boxes:
+                if box in boxes_to_skip:
+                    continue
+                locations = self.possible_locations_in_box(number, box)
+                if len(locations) == 1:
+                    move_row, move_col = locations.pop()
+                    move_type = self.MoveType.BOXWISE
+                    self._necessary_move_cache[(move_row, move_col)] = (number, move_type)
+
+        self._puzzle_hash_cache = hash(self.puzzle)
 
     def _install_move(self, number, row, col, move_type):
         replaced = self.puzzle.get_cell(row, col)
@@ -398,6 +449,7 @@ class Solver(object):
         move = self.Move(number, row, col, replaced, move_type)
         self.move_history.append(move)
         return (row, col)
+
 
     def unstep(self):
         """Restore that last stepped location; return location.
@@ -426,6 +478,7 @@ class Solver(object):
         self.puzzle.set_cell(old_number, row, col)
 
         return (row, col)
+
 
     def step_manual(self, number, row, col):
         """Set the location in puzzle to a specified value; return location.
@@ -479,6 +532,7 @@ class Solver(object):
         self.move_history.append(move)
 
         return (row, col)
+
 
     def step_best_guess(self):
         """Set a location in puzzle to a guessed value; return location.
