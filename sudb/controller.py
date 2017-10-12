@@ -153,6 +153,9 @@ class SolverController(object):
             # with '^' matches, so distinguishing between it and the '\s'
             # matches with slightly different patterns is unnecessary.)
             self.aliases = {r'(^|\s)s(\s|$)': r' step ',
+                            r'(^|\s)sb(\s|$)': r' stepb ',
+                            r'(^|\s)sc(\s|$)': r' stepc ',
+                            r'(^|\s)sr(\s|$)': r' stepr ',
                             r'(^|\s)sm(\s|$)': r' stepm ',
                             r'(^\s*\d\s*\d\s*\d)': r'stepm \1'}
             self.ascii = False
@@ -494,7 +497,7 @@ class SolverController(object):
             pass
         elif treat_move_type_as_reason or move_type == Solver.MoveType.REASON:
             title += ' (reasons)'
-            # If `move_type` is `REASON`, the move type to use in interpreting 
+            # If `move_type` is `REASON`, the move type to use in interpreting
             # the reasons will equal `self.solver.last_move_type()`
             colormap = self._get_reasons_colormap(locations, move_type, solver=solver)
         elif move_type == Solver.MoveType.GUESSED:
@@ -580,6 +583,23 @@ class SolverController(object):
                             colormap[(box_row, original_col)] = NONVIABLE_BLANK_COLOR
                 elif self.puzzle.get_cell(row, original_col) == Board.BLANK:
                     colormap[(row, original_col)] = NONVIABLE_BLANK_COLOR
+        elif reported_move_type == Solver.MoveType.BOXWISE:
+            original_box, _ = Board.box_containing_cell(original_row, original_col)
+            box_cells = Board.cells_in_box(original_box)
+
+            original_band = Board.band_containing_cell(original_row, original_col)
+            original_stack = Board.stack_containing_cell(original_row, original_col)
+
+            for row, col in locations:
+                band = Board.band_containing_cell(row, col)
+                stack = Board.stack_containing_cell(row, col)
+                for box_row, box_col in box_cells:
+                    box_number = self.solver.puzzle.get_cell(box_row, box_col)
+                    if box_number == Board.BLANK:
+                        if band == original_band and box_row == row:
+                            colormap[(row, box_col)] = NONVIABLE_BLANK_COLOR
+                        if stack == original_stack and box_col == col:
+                            colormap[(box_row, col)] = NONVIABLE_BLANK_COLOR
 
         return colormap
 
@@ -863,7 +883,10 @@ class SolverController(object):
             # See if manual move can be explained by known deductive methods
             max_locations = 0
             for deductive_type in Solver.DEDUCTIVE_MOVE_TYPES:
-                # Find best explanation for manual move
+                #TODO: max reasons does not necessarily equal best explanation:
+                # a single location may make nonviable all other locations in
+                # a box, whereas two location may make nonviable less than all
+                # locations in a column or row
                 possible_reasons = self.solver.reasons(override_move_type=deductive_type)
                 if len(possible_reasons) > max_locations:
                     # Try to find explanation with most locations (NB this
@@ -1546,6 +1569,115 @@ class SolverController(object):
 
         return self.Status.OK
 
+    def _cmd_stepb(self, argv, print_help=0):
+        if print_help == 1:
+            print('Step for one or more moves in given box (if possible).')
+            return self.Status.OK
+        elif print_help == 2:
+            self._cmd_stepb([], print_help=1)
+            print('Usage: stepb BOX [INTEGER]')
+            print()
+            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
+                           'stuck or at a breakpoint). If not given, 1 is assumed.',
+                           'Boxes are numbered from 1 to 9 starting with 1 in the top left box,',
+                           'moving from left to right, and ending with 9 in the bottom right box.',
+                           'Regardless of any ambiguity, "sb" may be used for "stepb".')
+            return self.Status.OK
+
+        args = argv[1:]
+
+        try:
+            box_str = args[0]
+            box = int(box_str)
+            assert Board.SUDOKU_ROWS == Board.SUDOKU_BOXES
+            actual_box = self._zero_correct_row(box)
+            if actual_box not in Board.SUDOKU_BOXES:
+                raise ValueError
+        except IndexError:
+            print('Box argument required.')
+            return self.Status.OTHER
+        except ValueError:
+            print('Invalid box {}'.format(box_str))
+            return self.Status.OTHER
+
+        saved_step_order = self.solver.step_order.copy()
+        self.solver.prioritize_box(actual_box)
+        args[0] = 'step'
+        status = self._cmd_step(args)
+        self.solver.step_order = saved_step_order
+        return status
+
+
+    def _cmd_stepc(self, argv, print_help=0):
+        if print_help == 1:
+            print('Step for one or more moves in given column (if possible).')
+            return self.Status.OK
+        elif print_help == 2:
+            self._cmd_stepc([], print_help=1)
+            print('Usage: stepc COL [INTEGER]')
+            print()
+            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
+                           'stuck or at a breakpoint). If not given, 1 is assumed.',
+                           'Regardless of any ambiguity, "sc" may be used for "stepc".')
+            return self.Status.OK
+
+        args = argv[1:]
+
+        try:
+            col_str = args[0]
+            col = int(col_str)
+            actual_col = self._zero_correct_column(col)
+            if actual_col not in Board.SUDOKU_COLS:
+                raise ValueError
+        except IndexError:
+            print('Column argument required.')
+            return self.Status.OTHER
+        except ValueError:
+            print('Invalid column {}'.format(col_str))
+            return self.Status.OTHER
+
+        saved_step_order = self.solver.step_order.copy()
+        self.solver.prioritize_column(actual_col)
+        args[0] = 'step'
+        status = self._cmd_step(args)
+        self.solver.step_order = saved_step_order
+        return status
+
+    def _cmd_stepr(self, argv, print_help=0):
+        if print_help == 1:
+            print('Step for one or more moves in given row (if possible).')
+            return self.Status.OK
+        elif print_help == 2:
+            self._cmd_stepr([], print_help=1)
+            print('Usage: stepr ROW [INTEGER]')
+            print()
+            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
+                           'stuck or at a breakpoint). If not given, 1 is assumed.',
+                           'Regardless of any ambiguity, "sr" may be used for "stepr".')
+            return self.Status.OK
+
+        args = argv[1:]
+
+        try:
+            row_str = args[0]
+            row = int(row_str)
+            actual_row = self._zero_correct_row(row)
+            if actual_row not in Board.SUDOKU_ROWS:
+                raise ValueError
+        except IndexError:
+            print('Row argument required.')
+            return self.Status.OTHER
+        except ValueError:
+            print('Invalid row {}'.format(row_str))
+            return self.Status.OTHER
+
+        saved_step_order = self.solver.step_order.copy()
+        self.solver.prioritize_row(actual_row)
+        args[0] = 'step'
+        status = self._cmd_step(args)
+        self.solver.step_order = saved_step_order
+        return status
+
     def _cmd_unstep(self, argv, print_help=0):
         if print_help == 1:
             print('Undo one or more steps or stepm\'s.')
@@ -1554,9 +1686,9 @@ class SolverController(object):
             self._cmd_unstep([], print_help=1)
             print('Usage: unstep [INTEGER]')
             print()
-            self.printwrap('Argument INTEGER means to unstep the last [INTEGER] steps or stepm\'s.',
-                           'If not given, 1 is assumed. Note that unstepping does not trigger',
-                           'breakpoints.')
+            self.printwrap('Argument INTEGER means to unstep the last [INTEGER] steps.',
+                           'If not given, 1 is assumed. This works on all step variants.',
+                           'Note that unstepping does not trigger breakpoints.')
             return self.Status.OK
 
         status = self.Status.REPEAT
@@ -1630,16 +1762,24 @@ class SolverController(object):
                                                                          ' '.join(argv[1:])))
             return self.Status.OTHER
 
+
     def _zero_correct(self, row, col, inverted=False):
+        actual_row = self._zero_correct_row(row, inverted=inverted)
+        actual_col = self._zero_correct_column(col, inverted=inverted)
+        return actual_row, actual_col
+
+    def _zero_correct_row(self, row, inverted=False):
         actual_row = row
         if Board.SUDOKU_ROWS[0] == 0:
             actual_row += -1 if not inverted else 1
+        return actual_row
 
+    def _zero_correct_column(self, col, inverted=False):
         actual_col = col
         if Board.SUDOKU_COLS[0] == 0:
             actual_col += -1 if not inverted else 1
+        return actual_col
 
-        return actual_row, actual_col
 
     def _validate_cell(self, row, col):
         actual_row, actual_col = self._zero_correct(row, col)
