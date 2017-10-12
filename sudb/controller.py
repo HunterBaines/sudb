@@ -1527,6 +1527,7 @@ class SolverController(object):
 
         return status | self.Status.OK
 
+
     def _cmd_stepm(self, argv, print_help=0):
         if print_help == 1:
             print('Manually set cell at given location to given number.')
@@ -1569,6 +1570,7 @@ class SolverController(object):
 
         return self.Status.OK
 
+
     def _cmd_stepb(self, argv, print_help=0):
         if print_help == 1:
             print('Step for one or more moves in given box (if possible).')
@@ -1584,10 +1586,16 @@ class SolverController(object):
                            'Regardless of any ambiguity, "sb" may be used for "stepb".')
             return self.Status.OK
 
+        status = self.Status.REPEAT
         args = argv[1:]
 
         try:
             box_str = args[0]
+            if len(box_str) > 1:
+                # Interpret `stepb 82` as `stepb 8 2`
+                repeat_arg = box_str[1:]
+                args.insert(1, repeat_arg)
+                box_str = box_str[0]
             box = int(box_str)
             assert Board.SUDOKU_ROWS == Board.SUDOKU_BOXES
             actual_box = self._zero_correct_row(box)
@@ -1600,13 +1608,8 @@ class SolverController(object):
             print('Invalid box {}'.format(box_str))
             return self.Status.OTHER
 
-        saved_step_order = self.solver.step_order.copy()
-        self.solver.prioritize_box(actual_box)
-        args[0] = 'step'
-        status = self._cmd_step(args)
-        self.solver.step_order = saved_step_order
-        return status
-
+        cells = Board.cells_in_box(actual_box)
+        return self._priority_step_backend(args, cells)
 
     def _cmd_stepc(self, argv, print_help=0):
         if print_help == 1:
@@ -1625,6 +1628,10 @@ class SolverController(object):
 
         try:
             col_str = args[0]
+            if len(col_str) > 1:
+                repeat_arg = col_str[1:]
+                args.insert(1, repeat_arg)
+                col_str = col_str[0]
             col = int(col_str)
             actual_col = self._zero_correct_column(col)
             if actual_col not in Board.SUDOKU_COLS:
@@ -1636,12 +1643,8 @@ class SolverController(object):
             print('Invalid column {}'.format(col_str))
             return self.Status.OTHER
 
-        saved_step_order = self.solver.step_order.copy()
-        self.solver.prioritize_column(actual_col)
-        args[0] = 'step'
-        status = self._cmd_step(args)
-        self.solver.step_order = saved_step_order
-        return status
+        cells = Board.cells_in_column(actual_col)
+        return self._priority_step_backend(args, cells)
 
     def _cmd_stepr(self, argv, print_help=0):
         if print_help == 1:
@@ -1660,6 +1663,10 @@ class SolverController(object):
 
         try:
             row_str = args[0]
+            if len(row_str) > 1:
+                repeat_arg = row_str[1:]
+                args.insert(1, repeat_arg)
+                row_str = row_str[0]
             row = int(row_str)
             actual_row = self._zero_correct_row(row)
             if actual_row not in Board.SUDOKU_ROWS:
@@ -1671,12 +1678,33 @@ class SolverController(object):
             print('Invalid row {}'.format(row_str))
             return self.Status.OTHER
 
-        saved_step_order = self.solver.step_order.copy()
-        self.solver.prioritize_row(actual_row)
+        cells = Board.cells_in_row(actual_row)
+        return self._priority_step_backend(args, cells)
+
+    def _priority_step_backend(self, args, priority_cells):
+        status = self.Status.REPEAT
+
         args[0] = 'step'
-        status = self._cmd_step(args)
+        repeats = self._get_repeats(args)
+        args = args[:1]
+
+        # Save original `step_order`
+        saved_step_order = self.solver.step_order.copy()
+        self.solver.prioritize_cells(priority_cells)
+
+        for _ in range(repeats):
+            # Avoid getting hung up on cached moves outside of location
+            self.solver.flush_step_cache()
+            status = status | self._cmd_step(args)
+            # Unnecessary parentheses for clarity
+            if not (status & self.Status.OK):
+                break
+
+        # Restore original `step_order`
         self.solver.step_order = saved_step_order
-        return status
+
+        return status | self.Status.OK
+
 
     def _cmd_unstep(self, argv, print_help=0):
         if print_help == 1:
