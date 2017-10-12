@@ -16,7 +16,10 @@ class TestSolverMethods(unittest.TestCase):
                     '638512974', '986134725', '521678349', '347295186']
     INITIAL_MOVE_TYPES = [Solver.MoveType.ROWWISE, Solver.MoveType.ROWWISE,
                           Solver.MoveType.COLWISE, Solver.MoveType.COLWISE,
-                          Solver.MoveType.COLWISE, Solver.MoveType.GUESSED]
+                          Solver.MoveType.COLWISE, Solver.MoveType.GUESSED,
+                          Solver.MoveType.COLWISE, Solver.MoveType.COLWISE,
+                          Solver.MoveType.ROWWISE, Solver.MoveType.ROWWISE,
+                          Solver.MoveType.BOXWISE]
     # For each (num, row) key, a set of (row, col) locations where num can be placed
     POSSIBLE_IN_ROW = {(5, 0): {(0, 4), (0, 6)},
                        (7, 4): {(4, 0), (4, 1), (4, 7)},
@@ -26,8 +29,15 @@ class TestSolverMethods(unittest.TestCase):
                        (9, 4): {(3, 4), (5, 4), (6, 4), (7, 4), (8, 4)},
                        (4, 6): {(0, 6), (1, 6), (2, 6)}}
     REASONS = {(1, 7): {(8, 0), (0, 5), (7, 6)},
-               (2, 8): {(4, 6), (6, 7), (8, 3)}}
+               (2, 8): {(4, 6), (6, 7), (8, 3)},
+               (1, 6): {(2, 1)}}
     SOLUTION_COUNT = 1
+
+    # A puzzle with many possible moves right at the start
+    PRIORITY_PUZZLE_LINES = ['000090005', '000068070', '708002000', '090041503', '000509080',
+                             '040080090', '900000001', '002400058', '100076000']
+    # The first (num, row, col) move normally made for the prioritizable puzzle
+    PRIORITY_NORMAL_FIRST_MOVE = (4, 0, 5)
 
 
     def setUp(self):
@@ -84,6 +94,14 @@ class TestSolverMethods(unittest.TestCase):
         self.assertNotEqual(hash(different_move_history_solver), hash(self.solver))
         self.assertNotEqual(different_move_history_solver, self.solver)
 
+        different_step_order_solver = self.solver.duplicate()
+        # Delete first element in `step_order` and re-add to end
+        first_key = next(iter(different_step_order_solver.step_order))
+        del different_step_order_solver.step_order[first_key]
+        different_step_order_solver.step_order[first_key] = None
+        self.assertNotEqual(hash(different_move_history_solver), hash(self.solver))
+        self.assertNotEqual(different_move_history_solver, self.solver)
+
 
     def test_all_solutions(self):
         for alg in self.algorithms:
@@ -117,6 +135,9 @@ class TestSolverMethods(unittest.TestCase):
         duplicate_solver = self.solver.duplicate()
         is_solved = duplicate_solver.autosolve(allow_guessing=False)
         if not is_solved:
+            self.assertNotEqual(duplicate_solver.last_move_type(), Solver.MoveType.GUESSED)
+            # Make sure a guess would have succeeded
+            duplicate_solver.step_best_guess()
             self.assertEqual(duplicate_solver.last_move_type(), Solver.MoveType.GUESSED)
 
     def test_autosolve_without_history(self):
@@ -167,7 +188,7 @@ class TestSolverMethods(unittest.TestCase):
         actual_deduced_moves = duplicate_solver.deduced_moves()
         actual_deduced_moves.reverse()
         for (num, row, col, move_type) in duplicate_solver.annotated_moves():
-            if move_type in [Solver.MoveType.ROWWISE, Solver.MoveType.COLWISE]:
+            if move_type in Solver.DEDUCTIVE_MOVE_TYPES:
                 actual_move = actual_deduced_moves.pop()
                 expected_move = (num, row, col)
                 self.assertEqual(actual_move, expected_move)
@@ -176,16 +197,22 @@ class TestSolverMethods(unittest.TestCase):
         duplicate_solver = self.solver.duplicate()
         # Initially both should be equal
         self.assertEqual(self.solver, duplicate_solver)
-        duplicate_solver.step()
         # Changing one should not change the other
+        duplicate_solver.step()
         self.assertNotEqual(self.solver, duplicate_solver)
         duplicate_solver = self.solver.duplicate()
         # Test duplicating when `solved_puzzle` is defined
         duplicate_solver.solved_puzzle = self.solved_board.duplicate()
-        new_duplicate_solver = duplicate_solver.duplicate()
         # Changing `solved_puzzle` here should not change it in `new_duplicate_solver`
+        new_duplicate_solver = duplicate_solver.duplicate()
         duplicate_solver.solved_puzzle.set_cell(Board.BLANK, 0, 0)
         self.assertEqual(new_duplicate_solver.solved_puzzle, self.solved_board)
+        # Changing `step_order` in one should not change it in the other
+        duplicate_solver = self.solver.duplicate()
+        first_key = next(iter(duplicate_solver.step_order))
+        del duplicate_solver.step_order[first_key]
+        duplicate_solver.step_order[first_key] = None
+        self.assertNotEqual(duplicate_solver.step_order, self.solver.step_order)
 
     def test_guessed_moves(self):
         duplicate_solver = self.solver.duplicate()
@@ -283,6 +310,55 @@ class TestSolverMethods(unittest.TestCase):
             expected_next_moves.add((num, row, col))
         actual_next_moves = self.solver.possible_next_moves()
         self.assertTrue(expected_next_moves.issubset(actual_next_moves))
+
+    def test_prioritize_box(self):
+        new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+        new_solver.step()
+        self.assertEqual(new_solver.moves()[-1], self.PRIORITY_NORMAL_FIRST_MOVE)
+        # First moves possible if relevant box is prioritized beforehand
+        priority_other_first_moves = [(9, 1, 2), (8, 0, 6), (8, 3, 0)]
+        for (num, row, col) in priority_other_first_moves:
+            new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+            chosen_box, _ = Board.box_containing_cell(row, col)
+            new_solver.prioritize_box(chosen_box)
+            new_solver.step()
+            self.assertEqual(new_solver.moves()[-1], (num, row, col))
+
+    def test_prioritize_cells(self):
+        new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+        new_solver.step()
+        self.assertEqual(new_solver.moves()[-1], self.PRIORITY_NORMAL_FIRST_MOVE)
+        # First moves possible if relevant cells are prioritized beforehand
+        priority_other_first_moves = [(9, 1, 2), (8, 0, 6), (5, 2, 4), (8, 3, 0)]
+        for (num, row, col) in priority_other_first_moves:
+            new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+            new_solver.prioritize_cells([(row, col)])
+            new_solver.step()
+            self.assertEqual(new_solver.moves()[-1], (num, row, col))
+
+    def test_prioritize_column(self):
+        new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+        new_solver.step()
+        self.assertEqual(new_solver.moves()[-1], self.PRIORITY_NORMAL_FIRST_MOVE)
+        # First moves possible if relevant column is prioritized beforehand
+        priority_other_first_moves = [(9, 1, 2), (8, 0, 6), (5, 2, 4), (8, 3, 0)]
+        for (num, row, col) in priority_other_first_moves:
+            new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+            new_solver.prioritize_column(col)
+            new_solver.step()
+            self.assertEqual(new_solver.moves()[-1], (num, row, col))
+
+    def test_prioritize_row(self):
+        new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+        new_solver.step()
+        self.assertEqual(new_solver.moves()[-1], self.PRIORITY_NORMAL_FIRST_MOVE)
+        # First moves possible if relevant row is prioritized beforehand
+        priority_other_first_moves = [(9, 1, 2), (5, 2, 4), (8, 3, 0)]
+        for (num, row, col) in priority_other_first_moves:
+            new_solver = Solver(Board(lines=self.PRIORITY_PUZZLE_LINES))
+            new_solver.prioritize_row(row)
+            new_solver.step()
+            self.assertEqual(new_solver.moves()[-1], (num, row, col))
 
     def test_reasons(self):
         duplicate_solver = self.solver.duplicate()
