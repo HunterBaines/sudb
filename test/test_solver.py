@@ -14,10 +14,10 @@ class TestSolverMethods(unittest.TestCase):
                     '000500004', '000000020', '500600340', '340200000']
     SOLVED_LINES = ['294863517', '715429638', '863751492', '152947863', '479386251',
                     '638512974', '986134725', '521678349', '347295186']
-    INITIAL_MOVE_TYPES = [Solver.MoveType.ROWWISE, Solver.MoveType.ROWWISE,
-                          Solver.MoveType.COLWISE, Solver.MoveType.COLWISE,
+    INITIAL_MOVE_TYPES = [Solver.MoveType.ROWWISE, Solver.MoveType.BOXWISE,
+                          Solver.MoveType.BOXWISE, Solver.MoveType.COLWISE,
                           Solver.MoveType.COLWISE, Solver.MoveType.GUESSED,
-                          Solver.MoveType.COLWISE, Solver.MoveType.COLWISE,
+                          Solver.MoveType.ROWWISE, Solver.MoveType.COLWISE,
                           Solver.MoveType.ROWWISE, Solver.MoveType.ROWWISE,
                           Solver.MoveType.BOXWISE]
     # For each (num, row) key, a set of (row, col) locations where num can be placed
@@ -28,9 +28,11 @@ class TestSolverMethods(unittest.TestCase):
     POSSIBLE_IN_COL = {(6, 0): {(4, 0), (5, 0), (6, 0)},
                        (9, 4): {(3, 4), (5, 4), (6, 4), (7, 4), (8, 4)},
                        (4, 6): {(0, 6), (1, 6), (2, 6)}}
+    # Mapping of the location of a move to other location that necessitated it
     REASONS = {(1, 7): {(8, 0), (0, 5), (7, 6)},
-               (2, 8): {(4, 6), (6, 7), (8, 3)},
-               (1, 6): {(2, 1)}}
+               (2, 2): {(8, 0), (0, 5), (1, 7)},
+               (2, 8): {(4, 6), (6, 7)},
+               (5, 5): {(2, 8), (4, 6), (8, 3), (6, 7)}}
     SOLUTION_COUNT = 1
 
     # A puzzle with many possible moves right at the start
@@ -468,6 +470,24 @@ class TestSolverMethods(unittest.TestCase):
         duplicate_solver.unstep()
         self.assertEqual(duplicate_solver.move_count(), 0)
         self.assertEqual(duplicate_solver, self.solver)
+
+        # Test that moves unfold in same order after unstepping
+        duplicate_solver = self.solver.duplicate()
+        steps = 10
+        unsteps = steps / 2
+        for _ in range(steps):
+            location = duplicate_solver.step()
+            if not location:
+                duplicate_solver.step_best_guess()
+        expected_moves = duplicate_solver.moves()
+        for _ in range(unsteps):
+            duplicate_solver.unstep()
+        for _ in range(unsteps):
+            location = duplicate_solver.step()
+            if not location:
+                duplicate_solver.step_best_guess()
+        actual_moves = duplicate_solver.moves()
+        self.assertEqual(actual_moves, expected_moves)
 
 
 if __name__ == '__main__':
