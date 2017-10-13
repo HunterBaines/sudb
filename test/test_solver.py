@@ -310,7 +310,10 @@ class TestSolverMethods(unittest.TestCase):
         for (row, col) in blank_locations:
             num = self.solved_board.get_cell(row, col)
             expected_next_moves.add((num, row, col))
-        actual_next_moves = self.solver.possible_next_moves()
+        actual_next_moves = set()
+        for (row, col), number_set in self.solver.possible_next_moves().items():
+            for number in number_set:
+                actual_next_moves.add((number, row, col))
         self.assertTrue(expected_next_moves.issubset(actual_next_moves))
 
     def test_prioritize_box(self):
