@@ -846,39 +846,26 @@ class SolverController(object):
         status = self.Status.REPEAT
 
         move_type = self.solver.last_move_type()
-        actual_move_type_is_manual = False
-
         if move_type == Solver.MoveType.NONE:
             print('The initial board is given.')
             return status | self.Status.OK
         elif move_type == Solver.MoveType.GUESSED:
             print('A guess pulled from a solved version of the board.')
             return status | self.Status.OK
-        elif move_type == Solver.MoveType.MANUAL:
-            # `move_type` can be changed when searching for reasons for manual move
-            actual_move_type_is_manual = True
 
-        _, row, col = self.solver.moves()[-1]
-        box, _ = Board.box_containing_cell(row, col)
-
-        output = ''
-        if self.puzzle.rows()[row].count(Board.BLANK) == 0:
-            output += 'It was the last blank in the row'
-        if self.puzzle.columns()[col].count(Board.BLANK) == 0:
-            output += ', column' if output else 'It was the last blank in the column'
-        if self.puzzle.boxes()[box].count(Board.BLANK) == 0:
-            output += ', box' if output else 'It was the last blank in the box'
-
-        if output:
-            rightmost_comma = output.rfind(',')
-            if rightmost_comma > -1:
-                # I guess I'm anti-Oxford-comma now
-                output = output[:rightmost_comma] + ' and' + output[rightmost_comma+1:]
-            output += '.'
-            print(output)
+        # See if a simple last-blank-in-{row,column,box} explanation is possible
+        elimination_explanation = self._get_elimination_explanation()
+        if elimination_explanation:
+            print(elimination_explanation)
+            return status | self.Status.OK
+        elif move_type == Solver.MoveType.ELIMINATION:
+            print('It was the only possible number for the location.')
             return status | self.Status.OK
 
         locations = set()
+
+        # `move_type` can be changed when searching for reasons for manual move
+        actual_move_type_is_manual = (move_type == Solver.MoveType.MANUAL)
         if actual_move_type_is_manual:
             # See if manual move can be explained by known deductive methods
             max_locations = 0
@@ -913,6 +900,28 @@ class SolverController(object):
         print('No reason found for ', end='')
         print('{}move.'.format('manual ' if actual_move_type_is_manual else ''))
         return status | self.Status.OTHER
+
+    def _get_elimination_explanation(self):
+        _, row, col = self.solver.moves()[-1]
+        box, _ = Board.box_containing_cell(row, col)
+
+        output = ''
+        if self.puzzle.rows()[row].count(Board.BLANK) == 0:
+            output += 'It was the last blank in the row'
+        if self.puzzle.columns()[col].count(Board.BLANK) == 0:
+            output += ', column' if output else 'It was the last blank in the column'
+        if self.puzzle.boxes()[box].count(Board.BLANK) == 0:
+            output += ', box' if output else 'It was the last blank in the box'
+
+        if output:
+            rightmost_comma = output.rfind(',')
+            if rightmost_comma > -1:
+                # I guess I'm anti-Oxford-comma now
+                output = output[:rightmost_comma] + ' and' + output[rightmost_comma+1:]
+            output += '.'
+
+        return output
+
 
     def _cmd_finish(self, argv, print_help=0):
         if print_help == 1:
