@@ -12,9 +12,9 @@ from sudb.solver import Solver
 
 class TestGeneratorMethods(unittest.TestCase):
 
-    MINIMIZABLE_SEEDS = [1, 2, 3]
+    MINIMIZABLE_SEEDS = [1, 5, 6]
     # Seeds that, when generated with `minimized=True`, yield puzzles that require guessing
-    NONSATISFACTORY_SEEDS = [3, 5, 12]
+    NONSATISFACTORY_SEEDS = [3, 13, 15]
 
     def test_generate(self):
         # Test that the same seed generates the same puzzle
