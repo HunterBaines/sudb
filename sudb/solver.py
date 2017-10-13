@@ -3,6 +3,7 @@
 # License: GNU GPL version 3
 
 from collections import namedtuple, OrderedDict
+import itertools
 from enum import IntEnum
 
 from board import Board
@@ -50,15 +51,17 @@ class Solver(object):
         ROWWISE = 1
         COLWISE = 2
         BOXWISE = 3
-        GUESSED = 4
-        MANUAL = 5
-        CORRECTED = 6
-        REASON = 7
-        DIFFERENCE = 8
+        ELIMINATION = 4
+        GUESSED = 5
+        MANUAL = 6
+        CORRECTED = 7
+        REASON = 8
+        DIFFERENCE = 9
 
     Move = namedtuple('Move', 'number row column replaced move_type')
 
-    DEDUCTIVE_MOVE_TYPES = [MoveType.ROWWISE, MoveType.COLWISE, MoveType.BOXWISE]
+    DEDUCTIVE_MOVE_TYPES = [MoveType.ROWWISE, MoveType.COLWISE, MoveType.BOXWISE,
+                            MoveType.ELIMINATION]
 
 
     def __init__(self, puzzle):
@@ -365,7 +368,7 @@ class Solver(object):
         unstep : the undo method for this method.
         """
 
-        if not self._necessary_move_cache_valid():
+        if not self._necessary_move_cache_is_valid():
             # Start over clean in case here because `self._puzzle_hash_cache`
             # didn't match current hash: this could be because the puzzle has
             # been unstepped or clues have otherwise been removed, so
@@ -406,7 +409,7 @@ class Solver(object):
 
         self._necessary_move_cache = {}
 
-    def _necessary_move_cache_valid(self):
+    def _necessary_move_cache_is_valid(self):
         if not self._necessary_move_cache:
             return False
         if self._puzzle_hash_cache != hash(self.puzzle):
@@ -452,6 +455,21 @@ class Solver(object):
                     move_row, move_col = locations.pop()
                     move_type = self.MoveType.BOXWISE
                     self._necessary_move_cache[(move_row, move_col)] = (number, move_type)
+
+        cells = set(itertools.product(rows, columns))
+        for box in boxes:
+            cells = cells.union(set(Board.cells_in_box(box)))
+
+        for (row, col) in cells:
+            if self.puzzle.get_cell(row, col) != Board.BLANK:
+                continue
+
+            possibilities = self.puzzle.possibilities(row, col)
+            if len(possibilities) == 1:
+                move_type = self.MoveType.ELIMINATION
+                number = possibilities.pop()
+                # Even if already defined in cache, redefine to be of type `ELIMINATION`
+                self._necessary_move_cache[(row, col)] = (number, move_type)
 
         self._puzzle_hash_cache = hash(self.puzzle)
 
@@ -612,24 +630,34 @@ class Solver(object):
 
         Returns
         -------
-        set of int tuple
-            A set of number, row, column tuples that represent moves one
-            step removed from the current board that do not leave the board
-            in an inconsistent state.
+        dict of int tuple to set
+            A mapping of (row, col) locations to the set of numbers that
+            could be placed at those locations without leaving the board in
+            an inconsistent state.
         """
 
-        next_moves = set()
+        next_moves = {location: set() for location in Board.SUDOKU_CELLS}
 
-        for row in Board.SUDOKU_ROWS:
-            for number in Board.SUDOKU_NUMBERS:
-                possible_locations = self.possible_locations_in_row(number, row)
-                if row in Board.SUDOKU_COLS:
-                    other_possible_locations = self.possible_locations_in_column(number, row)
-                    possible_locations = possible_locations.union(other_possible_locations)
-                possible_moves = set([(number, r, c) for (r, c) in possible_locations])
-                next_moves = next_moves.union(possible_moves)
+        for number in Board.SUDOKU_NUMBERS:
+            locations_for_number = set()
+
+            for row in Board.SUDOKU_ROWS:
+                locations = self.possible_locations_in_row(number, row)
+                locations_for_number = locations_for_number.union(locations)
+
+            for col in Board.SUDOKU_COLS:
+                locations = self.possible_locations_in_column(number, col)
+                locations_for_number = locations_for_number.union(locations)
+
+            for box in Board.SUDOKU_BOXES:
+                locations = self.possible_locations_in_box(number, box)
+                locations_for_number = locations_for_number.union(locations)
+
+            for (row, col) in locations_for_number:
+                next_moves[(row, col)].add(number)
 
         return next_moves
+
 
     def possible_locations_in_box(self, number, box):
         """Return viable locations for number in a specified box.
@@ -783,7 +811,7 @@ class Solver(object):
         return possible_locations
 
 
-    def candidates(self, row, col, _depth=0):
+    def candidates(self, row, col):
         """Return all viable numbers for the location based on analysis.
 
         Parameters
@@ -798,46 +826,23 @@ class Solver(object):
         set of int
             The set of numbers that could be placed at the cell at `row`,
             `col` without leaving the board inconsistent or contradicting
-            other information about the puzzle gleaned from analysis.
+            other information about the puzzle gleaned from analysis; if
+            the given location already has a number in its cell, that
+            number alone will be in the returned set.
         """
 
-        possible_numbers = self.puzzle.possibilities(row, col)
-        location_set = {(row, col)}
+        if not self._necessary_move_cache_is_valid():
+            self.flush_step_cache()
+            self._fill_necessary_move_cache()
 
-        for number in Board.SUDOKU_NUMBERS:
-            number_set = {number}
-
-            locations = self.possible_locations_in_row(number, row)
-            if len(locations) == 1:
-                if locations == location_set:
-                    return number_set
-                else:
-                    possible_numbers -= number_set
-                    continue
-
-            locations = self.possible_locations_in_column(number, col)
-            if len(locations) == 1:
-                if locations == location_set:
-                    return number_set
-                else:
-                    possible_numbers -= number_set
-
-        # If all other cells lack a number in the candidates for the target
-        # cell, that number must be what goes in that cell
-        other_cells_universe = set()
-        if _depth < 2:
-            box, _ = Board.box_containing_cell(row, col)
-            for location in Board.cells_in_box(box):
-                if location != (row, col):
-                    numbers = self.candidates(*location, _depth=_depth+1)
-                    other_cells_universe = other_cells_universe.union(numbers)
-                    if len(numbers) == 1:
-                        possible_numbers -= numbers
-
-        if len(possible_numbers - other_cells_universe) == 1:
-            possible_numbers -= other_cells_universe
-
-        return possible_numbers
+        try:
+            number, _ = self._necessary_move_cache[(row, col)]
+            return {number}
+        except KeyError:
+            number = self.puzzle.get_cell(row, col)
+            if number != Board.BLANK:
+                return {number}
+            return self.possible_next_moves()[(row, col)]
 
 
     def reasons(self, override_move_type=None):
@@ -895,6 +900,9 @@ class Solver(object):
             # Remove location of move from set if its in there
             reasons_for_last_move -= {(move_row, move_col)}
             return reasons_for_last_move
+        elif move_type == self.MoveType.ELIMINATION:
+            # Return move itself to indicate number was only viable one for location
+            return {(move_row, move_col)}
         else:
             # This should never occur
             raise NotImplementedError('no code to handle deductive move type {}'.format(move_type))
