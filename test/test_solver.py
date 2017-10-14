@@ -42,12 +42,13 @@ class TestSolverMethods(unittest.TestCase):
     PRIORITY_NORMAL_FIRST_MOVE = (4, 0, 5)
 
 
-    def setUp(self):
-        self.board = Board(lines=self.PUZZLE_LINES)
-        self.solved_board = Board(lines=self.SOLVED_LINES)
-        self.solver = Solver(self.board)
-        self.algorithms = [None, 'backtrack']
-        self.clue_difference = self.solved_board.clue_count() - self.board.clue_count()
+    @classmethod
+    def setUpClass(cls):
+        cls.board = Board(lines=cls.PUZZLE_LINES)
+        cls.solved_board = Board(lines=cls.SOLVED_LINES)
+        cls.solver = Solver(cls.board)
+        cls.algorithms = [None, 'backtrack']
+        cls.clue_difference = cls.solved_board.clue_count() - cls.board.clue_count()
 
 
     def test_eq(self):
