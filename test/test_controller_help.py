@@ -3,15 +3,13 @@
 # License: GNU GPL version 3
 
 import os
-import sys
-import tempfile
-import unittest
 
+from test.output_tester import OutputTester
 from sudb.controller import SolverController
 from sudb.board import Board
 
 
-class TestControllerHelp(unittest.TestCase):
+class TestControllerHelp(OutputTester):
     """Test output of controller command `help COMMAND`.
 
     """
@@ -24,6 +22,7 @@ class TestControllerHelp(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(TestControllerHelp, cls).setUpClass()
         cls.maxDiff = None
 
         # Name it to avoid changes to default name affecting test
@@ -31,23 +30,6 @@ class TestControllerHelp(unittest.TestCase):
         cls.options = SolverController.Options()
         # So controller can quit without confirmation
         cls.options.assume_yes = True
-
-        if os.path.exists(cls.EXPECTED_OUTPUT_FILE):
-            cls.compare_file = open(cls.EXPECTED_OUTPUT_FILE, 'r')
-            cls.output_file = tempfile.NamedTemporaryFile()
-        else:
-            cls.compare_file = None
-            cls.output_file = open(cls.EXPECTED_OUTPUT_FILE, 'w')
-
-    @classmethod
-    def tearDownClass(cls):
-        if cls.compare_file is None:
-            print
-            print 'Output written to {}.'.format(cls.EXPECTED_OUTPUT_FILE)
-            print 'Future tests will compare actual output to this file.'
-        else:
-            cls.compare_file.close()
-        cls.output_file.close()
 
 
     def test_help(self):
@@ -88,12 +70,3 @@ class TestControllerHelp(unittest.TestCase):
         output_lines = self.output_file.read().splitlines()
         compare_lines = self.compare_file.read().splitlines()
         self.assertEqual(output_lines, compare_lines)
-
-
-    def redirect_output(self):
-        sys.stdout = self.output_file
-        sys.stderr = self.output_file
-
-    def reset_output(self):
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
