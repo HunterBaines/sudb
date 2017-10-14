@@ -1133,7 +1133,8 @@ class SolverController(object):
 
         locations = []
         if args:
-            locations = self._get_locations(args)
+            # The locations will be validated manually below
+            locations = self._get_locations(args, validate_cells=False)
             if locations is None:
                 return self.Status.OTHER
 
@@ -1764,7 +1765,8 @@ class SolverController(object):
         status = self.Status.REPEAT
         args = argv[1:]
 
-        locations = self._get_locations(args)
+        # Manual validation of locations is done below
+        locations = self._get_locations(args, validate_cells=False)
         if locations is None:
             return status | self.Status.OTHER
 
@@ -1882,7 +1884,7 @@ class SolverController(object):
 
         return repeats
 
-    def _get_locations(self, args):
+    def _get_locations(self, args, validate_cells=True):
         try:
             locations = ''.join(args)
             if len(locations) < 2:
@@ -1890,7 +1892,7 @@ class SolverController(object):
                 return None
             locations = zip(map(int, locations[::2]), map(int, locations[1::2]))
             for (row, col) in locations:
-                if self._validate_cell(row, col) != self.Status.OK:
+                if validate_cells and self._validate_cell(row, col) != self.Status.OK:
                     return None
             return locations
         except ValueError:
@@ -1928,11 +1930,11 @@ class SolverController(object):
 
         return numbers
 
-    def _get_locations_and_numbers(self, args):
+    def _get_locations_and_numbers(self, args, validate_cells=True):
         new_args = [''.join(list(tup)) for tup in re.findall(r'(.-.)|(.)', ''.join(args))]
 
         try:
-            row, col = self._get_locations(new_args[:2])[0]
+            row, col = self._get_locations(new_args[:2], validate_cells=validate_cells)[0]
         except TypeError:
             # _get_locations returned None
             return None
