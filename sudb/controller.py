@@ -143,6 +143,9 @@ class SolverController(object):
             of the user-defined-candidates-displayed board to output.
         comment_char : str
             The characters used to mark a line as a comment.
+        assume_yes : bool
+            True is all yes/no confirmations should be assumed to be "yes"
+            and False if confirmation should be obtained each time.
         """
 
         def __init__(self):
@@ -164,6 +167,7 @@ class SolverController(object):
             self.prompt = '(sudb) '
             self.width = 0
             self.comment_char = '#'
+            self.assume_yes = False
 
 
     def __init__(self, puzzle, init_commands=None, command_queue=None, options=None):
@@ -1831,9 +1835,15 @@ class SolverController(object):
         return self.Status.OK
 
     def _confirm(self, message):
+        confirmation_message = '{} (y or n) '.format(message)
+
+        if self.options.assume_yes:
+            print('{}[assumed Y]'.format(confirmation_message))
+            return True
+
         while True:
             try:
-                confirm = raw_input('{} (y or n) '.format(message)).lower()
+                confirm = raw_input(confirmation_message).lower()
             except EOFError:
                 print('EOF [assumed Y]')
                 return True
