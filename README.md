@@ -13,8 +13,8 @@ require guessing.
 
 Installing
 ----------
-Simply use `python setup.py install`, which will install the sudb module
-and copy the script invoking that module's main method into a directory in
+Simply use `python setup.py install`, which will install the sudb package
+and copy the script invoking that package's main method into a directory in
 your `PATH`. (If this complains about `No module named enum`, you'll need
 to install enum34, the backport of Enum from Python 3.4: if pip is
 installed, `pip install enum34` will do it.) To test it out, try this:
@@ -91,7 +91,10 @@ Note that all commands can be shortened if doing so causes no ambiguity.
 ### Commands for Controlling the Solver ###
 * `step` (or `s`) moves the solver one clue forward. You can also use something
   like `step 3` or `step 10` to move the solver a specified number of steps
-  forward.
+  forward. Clues deduced via `step` come in a relatively arbitrary (though
+  generally left-to-right) order; to focus effort on a particular row,
+  column, or box in the puzzle, the step variants `stepr ROW`, `stepc COL`,
+  or `stepb BOX`, respectively, can be used.
 
 * `finish` steps until the puzzle is solved or the solver is at a breakpoint.
 
