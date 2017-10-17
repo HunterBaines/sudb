@@ -25,7 +25,7 @@ class CommandMapper(object):
     LocalCompleter : class
         A Completer instance that only matches the namespace it is
         initialized with (instead of also matching Python built-ins).
-    commands : str-keyed dict with method items
+    commands : dict of str to method
         A mapping of cleaned-up method names (e.g., 'help') to the method
         itself (e.g., '_cmd_help').
     completer : LocalCompleter instance

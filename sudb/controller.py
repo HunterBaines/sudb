@@ -51,14 +51,14 @@ class SolverController(object):
         The `solver` in its original state (used for restarting).
     breakno : int
         A value used to assign a unique ID to a new breakpoint.
-    breakpoints : tuple-keyed dict with int items
+    breakpoints : dict of int tuple to int
         A dict with one-indexed row, col key pointing to the unique
         `breakno` assigned to the breakpoint the key represents.
-    checkpoints : str-keyed dict with Solver instance items
+    checkpoints : dict of str to Solver instance
         A dict mapping user-defined checkpoints to a Solver instance, which
         provides enough data to restore state to what it was it was when
         the checkpoint was set.
-    marks : tuple-keyed dict with set of int items
+    marks : dict of int tuple to int set
         A dict with *zero-indexed* row, col keys pointing to a user-defined
         set of candidates for that location.
     options : Options instance

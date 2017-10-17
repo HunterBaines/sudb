@@ -36,7 +36,7 @@ class Solver(object):
     move_history : list of namedtuple
         A list of Move namedtuples describing the moves made in order from
         oldest to latest.
-    step_order : int-tuple-keyed OrderedDict with None items
+    step_order : OrderedDict of int tuple to None
         An OrderedDict mapping (row, column) locations to None; `step` will
         attempt deductions proceeding backwards starting from the location
         at the end of this dict.
