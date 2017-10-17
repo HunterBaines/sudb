@@ -93,8 +93,8 @@ Note that all commands can be shortened if doing so causes no ambiguity.
   like `step 3` or `step 10` to move the solver a specified number of steps
   forward. Clues deduced via `step` come in a relatively arbitrary (though
   generally left-to-right) order; to focus effort on a particular row,
-  column, or box in the puzzle, the step variants `stepr ROW`, `stepc COL`,
-  or `stepb BOX`, respectively, can be used.
+  column, or box in the puzzle, the step variants `stepr ROW`, `stepc
+  COLUMN`, or `stepb BOX`, respectively, can be used.
 
 * `finish` steps until the puzzle is solved or the solver is at a breakpoint.
 
@@ -125,6 +125,7 @@ Note that all commands can be shortened if doing so causes no ambiguity.
   given location. This collection of candidates is kept separate from the
   solver's.
 
-* `info mark ROW COL` lists all user-defined candidates at the given location.
-  (The command `print marks` does the same but inline and for all cells.)
+* `info mark ROW COLUMN` lists all user-defined candidates at the given
+  location. (The command `print marks` does the same but inline and for all
+  cells.)
 
