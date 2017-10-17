@@ -8,9 +8,9 @@ TODO
 
 /sudb
 -----
-* Add to `SolverController.Options` an option for defining color mappings
-  (e.g., `Solver.MoveType.GUESSED` -> `formatter.Color.GREEN`, etc.) and
-  update the rest of `SolverController` to use these mappings.
+* fff7a48: ~~Add to `SolverController.Options` an option for defining color
+  mappings (e.g., `Solver.MoveType.GUESSED` -> `formatter.Color.GREEN`,
+  etc.) and update the rest of `SolverController` to use these mappings.~~
 
 * Add a new `set` subcommand (maybe `set explainview`) that defaults to
   printing the board with the reasons for the last move highlighted after
