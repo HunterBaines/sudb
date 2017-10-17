@@ -125,9 +125,22 @@ class SolverController(object):
         ----------
         aliases : dict of str to str
             A mapping of aliases to what they should be expanded to.
+        prompt : str
+            The string to display on each line of command entry.
+        comment_char : str
+            The characters used to mark a line as a comment.
+        move_type_colormap : dict of MoveType constant to Color constant
+            A dict mapping a move type to the color to use when printing
+            the board with that move highlighted.
+        default_color : Color constant
+            The color to use if one is needed but no viable one exists in
+            `move_type_colormap`.
         ascii : bool
             True if ouput should only use ascii, and False if it may use
             UTF-8.
+        assume_yes : bool
+            True is all yes/no confirmations should be assumed to be "yes"
+            and False if confirmation should be obtained each time.
         markview : bool
             True if the larger version of the board with user-defined
             candidates displayed should be the default, and False if the
@@ -136,16 +149,9 @@ class SolverController(object):
         guessbreak : bool
             True if the solver should always break on guessed moves, and
             False otherwise.
-        prompt : str
-            The string to display on each line of command entry.
         width : int
             The width to use for wrapping text and deciding which version
             of the user-defined-candidates-displayed board to output.
-        comment_char : str
-            The characters used to mark a line as a comment.
-        assume_yes : bool
-            True is all yes/no confirmations should be assumed to be "yes"
-            and False if confirmation should be obtained each time.
         """
 
         def __init__(self):
@@ -161,13 +167,23 @@ class SolverController(object):
                             r'(^|\s)sr(\s|$)': r' stepr ',
                             r'(^|\s)sm(\s|$)': r' stepm ',
                             r'(^\s*\d\s*\d\s*\d)': r'stepm \1'}
+
+            self.prompt = '(sudb) '
+            self.comment_char = '#'
+
+            self.move_type_colormap = {Solver.MoveType.GUESSED: frmt.Color.GREEN,
+                                       Solver.MoveType.MANUAL: frmt.Color.CYAN,
+                                       Solver.MoveType.CORRECTED: frmt.Color.RED,
+                                       Solver.MoveType.DIFFERENCE: frmt.Color.YELLOW,
+                                       Solver.MoveType.REASON: frmt.Color.MAGENTA}
+            self.default_color = frmt.Color.BLUE
+
             self.ascii = False
+            self.assume_yes = False
             self.markview = False
             self.guessbreak = False
-            self.prompt = '(sudb) '
+
             self.width = 0
-            self.comment_char = '#'
-            self.assume_yes = False
 
 
     def __init__(self, puzzle, init_commands=None, command_queue=None, options=None):
@@ -497,27 +513,26 @@ class SolverController(object):
         title = '   MOVE {}'.format(moveno)
 
         colormap = None
-        if not locations:
-            pass
-        elif treat_move_type_as_reason or move_type == Solver.MoveType.REASON:
+        if locations and treat_move_type_as_reason or move_type == Solver.MoveType.REASON:
             title += ' (reasons)'
             # If `move_type` is `REASON`, the move type to use in interpreting
             # the reasons will equal `self.solver.last_move_type()`
             colormap = self._get_reasons_colormap(locations, move_type, solver=solver)
-        elif move_type == Solver.MoveType.GUESSED:
-            title += ' (guessed)'
-            colormap = frmt.get_colormap(locations, frmt.Color.GREEN)
-        elif move_type == Solver.MoveType.MANUAL:
-            title += ' (manual)'
-            colormap = frmt.get_colormap(locations, frmt.Color.CYAN)
-        elif move_type == Solver.MoveType.CORRECTED:
-            title += ' (corrected)'
-            colormap = frmt.get_colormap(locations, frmt.Color.RED)
-        elif move_type == Solver.MoveType.DIFFERENCE:
-            title += ' (differences)'
-            colormap = frmt.get_colormap(locations, frmt.Color.YELLOW)
-        else:
-            colormap = frmt.get_colormap(locations, frmt.Color.BLUE)
+        elif locations:
+            if move_type == Solver.MoveType.GUESSED:
+                title += ' (guessed)'
+            elif move_type == Solver.MoveType.MANUAL:
+                title += ' (manual)'
+            elif move_type == Solver.MoveType.CORRECTED:
+                title += ' (corrected)'
+            elif move_type == Solver.MoveType.DIFFERENCE:
+                title += ' (differences)'
+
+            try:
+                color = self.options.move_type_colormap[move_type]
+            except KeyError:
+                color = self.options.default_color
+            colormap = frmt.get_colormap(locations, color)
 
         show_axes = True
         if candidate_map is not None:
@@ -537,7 +552,8 @@ class SolverController(object):
         print(output)
 
     def _get_reasons_colormap(self, locations, reported_move_type, solver=None):
-        NONVIABLE_BLANK_COLOR = frmt.Color.INVERT + frmt.Color.MAGENTA
+        REASON_COLOR = self.options.move_type_colormap[Solver.MoveType.REASON]
+        NONVIABLE_BLANK_COLOR = frmt.Color.INVERT + REASON_COLOR
 
         if solver is None:
             solver = self.solver
@@ -546,17 +562,18 @@ class SolverController(object):
         if reported_move_type == Solver.MoveType.REASON:
             reported_move_type = actual_move_type
 
-        colormap = frmt.get_colormap(locations, frmt.Color.MAGENTA)
+        colormap = frmt.get_colormap(locations, REASON_COLOR)
         if actual_move_type == Solver.MoveType.NONE:
             return colormap
 
         _, original_row, original_col = solver.moves()[-1]
 
         # The color of the move to explain is always based on the actual move type
-        if actual_move_type == Solver.MoveType.MANUAL:
-            colormap[(original_row, original_col)] = frmt.Color.CYAN
-        else:
-            colormap[(original_row, original_col)] = frmt.Color.BLUE
+        try:
+            actual_color = self.options.move_type_colormap[actual_move_type]
+        except KeyError:
+            actual_color = self.options.default_color
+        colormap[(original_row, original_col)] = actual_color
 
         # But the colors of the rest are based on the reported move type so
         # a non-deductive `actual_move_type` (e.g., MANUAL) can still be
