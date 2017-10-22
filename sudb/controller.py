@@ -8,6 +8,7 @@ import re
 import stat
 import textwrap
 from collections import deque
+from functools import wraps
 from enum import IntEnum
 
 import formatter as frmt
@@ -628,18 +629,58 @@ class SolverController(object):
     # START OF COMMAND METHODS
     ##########################################################################
 
-    def _cmd_break(self, argv, print_help=0):
-        if print_help == 1:
-            print('Set breakpoint at specified location.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_break([], print_help=1)
-            print('Usage: break ROW COL')
-            print()
-            self.printwrap('ROW COL indicates the location in the puzzle to break at',
-                           'once the value of the cell at that location is known.')
-            return self.Status.OK
+    def cmdhelp(overview_msg, usage_msg, extra_msg=None):
+        """Return method with help-message code generated.
 
+        A decorator that adds code for outputting a command-style method's
+        short and long help messages when the `print_help` parameter of the
+        that method is 1 or 2 respectively.
+
+        Parameters
+        ----------
+        overview_msg : str
+            A short summary of the command-style method being decorated
+            (e.g., 'Step for one or more moves.').
+        usage_msg : str
+            An indication of how the command-style method being decorated
+            is to be called (e.g., 'step [INTEGER]').
+        extra_msg : str, optional
+            Any additional notes on the command-style method being
+            decorated (e.g., 'If INTEGER is not given, 1 is assumed.')
+            (default None).
+
+        Returns
+        -------
+        method
+            The command-style method with help-message code added.
+        """
+
+        def _cmdhelp_decorator(cmd_func):
+
+            def _decorator(self, argv, print_help=0):
+                if print_help == 1:
+                    print(overview_msg)
+                    return self.Status.OK
+                elif print_help == 2:
+                    print(overview_msg)
+                    print('Usage:', usage_msg)
+                    if extra_msg:
+                        print()
+                        self.printwrap(extra_msg)
+                    return self.Status.OK
+                status = cmd_func(self, argv)
+                return status
+
+            return wraps(cmd_func)(_decorator)
+
+        return _cmdhelp_decorator
+
+
+    @cmdhelp('Set breakpoint at specified location.',
+             'break ROW COL',
+             'ROW COL indicates the location in the puzzle to break at once the value of the'\
+             + ' cell at that location is known.')
+    def _cmd_break(self, argv):
         status = self.Status.REPEAT
         args = argv[1:]
 
@@ -668,18 +709,12 @@ class SolverController(object):
 
         return status | self.Status.OK
 
-    def _cmd_checkpoint(self, argv, print_help=0):
-        if print_help == 1:
-            print('Save the current board state at a given or default label.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_checkpoint([], print_help=1)
-            print('Usage: checkpoint [CHECKPOINT]')
-            print()
-            self.printwrap('If CHECKPOINT is not given, the current move number will be used.',
-                           'Use "restart CHECKPOINT" to restore this state of the board.')
-            return self.Status.OK
 
+    @cmdhelp('Save the current board state at a given or default label.',
+             'checkpoint [CHECKPOINT]',
+             'If CHECKPOINT is not given, the current move number will be used.'\
+             + ' Use "restart CHECKPOINT" to restore this state of the board.')
+    def _cmd_checkpoint(self, argv):
         try:
             checkpoint = argv[1]
         except IndexError:
@@ -720,20 +755,12 @@ class SolverController(object):
 
         return self._call_subcommand(argv)
 
-    def _subcmd_delete_breakpoints(self, argv, print_help=0):
-        if print_help == 1:
-            print('Delete all or matching breakpoints.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_delete_breakpoints([], print_help=1)
-            print('Usage: delete breakpoints [BREAKNO [BREAKNO ...]]')
-            print()
-            self.printwrap('BREAKNO can be a number or a hyphen-specified range.',
-                           'If not given, all breakpoints will be deleted.',
-                           'The two commands "delete breakpoints BREAKNO" and "delete BREAKNO"',
-                           'are equivalent (that is, the "breakpoints" is optional).')
-            return self.Status.OK
-
+    @cmdhelp('Delete all or matching breakpoints.',
+             'delete breakpoints [BREAKNO [BREAKNO ...]]',
+             'BREAKNO can be a number or a hyphen-specified range. If not given, all breakpoints'\
+             + ' will be deleted. The two commands "delete breakpoints BREAKNO" and'\
+             + ' "delete BREAKNO" are equivalent; that is, the "breakpoints" is optional.')
+    def _subcmd_delete_breakpoints(self, argv):
         args = argv[1:]
 
         breaknos = self._get_numbers(args)
@@ -763,17 +790,10 @@ class SolverController(object):
 
         return self.Status.OK
 
-    def _subcmd_delete_checkpoints(self, argv, print_help=0):
-        if print_help == 1:
-            print('Delete all or matching checkpoints.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_delete_checkpoints([], print_help=1)
-            print('Usage: delete checkpoints [CHECKPOINT [CHECKPOINT ...]]')
-            print()
-            self.printwrap('If no CHECKPOINT is given, all checkpoints will be deleted.')
-            return self.Status.OK
-
+    @cmdhelp('Delete all or matching checkpoints.',
+             'delete checkpoints [CHECKPOINT [CHECKPOINT ...]]',
+             'If no CHECKPOINT is given, all checkpoints will be deleted.')
+    def _subcmd_delete_checkpoints(self, argv):
         checkpoints = argv[1:]
         if not checkpoints:
             if not self.checkpoints:
@@ -800,21 +820,13 @@ class SolverController(object):
 
         return self.Status.OK
 
-    def _subcmd_delete_marks(self, argv, print_help=0):
-        if print_help == 1:
-            print('Delete all or matching user-defined candidates.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_delete_marks([], print_help=1)
-            print('Usage: delete marks [ROW COL [NUMBER [NUMBER ...]]]')
-            print()
-            self.printwrap('If ROW, COL, and one or more NUMBER are given,',
-                           'delete each valid NUMBER from the user-defined candidate',
-                           'list for that location. If only ROW and COL are given,',
-                           'delete all numbers from that list. If no arguments are',
-                           'given, delete all marks.')
-            return self.Status.OK
-
+    @cmdhelp('Delete all or matching user-defined candidates.',
+             'delete marks [ROW COL [NUMBER [NUMBER ...]]]',
+             'If ROW, COL, and one or more NUMBER are given, delete each valid NUMBER from'\
+             + ' the user-defined candidate list for that location. If only ROW and COL are'\
+             + ' given, delete all numbers from that list. If no arguments are given, delete'\
+             + ' all marks.')
+    def _subcmd_delete_marks(self, argv):
         args = argv[1:]
 
         if not args:
@@ -855,15 +867,9 @@ class SolverController(object):
     # DELETE COMMANDS END
 
 
-    def _cmd_explain(self, argv, print_help=0):
-        if print_help == 1:
-            print('Indicate the reason(s) for the last move.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_explain([], print_help=1)
-            print('Usage: explain')
-            return self.Status.OK
-
+    @cmdhelp('Indicate the reason for the last move.',
+             'explain')
+    def _cmd_explain(self, argv):
         status = self.Status.REPEAT
 
         move_type = self.solver.last_move_type()
@@ -944,15 +950,9 @@ class SolverController(object):
         return output
 
 
-    def _cmd_finish(self, argv, print_help=0):
-        if print_help == 1:
-            print('Step until stuck or at solution or breakpoint.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_finish([], print_help=1)
-            print('Usage: finish')
-            return self.Status.OK
-
+    @cmdhelp('Step until stuck or at solution or breakpoint.',
+             'finish')
+    def _cmd_finish(self, argv):
         status = self.Status.REPEAT
         step_argv = ['step', '1']
         while True:
@@ -1045,18 +1045,11 @@ class SolverController(object):
 
         return status | self._call_subcommand(argv)
 
-    def _subcmd_info_breakpoints(self, argv, print_help=0):
-        if print_help == 1:
-            print('Show all or matching breakpoints.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_info_breakpoints([], print_help=1)
-            print('Usage: info break [BREAKNO [BREAKNO ...]]')
-            print()
-            self.printwrap('BREAKNO can be a number or a hyphen-specified range.',
-                           'If not given, all breakpoints will be shown.')
-            return self.Status.OK
-
+    @cmdhelp('Show all or matching breakpoints.',
+             'info break [BREAKNO [BREAKNO ...]]',
+             'BREAKNO can be a number or a hyphen-specified range. If not given, all'\
+             + ' breakpoints will be shown.')
+    def _subcmd_info_breakpoints(self, argv):
         args = argv[1:]
 
         breaknos = self._get_numbers(args)
@@ -1085,18 +1078,10 @@ class SolverController(object):
 
         return self.Status.OK
 
-    def _subcmd_info_checkpoints(self, argv, print_help=0):
-        if print_help == 1:
-            print('Show all or matching checkpoints.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_info_checkpoints([], print_help=1)
-            print('Usage: info checkpoint [CHECKPOINT [CHECKPOINT ...]]')
-            print()
-            self.printwrap('If no CHECKPOINT is given, the move numbers of',
-                           'all checkpoints will be shown.')
-            return self.Status.OK
-
+    @cmdhelp('Show all or matching checkpoints.',
+             'info checkpoint [CHECKPOINT [CHECKPOINT ...]]',
+             'If no CHECKPOINT is given, the move numbers of all checkpoints will be shown.')
+    def _subcmd_info_checkpoints(self, argv):
         checkpoints = argv[1:]
         if not checkpoints:
             # Since order in checkpoints not available, order by move number
@@ -1134,18 +1119,11 @@ class SolverController(object):
 
         return self.Status.OK
 
-    def _subcmd_info_marks(self, argv, print_help=0):
-        if print_help == 1:
-            print('Show all or matching user-defined candidates.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_info_marks([], print_help=1)
-            print('Usage: info mark [ROW COL [ROW COL ...]]')
-            print()
-            self.printwrap('Show the candidates for each ROW COL location.',
-                           'If none given, show all user-defined candidates.')
-            return self.Status.OK
-
+    @cmdhelp('Show all or matching user-defined candidates.',
+             'info mark [ROW COL [ROW COL ...]]',
+             'Show the candidates for each ROW COL location. If none given, show all'\
+             + ' user-defined candidates.')
+    def _subcmd_info_marks(self, argv):
         args = argv[1:]
 
         locations = []
@@ -1196,21 +1174,12 @@ class SolverController(object):
     # INFO COMMANDS END
 
 
-    def _cmd_mark(self, argv, print_help=0):
-        if print_help == 1:
-            print('Mark one or more numbers as candidates for the given cell.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_mark([], print_help=1)
-            print('Usage: mark ROW COL NUMBER [NUMBER ...]')
-            print()
-            self.printwrap('Add every valid NUMBER to a list of candidates for',
-                           'the location defined by ROW COL. For viewing these',
-                           'candidates, see "print marks" and "info marks".',
-                           'For viewing candidates set by the computer, see',
-                           '"print candidates" and "x".')
-            return self.Status.OK
-
+    @cmdhelp('Mark one or more numbers as candidates for the given cell.',
+             'mark ROW COL NUMBER [NUMBER ...]',
+             'Add every valid NUMBER to a list of candidates for the location defined by ROW COL.'\
+             + ' For viewing these candidates, see "print marks" and "info marks". For viewing'\
+             + ' candidates set by the computer, see "print candidates" and "x".')
+    def _cmd_mark(self, argv):
         args = argv[1:]
 
         try:
@@ -1252,15 +1221,9 @@ class SolverController(object):
 
         return status | self._call_subcommand(argv)
 
-    def _subcmd_print_candidates(self, argv, print_help=0):
-        if print_help == 1:
-            print('Print board with generated candidates noted.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_print_candidates([], print_help=1)
-            print('Usage: print candidates')
-            return self.Status.OK
-
+    @cmdhelp('Print board with generated candidates noted.',
+             'print candidates')
+    def _subcmd_print_candidates(self, argv):
         candidate_map = {}
         for (actual_row, actual_col) in Board.SUDOKU_CELLS:
             candidate_map[(actual_row, actual_col)] = self.solver.candidates(actual_row,
@@ -1269,15 +1232,9 @@ class SolverController(object):
 
         return self.Status.OK
 
-    def _subcmd_print_checkpoints(self, argv, print_help=0):
-        if print_help == 1:
-            print('Print the state of the board at the given checkpoint.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_print_checkpoints([], print_help=1)
-            print('Usage: print checkpoint CHECKPOINT')
-            return self.Status.OK
-
+    @cmdhelp('Print the state of the board at the given checkpoint.',
+             'print checkpoint CHECKPOINT')
+    def _subcmd_print_checkpoints(self, argv):
         args = argv[1:]
 
         try:
@@ -1294,30 +1251,18 @@ class SolverController(object):
             print('No checkpoint matching "{}".'.format(checkpoint))
             return self.Status.OTHER
 
-    def _subcmd_print_marks(self, argv, print_help=0):
-        if print_help == 1:
-            print('Print board with user-defined candidates noted.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_print_marks([], print_help=1)
-            print('Usage: print marks')
-            return self.Status.OK
-
+    @cmdhelp('Print board with user-defined candidates noted.',
+             'print marks')
+    def _subcmd_print_marks(self, argv):
         self.print_puzzle(candidate_map=self.marks)
         return self.Status.OK
 
     # PRINT COMMANDS END
 
 
-    def _cmd_quit(self, argv, print_help=0):
-        if print_help == 1:
-            print('Quit the solver.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_quit([], print_help=1)
-            print('Usage: quit')
-            return self.Status.OK
-
+    @cmdhelp('Quit the solver.',
+             'quit')
+    def _cmd_quit(self, argv):
         status = self.Status.REPEAT
 
         if self.puzzle.is_complete() and self.puzzle.is_consistent():
@@ -1326,24 +1271,14 @@ class SolverController(object):
         print('The puzzle has not been solved.')
         if self._confirm('Quit anyway?'):
             return status | self.Status.QUIT
-        else:
-            return status | self.Status.OK
+        return status | self.Status.OK
 
-    def _cmd_restart(self, argv, print_help=0):
-        if print_help == 1:
-            print('Restart from beginning or from state at a given checkpoint.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_restart([], print_help=1)
-            print('Usage: restart [CHECKPOINT]')
-            print()
-
-            self.printwrap('If CHECKPOINT is not given, restart from beginning.',
-                           'Note that the current board state will be lost upon',
-                           'restarting (unless it is also checkpointed).',
-                           'Use "checkpoint" to define the checkpoint.')
-            return self.Status.OK
-
+    @cmdhelp('Restart from beginning or from state at a given checkpoint.',
+             'restart [CHECKPOINT]',
+             'If CHECKPOINT is not given, restart from beginning. Note that the current board'\
+             + ' state will be lost upon restarting unless it is also checkpointed. Use'\
+             + ' "checkpoint" to define the checkpoint.')
+    def _cmd_restart(self, argv):
         temp_solver = None
         try:
             checkpoint = argv[1]
@@ -1388,75 +1323,44 @@ class SolverController(object):
 
         return self._call_subcommand(argv)
 
-    def _subcmd_set_ascii(self, argv, print_help=0):
-        if print_help == 1:
-            print('Toggle whether to use UTF-8 in output.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_set_ascii([], print_help=1)
-            print('Usage: set ascii')
-            return self.Status.OK
-
+    @cmdhelp('Toggle whether to use UTF-8 in output.',
+             'set ascii')
+    def _subcmd_set_ascii(self, argv):
         ascii_mode = not self.options.ascii
         self.options.ascii = ascii_mode
         print('UTF-8 output {}.'.format('enabled' if not ascii_mode else 'disabled'))
         return self.Status.OK
 
-    def _subcmd_set_guessbreak(self, argv, print_help=0):
-        if print_help == 1:
-            print('Toggle whether to break on guesses.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_set_guessbreak([], print_help=1)
-            print('Usage: set guessbreak')
-            return self.Status.OK
-
+    @cmdhelp('Toggle whether to break on guesses.',
+             'set guessbreak')
+    def _subcmd_set_guessbreak(self, argv):
         guessbreak = not self.options.guessbreak
         self.options.guessbreak = guessbreak
 
         print('Break on guesses {}.'.format('enabled' if guessbreak else 'disabled'))
         return self.Status.OK
 
-    def _subcmd_set_markview(self, argv, print_help=0):
-        if print_help == 1:
-            print('Toggle whether to always print the board with marks noted.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_set_markview([], print_help=1)
-            print('Usage: set markview')
-            return self.Status.OK
-
+    @cmdhelp('Toggle whether to always print the board with marks noted.',
+             'set markview')
+    def _subcmd_set_markview(self, argv):
         markview = not self.options.markview
         self.options.markview = markview
 
         print('Always print marks {}.'.format('enabled' if markview else 'disabled'))
         return self.Status.OK
 
-    def _subcmd_set_prompt(self, argv, print_help=0):
-        if print_help == 1:
-            print('Set the solver\'s prompt.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_set_prompt([], print_help=1)
-            print('Usage: set prompt PROMPT')
-            return self.Status.OK
-
+    @cmdhelp('Set the solver\'s prompt.',
+             'set prompt PROMPT')
+    def _subcmd_set_prompt(self, argv):
         args = argv[1:]
         prompt = ''.join(args)
         self.options.prompt = prompt
         return self.Status.OK
 
-    def _subcmd_set_width(self, argv, print_help=0):
-        if print_help == 1:
-            print('Set the width to use for output.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._subcmd_set_width([], print_help=1)
-            print('Usage: set width WIDTH')
-            print()
-            print('Use 0 for the WIDTH to restore defaults.')
-            return self.Status.OK
-
+    @cmdhelp('Set the width to use for output.',
+             'set width WIDTH',
+             'Use 0 for the WIDTH to restore defaults.')
+    def _subcmd_set_width(self, argv):
         args = argv[1:]
 
         try:
@@ -1482,15 +1386,9 @@ class SolverController(object):
     # SET COMMANDS END
 
 
-    def _cmd_source(self, argv, print_help=0):
-        if print_help == 1:
-            print('Run commands from the given file.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_source([], print_help=1)
-            print('Usage: source FILE')
-            return self.Status.OK
-
+    @cmdhelp('Run commands from the given file.',
+             'source FILE')
+    def _cmd_source(self, argv):
         # All the commands from the sourced file will be added to
         # `command_history`, so running a script based on this history
         # would run the commands in the file twice
@@ -1516,19 +1414,13 @@ class SolverController(object):
 
     # STEP COMMANDS START
 
-    def _cmd_step(self, argv, print_help=0):
-        if print_help == 1:
-            print('Step for one or more moves.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_step([], print_help=1)
-            print('Usage: step [INTEGER]')
-            print()
-            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
-                           'stuck or at a breakpoint). If not given, 1 is assumed.',
-                           'Regardless of any ambiguity, "s" may be used for "step".')
-            return self.Status.OK
-
+    @cmdhelp('Step for one or more moves.',
+             'step [INTEGER]',
+             'Argument INTEGER means to step at most INTEGER times; if the solver becomes stuck'\
+             + ' or arrives at a breakpoint first, it may stop earlier. If INTEGER is not given,'\
+             + ' 1 is assumed.'\
+             + ' Regardless of any ambiguity, "s" may be used for "step".')
+    def _cmd_step(self, argv):
         status = self.Status.REPEAT
         repeats = self._get_repeats(argv)
 
@@ -1559,19 +1451,12 @@ class SolverController(object):
         return status | self.Status.OK
 
 
-    def _cmd_stepm(self, argv, print_help=0):
-        if print_help == 1:
-            print('Manually set cell at given location to given number.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_stepm([], print_help=1)
-            print('Usage: stepm ROW COL NUMBER')
-            print()
-            self.printwrap('The two commands "stepm ROW COL NUMBER" and "ROW COL NUMBER"',
-                           'are equivalent (that is, the "stepm" is optional).',
-                           'Regardless of any ambiguity, "sm" may be used for "stepm".')
-            return self.Status.OK
-
+    @cmdhelp('Manually set cell at given location to given number.',
+             'stepm ROW COL NUMBER',
+             'The two commands "stepm ROW COL NUMBER" and "ROW COL NUMBER" are equivalent;'\
+             + ' that is, the "stepm" is optional. Regardless of any ambiguity, "sm" may be'\
+             + ' used for "stepm".')
+    def _cmd_stepm(self, argv):
         args = argv[1:]
 
         try:
@@ -1601,23 +1486,15 @@ class SolverController(object):
 
         return self.Status.OK
 
-
-    def _cmd_stepb(self, argv, print_help=0):
-        if print_help == 1:
-            print('Step for one or more moves in given box (if possible).')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_stepb([], print_help=1)
-            print('Usage: stepb BOX [INTEGER]')
-            print()
-            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
-                           'stuck or at a breakpoint). If not given, 1 is assumed.',
-                           'Boxes are numbered from 1 to 9 starting with 1 in the top left box,',
-                           'moving from left to right, and ending with 9 in the bottom right box.',
-                           'Regardless of any ambiguity, "sb" may be used for "stepb".')
-            return self.Status.OK
-
-        status = self.Status.REPEAT
+    @cmdhelp('Step for one or more moves in given box if possible.',
+             'stepb BOX [INTEGER]',
+             'Argument INTEGER means to step at most INTEGER times; if the solver becomes stuck'\
+             + ' or arrives at a breakpoint first, it may stop earlier. If INTEGER is not given,'\
+             + ' 1 is assumed.'\
+             + ' Boxes are numbered from 1 to 9 starting with 1 in the top left box, moving from'\
+             + ' left to right, and ending with 9 in the bottom right box.'\
+             + ' Regardless of any ambiguity, "sb" may be used for "stepb".')
+    def _cmd_stepb(self, argv):
         args = argv[1:]
 
         try:
@@ -1642,19 +1519,13 @@ class SolverController(object):
         cells = Board.cells_in_box(actual_box)
         return self._priority_step_backend(args, cells)
 
-    def _cmd_stepc(self, argv, print_help=0):
-        if print_help == 1:
-            print('Step for one or more moves in given column (if possible).')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_stepc([], print_help=1)
-            print('Usage: stepc COL [INTEGER]')
-            print()
-            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
-                           'stuck or at a breakpoint). If not given, 1 is assumed.',
-                           'Regardless of any ambiguity, "sc" may be used for "stepc".')
-            return self.Status.OK
-
+    @cmdhelp('Step for one or more moves in given column if possible.',
+             'stepc COL [INTEGER]',
+             'Argument INTEGER means to step at most INTEGER times; if the solver becomes stuck'\
+             + ' or arrives at a breakpoint first, it may stop earlier. If INTEGER is not given,'\
+             + ' 1 is assumed.'\
+             + ' Regardless of any ambiguity, "sc" may be used for "stepc".')
+    def _cmd_stepc(self, argv):
         args = argv[1:]
 
         try:
@@ -1677,19 +1548,13 @@ class SolverController(object):
         cells = Board.cells_in_column(actual_col)
         return self._priority_step_backend(args, cells)
 
-    def _cmd_stepr(self, argv, print_help=0):
-        if print_help == 1:
-            print('Step for one or more moves in given row (if possible).')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_stepr([], print_help=1)
-            print('Usage: stepr ROW [INTEGER]')
-            print()
-            self.printwrap('Argument INTEGER means to step INTEGER times (or until',
-                           'stuck or at a breakpoint). If not given, 1 is assumed.',
-                           'Regardless of any ambiguity, "sr" may be used for "stepr".')
-            return self.Status.OK
-
+    @cmdhelp('Step for one or more moves in given row if possible.',
+             'stepr ROW [INTEGER]',
+             'Argument INTEGER means to step at most INTEGER times; if the solver becomes stuck'\
+             + ' or arrives at a breakpoint first, it may stop earlier. If INTEGER is not given,'\
+             + ' 1 is assumed.'\
+             + ' Regardless of any ambiguity, "sr" may be used for "stepr".')
+    def _cmd_stepr(self, argv):
         args = argv[1:]
 
         try:
@@ -1737,19 +1602,12 @@ class SolverController(object):
         return status | self.Status.OK
 
 
-    def _cmd_unstep(self, argv, print_help=0):
-        if print_help == 1:
-            print('Undo one or more steps or stepm\'s.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_unstep([], print_help=1)
-            print('Usage: unstep [INTEGER]')
-            print()
-            self.printwrap('Argument INTEGER means to unstep the last [INTEGER] steps.',
-                           'If not given, 1 is assumed. This works on all step variants.',
-                           'Note that unstepping does not trigger breakpoints.')
-            return self.Status.OK
-
+    @cmdhelp('Undo one or more steps.',
+             'unstep [INTEGER]',
+             'Argument INTEGER means to unstep the last [INTEGER] steps. If not given, 1 is'\
+             + ' assumed. This works on all step variants. Note that unstepping does not'\
+             + ' trigger breakpoints.')
+    def _cmd_unstep(self, argv):
         status = self.Status.REPEAT
         repeats = self._get_repeats(argv)
 
@@ -1766,19 +1624,11 @@ class SolverController(object):
     # STEP COMMANDS END
 
 
-    def _cmd_x(self, argv, print_help=0):
-        if print_help == 1:
-            print('Examine the generated candidates at one or more locations.')
-            return self.Status.OK
-        elif print_help == 2:
-            self._cmd_x([], print_help=1)
-            print('Usage: info ROW COL [ROW COL ...]')
-            print()
-            self.printwrap('See also "print candidates" for displaying all generated',
-                           'candidates inline. Note that these candidates are distinct',
-                           'from those set via the "mark" command.')
-            return self.Status.OK
-
+    @cmdhelp('Examine the generated candidates at one or more locations.',
+             'info ROW COL [ROW COL ...]',
+             'See also "print candidates" for displaying all generated candidates inline.'\
+             + ' Note that these candidates are distinct from those set via the "mark" command.')
+    def _cmd_x(self, argv):
         status = self.Status.REPEAT
         args = argv[1:]
 
