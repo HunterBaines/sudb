@@ -25,7 +25,7 @@ delete -- Delete some user-set value.
 delete breakpoints -- Delete all or matching breakpoints.
 delete checkpoints -- Delete all or matching checkpoints.
 delete marks -- Delete all or matching user-defined candidates.
-explain -- Indicate the reason(s) for the last move.
+explain -- Indicate the reason for the last move.
 finish -- Step until stuck or at solution or breakpoint.
 help -- Print all or matching commands.
 help delete -- Print list of delete subcommands.
@@ -52,18 +52,18 @@ set prompt -- Set the solver's prompt.
 set width -- Set the width to use for output.
 source -- Run commands from the given file.
 step -- Step for one or more moves.
-stepb -- Step for one or more moves in given box (if possible).
-stepc -- Step for one or more moves in given column (if possible).
+stepb -- Step for one or more moves in given box if possible.
+stepc -- Step for one or more moves in given column if possible.
 stepm -- Manually set cell at given location to given number.
-stepr -- Step for one or more moves in given row (if possible).
-unstep -- Undo one or more steps or stepm's.
+stepr -- Step for one or more moves in given row if possible.
+unstep -- Undo one or more steps.
 x -- Examine the generated candidates at one or more locations.
 (sudb) help 555
 Manually set cell at given location to given number.
 Usage: stepm ROW COL NUMBER
 
 The two commands "stepm ROW COL NUMBER" and "ROW COL NUMBER" are
-equivalent (that is, the "stepm" is optional). Regardless of any
+equivalent; that is, the "stepm" is optional. Regardless of any
 ambiguity, "sm" may be used for "stepm".
 (sudb) help break
 Set breakpoint at specified location.
@@ -90,8 +90,8 @@ Usage: delete breakpoints [BREAKNO [BREAKNO ...]]
 
 BREAKNO can be a number or a hyphen-specified range. If not given, all
 breakpoints will be deleted. The two commands "delete breakpoints
-BREAKNO" and "delete BREAKNO" are equivalent (that is, the
-"breakpoints" is optional).
+BREAKNO" and "delete BREAKNO" are equivalent; that is, the
+"breakpoints" is optional.
 (sudb) help delete checkpoints
 Delete all or matching checkpoints.
 Usage: delete checkpoints [CHECKPOINT [CHECKPOINT ...]]
@@ -106,7 +106,7 @@ NUMBER from the user-defined candidate list for that location. If only
 ROW and COL are given, delete all numbers from that list. If no
 arguments are given, delete all marks.
 (sudb) help explain
-Indicate the reason(s) for the last move.
+Indicate the reason for the last move.
 Usage: explain
 (sudb) help finish
 Step until stuck or at solution or breakpoint.
@@ -192,30 +192,33 @@ Restart from beginning or from state at a given checkpoint.
 Usage: restart [CHECKPOINT]
 
 If CHECKPOINT is not given, restart from beginning. Note that the
-current board state will be lost upon restarting (unless it is also
-checkpointed). Use "checkpoint" to define the checkpoint.
+current board state will be lost upon restarting unless it is also
+checkpointed. Use "checkpoint" to define the checkpoint.
 (sudb) help s
 Step for one or more moves.
 Usage: step [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "s" may be used for "step".
 (sudb) help sb
-Step for one or more moves in given box (if possible).
+Step for one or more moves in given box if possible.
 Usage: stepb BOX [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Boxes are numbered from 1 to
-9 starting with 1 in the top left box, moving from left to right, and
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Boxes are numbered from 1 to 9
+starting with 1 in the top left box, moving from left to right, and
 ending with 9 in the bottom right box. Regardless of any ambiguity,
 "sb" may be used for "stepb".
 (sudb) help sc
-Step for one or more moves in given column (if possible).
+Step for one or more moves in given column if possible.
 Usage: stepc COL [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "sc" may be used for "stepc".
 (sudb) help set
 List of set subcommands:
@@ -248,57 +251,62 @@ Manually set cell at given location to given number.
 Usage: stepm ROW COL NUMBER
 
 The two commands "stepm ROW COL NUMBER" and "ROW COL NUMBER" are
-equivalent (that is, the "stepm" is optional). Regardless of any
+equivalent; that is, the "stepm" is optional. Regardless of any
 ambiguity, "sm" may be used for "stepm".
 (sudb) help source
 Run commands from the given file.
 Usage: source FILE
 (sudb) help sr
-Step for one or more moves in given row (if possible).
+Step for one or more moves in given row if possible.
 Usage: stepr ROW [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "sr" may be used for "stepr".
 (sudb) help step
 Step for one or more moves.
 Usage: step [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "s" may be used for "step".
 (sudb) help stepb
-Step for one or more moves in given box (if possible).
+Step for one or more moves in given box if possible.
 Usage: stepb BOX [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Boxes are numbered from 1 to
-9 starting with 1 in the top left box, moving from left to right, and
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Boxes are numbered from 1 to 9
+starting with 1 in the top left box, moving from left to right, and
 ending with 9 in the bottom right box. Regardless of any ambiguity,
 "sb" may be used for "stepb".
 (sudb) help stepc
-Step for one or more moves in given column (if possible).
+Step for one or more moves in given column if possible.
 Usage: stepc COL [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "sc" may be used for "stepc".
 (sudb) help stepm
 Manually set cell at given location to given number.
 Usage: stepm ROW COL NUMBER
 
 The two commands "stepm ROW COL NUMBER" and "ROW COL NUMBER" are
-equivalent (that is, the "stepm" is optional). Regardless of any
+equivalent; that is, the "stepm" is optional. Regardless of any
 ambiguity, "sm" may be used for "stepm".
 (sudb) help stepr
-Step for one or more moves in given row (if possible).
+Step for one or more moves in given row if possible.
 Usage: stepr ROW [INTEGER]
 
-Argument INTEGER means to step INTEGER times (or until stuck or at a
-breakpoint). If not given, 1 is assumed. Regardless of any ambiguity,
+Argument INTEGER means to step at most INTEGER times; if the solver
+becomes stuck or arrives at a breakpoint first, it may stop earlier.
+If INTEGER is not given, 1 is assumed. Regardless of any ambiguity,
 "sr" may be used for "stepr".
 (sudb) help unstep
-Undo one or more steps or stepm's.
+Undo one or more steps.
 Usage: unstep [INTEGER]
 
 Argument INTEGER means to unstep the last [INTEGER] steps. If not
