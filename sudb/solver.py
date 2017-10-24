@@ -2,6 +2,9 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""The module containing the Solver class.
+
+"""
 from collections import namedtuple, OrderedDict
 import itertools
 from enum import IntEnum
@@ -40,13 +43,12 @@ class Solver(object):
         An OrderedDict mapping (row, column) locations to None; `step` will
         attempt deductions proceeding backwards starting from the location
         at the end of this dict.
-    """
 
+    """
     class MoveType(IntEnum):
         """Constants for labeling the type of a move.
 
         """
-
         NONE = 0
         ROWWISE = 1
         COLWISE = 2
@@ -78,7 +80,8 @@ class Solver(object):
         self.step_order = OrderedDict()
         # `step` iterates through `step_order` in reverse
         for row, col in reversed(Board.SUDOKU_CELLS):
-            # The value doesn't matter; `step_order` is used like an ordered set
+            # The value doesn't matter; `step_order` is used like an
+            # ordered set
             self.step_order[(row, col)] = None
 
         self._necessary_move_cache = {}
@@ -106,8 +109,8 @@ class Solver(object):
         Solver instance
             An instance identical to this instance except with its own
             unique copies of objects.
-        """
 
+        """
         new_puzzle = self.puzzle.duplicate()
         new_solver = Solver(new_puzzle)
         if self.solved_puzzle:
@@ -123,8 +126,8 @@ class Solver(object):
         Returns
         -------
         int
-        """
 
+        """
         return len(self.move_history)
 
 
@@ -139,8 +142,8 @@ class Solver(object):
             number is an int that gives the value that location was
             assigned, and type is a MoveType constant describing what type
             of move this one was (e.g., normal, guessed, or manual).
-        """
 
+        """
         moves = []
         for (num, row, col, _, move_type) in self.move_history:
             moves.append((num, row, col, move_type))
@@ -155,8 +158,8 @@ class Solver(object):
             A list with tuples of the form (number, row, column), where
             row, column is a location in `puzzle` and number is the value
             that location was assigned.
-        """
 
+        """
         moves = []
         for (num, row, col, _, _) in self.move_history:
             moves.append((num, row, col))
@@ -171,8 +174,8 @@ class Solver(object):
             A list with tuples of the form (number, row, column), where
             row, column is a location in `puzzle` and number is the value
             that location was assigned based on a deduction.
-        """
 
+        """
         return self._filtered_moves(self.DEDUCTIVE_MOVE_TYPES)
 
     def guessed_moves(self):
@@ -184,8 +187,8 @@ class Solver(object):
             A list with tuples of the form (number, row, column), where
             row, column is a location in `puzzle` and number is the value
             that location was assigned based on a hypothesis.
-        """
 
+        """
         move_types = [self.MoveType.GUESSED]
         return self._filtered_moves(move_types)
 
@@ -199,8 +202,8 @@ class Solver(object):
             row, column is a location in `puzzle` and number is the value
             that location was assigned manually (e.g., via a call to
             `step_manual`).
-        """
 
+        """
         move_types = [self.MoveType.MANUAL]
         return self._filtered_moves(move_types)
 
@@ -220,8 +223,8 @@ class Solver(object):
         MoveType constant
             The move type associated with the last move made (MoveType.NONE
             if no move has been made).
-        """
 
+        """
         if self.move_count() == 0:
             return self.MoveType.NONE
         return self.move_history[-1].move_type
@@ -239,8 +242,8 @@ class Solver(object):
         ------
         ValueError
             When `row` is not in `Board.SUDOKU_ROWS`.
-        """
 
+        """
         self.prioritize_cells(Board.cells_in_row(row))
 
     def prioritize_column(self, col):
@@ -255,8 +258,8 @@ class Solver(object):
         ------
         ValueError
             When `col` is not in `Board.SUDOKU_COLS`.
-        """
 
+        """
         self.prioritize_cells(Board.cells_in_column(col))
 
     def prioritize_box(self, box):
@@ -271,8 +274,8 @@ class Solver(object):
         ------
         ValueError
             When `box` is not in `Board.SUDOKU_BOXES`.
-        """
 
+        """
         self.prioritize_cells(Board.cells_in_box(box))
 
     def prioritize_cells(self, cells):
@@ -288,8 +291,8 @@ class Solver(object):
         ------
         ValueError
             When an int tuple in `cells` is not in `Board.SUDOKU_CELLS`.
-        """
 
+        """
         for location in reversed(cells):
             if location not in Board.SUDOKU_CELLS:
                 raise ValueError('invalid location {}'.format(location))
@@ -315,16 +318,18 @@ class Solver(object):
         -------
         bool
             True if `puzzle` was successfully solved or False otherwise.
-        """
 
+        """
         self.step_until_stuck()
-        # The solver can't make an inconsistent move, so only completion needs to be checked
+        # The solver can't make an inconsistent move, so only completion
+        # needs to be checked
         solved = self.puzzle.is_complete()
 
         while not solved:
             # If here, a guess is in order
             if not allow_guessing or not self.step_best_guess():
-                # The last move can't be a guess, so if here is_complete() would also be False
+                # The last move can't be a guess, so if here is_complete()
+                # would also be False
                 return False
             self.step_until_stuck()
             solved = self.puzzle.is_complete()
@@ -339,8 +344,8 @@ class Solver(object):
         -------
         int
             The number of successful steps made before becoming stuck.
-        """
 
+        """
         steps_made = 0
         stuck = False
         while not stuck:
@@ -366,17 +371,17 @@ class Solver(object):
         See Also
         --------
         unstep : the undo method for this method.
-        """
 
+        """
         if not self._necessary_move_cache_is_valid():
-            # Start over clean in case here because `self._puzzle_hash_cache`
-            # didn't match current hash: this could be because the puzzle has
-            # been unstepped or clues have otherwise been removed, so
-            # `self._necessary_move_cache` may suggests deductions no longer
-            # necessary on the new board with fewer clues; or it could be
-            # because a known clue was overwritten or some other bad clue was
-            # added---too much can go wrong to make flushing the cache
-            # conditionally worth it
+            # Start over clean in case here because
+            # `self._puzzle_hash_cache` didn't match current hash: this
+            # could be because the puzzle has been unstepped or clues have
+            # otherwise been removed, so `self._necessary_move_cache` may
+            # suggests deductions no longer necessary on the new board with
+            # fewer clues; or it could be because a known clue was
+            # overwritten or some other bad clue was added---too much can
+            # go wrong to make flushing the cache conditionally worth it
             self.flush_step_cache()
             self._fill_necessary_move_cache()
 
@@ -405,8 +410,8 @@ class Solver(object):
         public because flushing the cache can be useful, for example, when
         trying to prevent `step` from getting hung up on cached moves while
         trying to prioritize some locations.
-        """
 
+        """
         self._necessary_move_cache = {}
 
     def _necessary_move_cache_is_valid(self):
@@ -468,7 +473,8 @@ class Solver(object):
             if len(possibilities) == 1:
                 move_type = self.MoveType.ELIMINATION
                 number = possibilities.pop()
-                # Even if already defined in cache, redefine to be of type `ELIMINATION`
+                # Even if already defined in cache, redefine to be of type
+                # `ELIMINATION`
                 self._necessary_move_cache[(row, col)] = (number, move_type)
 
         self._puzzle_hash_cache = hash(self.puzzle)
@@ -499,8 +505,8 @@ class Solver(object):
         See Also
         --------
         step : the do method for this undo method.
-        """
 
+        """
         if self.move_count() == 0:
             return ()
 
@@ -545,8 +551,8 @@ class Solver(object):
         See Also
         --------
         step : the automatic version of this method.
-        """
 
+        """
         if row not in Board.SUDOKU_ROWS:
             raise ValueError('invalid row value {}'.format(row))
         if col not in Board.SUDOKU_COLS:
@@ -577,8 +583,8 @@ class Solver(object):
         int tuple
             The (row, column) location changed, or an empty tuple if
             nothing changed.
-        """
 
+        """
         guess = self.best_guess()
         if not guess:
             return ()
@@ -597,8 +603,8 @@ class Solver(object):
         int tuple
             The (number, row, col) move opening the gates to the most new
             deductions, or an empty tuple if none found.
-        """
 
+        """
         if self.solved_puzzle is None:
             # This method pulls guesses from a solved version of the puzzle
             self.solved_puzzle = self.puzzle.duplicate()
@@ -634,8 +640,8 @@ class Solver(object):
             A mapping of (row, col) locations to the set of numbers that
             could be placed at those locations without leaving the board in
             an inconsistent state.
-        """
 
+        """
         next_moves = {location: set() for location in Board.SUDOKU_CELLS}
 
         for number in Board.SUDOKU_NUMBERS:
@@ -683,8 +689,8 @@ class Solver(object):
         ValueError
             When `number` is not in Board.SUDOKU_NUMBERS or `box` is not in
             Board.SUDOKU_BOXES.
-        """
 
+        """
         if number not in Board.SUDOKU_NUMBERS:
             min_val, max_val = min(Board.SUDOKU_NUMBERS), max(Board.SUDOKU_NUMBERS)
             raise ValueError('number must be between {} and {} inclusive'.format(min_val, max_val))
@@ -738,8 +744,8 @@ class Solver(object):
         --------
         possible_locations_in_column : the column version of this method
         _possible_locations_in_line : the backend for this method
-        """
 
+        """
         return self._possible_locations_in_line(number, row, True)
 
     def possible_locations_in_column(self, number, col):
@@ -771,8 +777,8 @@ class Solver(object):
         --------
         possible_locations_in_row : the row version of this method
         _possible_locations_in_line : the backend for this method
-        """
 
+        """
         return self._possible_locations_in_line(number, col, False)
 
     def _possible_locations_in_line(self, number, line, rowwise):
@@ -805,7 +811,8 @@ class Solver(object):
             location = (line, other) if rowwise else (other, line)
             box, _ = self.puzzle.box_containing_cell(*location)
             if value == 0 and number not in other_lines[other] and number not in boxes[box]:
-                # Number is blank and not already in other line (row or col) or box
+                # Number is blank and not already in other line (row or
+                # col) or box
                 possible_locations.add(location)
 
         return possible_locations
@@ -829,8 +836,8 @@ class Solver(object):
             other information about the puzzle gleaned from analysis; if
             the given location already has a number in its cell, that
             number alone will be in the returned set.
-        """
 
+        """
         if not self._necessary_move_cache_is_valid():
             self.flush_step_cache()
             self._fill_necessary_move_cache()
@@ -861,8 +868,8 @@ class Solver(object):
             The (row, column) locations that prevented the number in the
             last move from being placed at any row or column but the one it
             ended up in.
-        """
 
+        """
         move_type = self.last_move_type() if override_move_type is None else override_move_type
 
         if move_type not in self.DEDUCTIVE_MOVE_TYPES:
@@ -901,7 +908,8 @@ class Solver(object):
             reasons_for_last_move -= {(move_row, move_col)}
             return reasons_for_last_move
         elif move_type == self.MoveType.ELIMINATION:
-            # Return move itself to indicate number was only viable one for location
+            # Return move itself to indicate number was only viable one for
+            # location
             return {(move_row, move_col)}
         else:
             # This should never occur
@@ -942,8 +950,8 @@ class Solver(object):
         ------
         Board instance
             A board representing a solution to the puzzle.
-        """
 
+        """
         if algorithm and algorithm == 'backtrack':
             temp_puzzle = self.puzzle.duplicate()
             for puzzle in self._backtrack(temp_puzzle):
@@ -974,8 +982,8 @@ class Solver(object):
         int
             The number of solutions possible for the puzzle (a proper
             puzzle will have only one).
-        """
 
+        """
         count = 0
 
         if algorithm and algorithm == 'backtrack':
@@ -1018,8 +1026,8 @@ class Solver(object):
         Algorithm X is the default because it tends to be faster than
         backtracking, and the time it does take tends to be similar for
         most boards.
-        """
 
+        """
         if algorithm and algorithm == 'backtrack':
             return self._solve_backtrack()
         else:
@@ -1037,8 +1045,8 @@ class Solver(object):
         See Also
         --------
         _backtrack : the backend for this method.
-        """
 
+        """
         for puzzle in self._backtrack():
             self.puzzle.copy(puzzle)
             return self.puzzle.is_complete() and self.puzzle.is_consistent()
@@ -1125,8 +1133,8 @@ class Solver(object):
         See Also
         --------
         _algorithm_x : the backend for this method.
-        """
 
+        """
         for puzzle in self._algorithm_x():
             self.puzzle.copy(puzzle)
             return self.puzzle.is_complete() and self.puzzle.is_consistent()
@@ -1197,16 +1205,17 @@ class Solver(object):
         .. [1] Assaf, A. "Algorithm X in 30 lines!". Available at:
            http://www.cs.mcgill.ca/~aassaf9/python/algorithm_x.html
            [Accessed 23 Jun. 2017].
-        """
 
-        #TODO figure out how to have it return only one version of each set
+        """
+        #TODO: have it return only one version of each set
         if not col_dict:
             # The last matrix had exactly one entry in every column
             yield list(solution)
         else:
             # Pick column with fewest members
             set_id = min(col_dict, key=lambda sid: len(col_dict[sid]))
-            # Consider the rows in any order (where elem is an element from the universe)
+            # Consider the rows in any order (where elem is an element from
+            # the universe)
             for elem in col_dict[set_id]:
                 # Add row to partial solution list
                 solution.append(elem)
@@ -1215,7 +1224,8 @@ class Solver(object):
                 for partial_solution in self._exact_hitting_set(col_dict, row_dict, solution):
                     # Branch succeeded
                     yield partial_solution
-                # Branch failed, remove row from solutions, and restore columns
+                # Branch failed, remove row from solutions, and restore
+                # columns
                 self._restore_columns(col_dict, row_dict, elem, saved_columns)
                 solution.pop()
 
@@ -1227,7 +1237,8 @@ class Solver(object):
             for other_row in col_dict[col]:
                 # Then consider each other asserted column in those rows
                 for other_col in [c for c in row_dict[other_row] if c != col]:
-                    # And delete any mention of that row (effectively deleting row)
+                    # And delete any mention of that row (effectively
+                    # deleting row)
                     col_dict[other_col].remove(other_row)
             # And lastly delete the column itself
             columns_deleted.append(col_dict.pop(col))
@@ -1265,14 +1276,14 @@ class Solver(object):
         --------
         _puzzle_constraint_subsets : the method that generates a
                                      `constraint_subsets_dict`
-        """
 
+        """
         universe_dict = {}
 
         for row in Board.SUDOKU_ROWS:
             for col in Board.SUDOKU_COLS:
                 for number in Board.SUDOKU_NUMBERS:
-                    # Str means this still works even if row is zero-indexed
+                    # Str so this still works even if row is zero-indexed
                     possibility_code = '{}{}{}'.format(row, col, number)
                     universe_dict[possibility_code] = set()
 
@@ -1329,8 +1340,8 @@ class Solver(object):
                            each combination in the Sudoku universe to the
                            names of sets in `constraint_subsets_dict` that
                            contain that combination.
-        """
 
+        """
         constraint_subsets_dict = {}
 
         for row in Board.SUDOKU_ROWS:

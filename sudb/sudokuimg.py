@@ -2,7 +2,7 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-"""Extract digits from a Sudoku puzzle in an image.
+"""Functions for extracting digits from the image of a 9x9 Sudoku.
 
 Examples
 --------
@@ -27,7 +27,6 @@ Examples
 !.......!.......!.......!
 
 """
-
 import os
 import tempfile
 
@@ -54,8 +53,8 @@ def puzzle_lines(filename):
         string represents a single row, and each character in the string
         represents a single entry in the puzzle (with '0' for blanks). If
         not successful, the list returned will be empty.
-    """
 
+    """
     lines = []
 
     config_file = tempfile.NamedTemporaryFile()
@@ -99,8 +98,8 @@ def _autocropped(image):
     -------
     PIL ImageFile object
         A version of `image` with any obvious border cropped out.
-    """
 
+    """
     image.load()
     image_box = image.getbbox()
     cropped = image.crop(image_box)
@@ -123,8 +122,8 @@ def _uniform_pixels(pixels, threshold):
     bool
         True if the measure of deviation is less than `threshold` or False
         otherwise.
-    """
 
+    """
     pixel_arr = numpy.array(pixels)
     stddev = numpy.std(pixel_arr)
     return True if stddev < threshold else False
@@ -154,8 +153,8 @@ def _binarize_image(image_filename, output_filename):
     References
     ----------
     .. [1] https://www.stackoverflow.com/a/37497975
-    """
 
+    """
     try:
         from scipy.misc import imsave
         image = Image.open(image_filename)
@@ -192,8 +191,8 @@ def _get_columns_from_grid(image, threshold=0):
         x-coordinate of the leftmost pixel between a given row marker pair
         and second value indicates the x-coordinate of the rightmost pixel
         between that same pair.
-    """
 
+    """
     left = 0
     right = image.size[0]
     top = 0
@@ -211,7 +210,8 @@ def _get_columns_from_grid(image, threshold=0):
             pixel_col.append(pixel)
         if _uniform_pixels(pixel_col, threshold):
             if in_cell:
-                # Each sudoku cell should be ~1/9 the width; ignore anything less than half that
+                # Each sudoku cell should be ~1/9 the width; ignore
+                # anything less than half that
                 if x - start_x > right / 18:
                     columns.append((start_x, x-1))
                 start_x = x
@@ -246,8 +246,8 @@ def _get_rows_from_grid(image, threshold=0):
         y-coordinate of the highest pixel between a given row marker pair
         and second value indicates the y-coordinate of the lowest pixel
         between that same pair.
-    """
 
+    """
     left = 0
     right = image.size[0]
     top = 0
@@ -265,7 +265,8 @@ def _get_rows_from_grid(image, threshold=0):
             pixel_row.append(pixel)
         if _uniform_pixels(pixel_row, threshold):
             if in_cell:
-                # Each sudoku cell should be ~1/9 the height; ignore anything less than half that
+                # Each sudoku cell should be ~1/9 the height; ignore
+                # anything less than half that
                 if y - start_y > bottom / 18:
                     rows.append((start_y, y-1))
                 start_y = y

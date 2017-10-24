@@ -2,6 +2,9 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""A class for defining errors and a function for printing error messages.
+
+"""
 import sys
 import textwrap
 
@@ -24,8 +27,8 @@ class Error(object):
         ORed with other error numbers to create an error mask.
     strerror : str
         A string description of this Error instance.
-    """
 
+    """
     next_errno = 1
 
     def __init__(self, strerror):
@@ -63,8 +66,8 @@ def error(message, prelude=None, status=0, maxline=70):
     maxline : int, optional
         The max number of characters to include in each line of output
         counting the prelude and padding (default 70).
-    """
 
+    """
     if prelude is None:
         prelude = 'error'
 

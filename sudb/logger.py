@@ -2,7 +2,11 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""The module containing the ErrorLogger class.
+
+"""
 import error
+
 
 class ErrorLogger(object):
     """An error logger mapping hashable objects to user-defined errors.
@@ -23,8 +27,8 @@ class ErrorLogger(object):
     reverse_log : dict of int to set of int
         A mapping of an error number to the set of object hashes to which
         the error with that error number applies.
-    """
 
+    """
     def __init__(self, errors=None):
         self.errors = set() if errors is None else set(errors)
         self.log = {}
@@ -57,8 +61,8 @@ class ErrorLogger(object):
         -----
         This is intended to be implemented by subclasses where the nature
         of the objects and errors can be more determinate.
-        """
 
+        """
         raise NotImplementedError()
 
     def log_error(self, obj, err):
@@ -70,8 +74,8 @@ class ErrorLogger(object):
             The object to map `err` to.
         err : Error instance
             The error to be mapped to `obj`.
-        """
 
+        """
         obj_key = hash(obj)
 
         try:
@@ -90,8 +94,8 @@ class ErrorLogger(object):
             The object whose log entry is to be modified.
         err : Error instance
             The error to remove from the log entry for `obj`.
-        """
 
+        """
         self.clear_error(err, obj=obj)
 
 
@@ -108,8 +112,8 @@ class ErrorLogger(object):
         int
             The value containing the flags that summarize what errors apply
             to `obj` or 0 if `obj` is not in the log.
-        """
 
+        """
         try:
             obj_key = hash(obj)
             flags = self.log[obj_key]
@@ -132,8 +136,8 @@ class ErrorLogger(object):
         bool
             True if the log entry for `obj` contains errors given in
             `mask`, and False otherwise.
-        """
 
+        """
         return self.log_entry(obj) & mask
 
 
@@ -144,8 +148,8 @@ class ErrorLogger(object):
         ----------
         err : Error instance
             The error to add to the instance's `errors` set.
-        """
 
+        """
         self.errors.add(err)
         self.reverse_log[err.errno] = set()
 
@@ -161,8 +165,8 @@ class ErrorLogger(object):
         -----
         This method does not delete references to the error: use
         `clear_error` for that.
-        """
 
+        """
         self.errors.remove(err)
 
     def clear_error(self, err, obj=None):
@@ -179,8 +183,8 @@ class ErrorLogger(object):
         obj : hashable, optional
             The object whose log entry is to be cleared of references to
             `err` (default None).
-        """
 
+        """
         targets = self.reverse_log[err.errno] if obj is None else [hash(obj)]
 
         for obj_key in targets:
@@ -204,8 +208,8 @@ class ErrorLogger(object):
         int
             An error count for all objects if `obj` is not given, or an
             error count for `obj` if given.
-        """
 
+        """
         if obj is None:
             # The overall error count
             return sum(map(len, self.reverse_log.values()))
@@ -236,8 +240,8 @@ class ErrorLogger(object):
         prelude : str, optional
             The text to print before each error report (default the hash of
             `obj`).
-        """
 
+        """
         if prelude is None:
             prelude = str(hash(obj))
 
@@ -255,7 +259,6 @@ class ErrorLogger(object):
         """Print to stdout how many of each error were logged.
 
         """
-
         print 'Error Summary:'
 
         if not self.error_count():

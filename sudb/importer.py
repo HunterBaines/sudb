@@ -2,7 +2,7 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-"""Import 9x9 Sudoku puzzles from files or random seeds.
+"""Functions for importing 9x9 Sudokus from files or random seeds.
 
 Examples
 --------
@@ -48,7 +48,6 @@ Examples
     seed 0
 
 """
-
 from os import path
 import urllib
 
@@ -88,8 +87,8 @@ def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
     -----
     Aside from the addition of error logging, this is just an integrated
     version of the other methods available in the module.
-    """
 
+    """
     if logger is not None:
         IMPORT_ERROR = error.Error('import error')
         logger.add_error(IMPORT_ERROR)
@@ -142,8 +141,8 @@ def get_puzzles_from_seeds(seeds):
     -------
     list of Board instance
         A list of all puzzles generated from `seeds`.
-    """
 
+    """
     puzzles = []
 
     for seed in seeds:
@@ -186,14 +185,15 @@ def get_puzzles_from_file(filename=None):
     list of Board instance
         A list of all puzzles found in the given file or entered by the
         user.
-    """
 
+    """
     lines = []
     specify_lineno_in_name = False
 
     if filename is not None:
         try:
-            # If path, it returns that; if url, it downloads then returns path to downloaded copy
+            # If path, it returns that; if url, it downloads then returns
+            # path to downloaded copy
             filename = urllib.urlretrieve(filename)[0]
         except IOError as err:
             error.error(err.strerror.lower(), prelude=filename)
@@ -208,7 +208,8 @@ def get_puzzles_from_file(filename=None):
                 return []
         else:
             specify_lineno_in_name = True
-            # If we made it past urllib.urlretrieve, this shouldn't raise an IOError
+            # If we made it past urllib.urlretrieve, this shouldn't raise
+            # an IOError
             with open(filename, 'r') as puzzle_file:
                 lines = puzzle_file.read().split('\n')
     else:
@@ -248,8 +249,8 @@ def get_puzzles_from_lines(lines, name=None, specify_lineno=False):
     -------
     list of Board instance
         A list of all puzzles found in the given lines.
-    """
 
+    """
     if name is None:
         name = 'stdin'
 

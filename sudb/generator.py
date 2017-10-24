@@ -2,7 +2,7 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-"""Generate puzzles from seed or from other puzzles.
+"""Functions for generating 9x9 Sudokus from seed or from other puzzles.
 
 Examples
 --------
@@ -58,7 +58,6 @@ Examples
 !.......!.......!.......!
 
 """
-
 import random
 
 from board import Board
@@ -83,8 +82,8 @@ def generate(seed, minimized=False):
     -------
     Board instance
         The puzzle generated from the given seed.
-    """
 
+    """
     puzzle = solved_puzzle(seed)
     puzzle = similar_puzzle(puzzle, seed)
     if minimized:
@@ -104,8 +103,8 @@ def solved_puzzle(seed):
     -------
     Board instance
         The solved puzzle generated from the given seed.
-    """
 
+    """
     # Decreasing this allows for more randomness but can also increase the
     # time required to generate from some seeds
     MIN_START_CLUES = 3
@@ -162,8 +161,8 @@ def similar_puzzle(puzzle, seed, min_clues=17):
     -----
     For an explanation of the default for `min_clues`, see the notes in
     `minimize`.
-    """
 
+    """
     clues = puzzle.clues()
     if len(clues) < min_clues:
         return None
@@ -195,8 +194,8 @@ def make_satisfactory(puzzle):
     See Also
     --------
     minimize : a method that makes puzzles harder by removing clues.
-    """
 
+    """
     clues_added = 0
     solver = Solver(puzzle.duplicate())
     solver.autosolve()
@@ -249,8 +248,8 @@ def minimize(puzzle, threshold=17):
     Hitting Set Enumeration", Experimental Mathematics, vol. 23, no. 2,
     pp. 190-217, 2012. Available at: https://arxiv.org/abs/1201.0749
     [Accessed 25 Jun. 2017].
-    """
 
+    """
     if threshold < 17 or puzzle.clue_count() <= threshold:
         return 0
 
@@ -283,6 +282,6 @@ def random_seed(rand_min=0, rand_max=2147483647):
         The minimum seed (default 0).
     rand_max : int, optional
         The maximum seed (default 2^31).
-    """
 
+    """
     return random.randint(rand_min, rand_max)

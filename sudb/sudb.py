@@ -4,6 +4,9 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""The main method for the package and an ErrorLogger subclass for Sudokus.
+
+"""
 import os
 import sys
 import tempfile
@@ -34,8 +37,8 @@ class PuzzleErrorLogger(ErrorLogger):
     TOO_FEW_CLUES : Error instance
         The error indicating the board has fewer clues than the minimum
         required to guarantee the puzzle has a single solution.
-    """
 
+    """
     INCONSISTENT_BOARD = error.Error('inconsistent board')
     TOO_FEW_CLUES = error.Error('too few clues')
 
@@ -51,8 +54,8 @@ class PuzzleErrorLogger(ErrorLogger):
         int
             A value representing the error numbers of all errors that
             indicate an unsolvable puzzle ORed together.
-        """
 
+        """
         return self.INCONSISTENT_BOARD.errno
 
     def autolog(self, puzzle, report=False):
@@ -96,8 +99,8 @@ def main():
     to solve it, and mark differences between it and the original board if
     the `-d` argument was used. Use only ASCII in the output if the `-a`
     argument was given.
-    """
 
+    """
     args = _get_parser().parse_args()
 
     # Warn if the UTF-8 output will look like garbage on this terminal
@@ -143,8 +146,8 @@ def main():
             # A unsolvable error occured
             skip_solving = True
 
-        # A copy of the original is needed to find differences between
-        # it and the final state of the board and for error output
+        # A copy of the original is needed to find differences between it
+        # and the final state of the board and for error output
         original_puzzle = puzzle.duplicate()
 
         if skip_solving:

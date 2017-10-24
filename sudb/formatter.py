@@ -4,6 +4,9 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""Functions for formatting Sudokus plus classes for colors and grid parts.
+
+"""
 import os
 import subprocess
 
@@ -30,8 +33,8 @@ class GridComponentFormatter(object):
         The characters to use for constructing grid components.
     gridct : list of str
         The thicker variants of the characters in `gridc` (if possible).
-    """
 
+    """
     def __init__(self, ascii_mode=False):
         self.ascii_mode = ascii_mode
 
@@ -72,8 +75,8 @@ class GridComponentFormatter(object):
         -------
         str
             The string representing the requested type of separator.
-        """
 
+        """
         if thick:
             gridc = self.gridct
         else:
@@ -123,8 +126,8 @@ class GridComponentFormatter(object):
         -------
         str
             The string representing the requested number of separators.
-        """
 
+        """
         if thick:
             gridc = self.gridct
         else:
@@ -171,8 +174,8 @@ class GridComponentFormatter(object):
             A box with `height` rows and `width` columns of spaces (or
             values defined in `blank_map`) within, or the instance's
             `blankc` if `height` or `width` was 0.
-        """
 
+        """
         if height == 0 or width == 0:
             return self.blankc
 
@@ -201,7 +204,6 @@ class Color():
     """Constants for printing colored output.
 
     """
-
     RED = '\033[1;31m'
     GREEN = '\033[0;32m'
     YELLOW = '\033[1;33m'
@@ -230,8 +232,8 @@ def get_colormap(locations, color):
     -------
     dict of tuple to Color constant
         A mapping of each location in `locations` to `color`.
-    """
 
+    """
     colormap = {}
     for location in locations:
         colormap[location] = color
@@ -334,7 +336,6 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
         1 2 3   4 5 6   7 8 9
 
     """
-
     if candidate_map is not None:
         if not ascii_mode:
             terminal_width = terminal_width if terminal_width else _detect_terminal_width()
@@ -342,7 +343,6 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
         else:
             widescreen = False
 
-        #height = 5
         height = 4 if widescreen else 5
         width = 25 if widescreen else 19
         size_id = 2 if widescreen else 1

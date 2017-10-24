@@ -4,6 +4,9 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""The module containing the Board class.
+
+"""
 class Board(object):
     """A 9x9 Sudoku board.
 
@@ -58,8 +61,8 @@ class Board(object):
     -----
     Though both `lines` and `board` are optional in `__init__`, if neither
     is specified, a blank board will be initialized.
-    """
 
+    """
     # Calling these SUDOKU_X instead of just X to avoid any ambiguity over
     # whether the X applies to the instance or the class itself
     SUDOKU_NUMBERS = range(1, 10)
@@ -99,8 +102,8 @@ class Board(object):
         KeyError
             When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
             respectively.
-        """
 
+        """
         try:
             box, box_i = Board.box_containing_cell.cell_box_map[(row, col)]
             return (box, box_i)
@@ -138,8 +141,8 @@ class Board(object):
         KeyError
             When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
             respectively.
-        """
 
+        """
         box, _ = Board.box_containing_cell(row, col)
         return box / 3
 
@@ -168,8 +171,8 @@ class Board(object):
         KeyError
             When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
             respectively.
-        """
 
+        """
         box, _ = Board.box_containing_cell(row, col)
         return box % 3
 
@@ -194,8 +197,8 @@ class Board(object):
         ------
         ValueError
             When `box` is not in SUDOKU_BOXES.
-        """
 
+        """
         try:
             return Board.cells_in_box.box_cells_map[box]
         except AttributeError:
@@ -228,8 +231,8 @@ class Board(object):
         ------
         ValueError
             When `band` is not in SUDOKU_BANDS.
-        """
 
+        """
         if band not in Board.SUDOKU_BANDS:
             raise ValueError('invalid band argument {}'.format(band))
 
@@ -261,8 +264,8 @@ class Board(object):
         ------
         ValueError
             When `stack` is not in SUDOKU_STACKS.
-        """
 
+        """
         if stack not in Board.SUDOKU_STACKS:
             raise ValueError('invalid stack argument {}'.format(stack))
 
@@ -294,8 +297,8 @@ class Board(object):
         ------
         ValueError
             When `row` is not in SUDOKU_ROWS.
-        """
 
+        """
         if row not in Board.SUDOKU_ROWS:
             raise ValueError('invalid row argument {}'.format(row))
         return [(row, col) for col in Board.SUDOKU_COLS]
@@ -320,8 +323,8 @@ class Board(object):
         ------
         ValueError
             When `col` is not in SUDOKU_COLS.
-        """
 
+        """
         if col not in Board.SUDOKU_COLS:
             raise ValueError('invalid column argument {}'.format(col))
         return [(row, col) for row in Board.SUDOKU_ROWS]
@@ -393,8 +396,8 @@ class Board(object):
         ----------
         board_instance : Board instance
             The Board instance with `board` instance variable to copy.
-        """
 
+        """
         # Reset cached versions of rows, columns, and boxes
         self._rows = self._columns = self._boxes = None
         self.board = [row[:] for row in board_instance.board]
@@ -406,8 +409,8 @@ class Board(object):
         -------
         Board instance
             An instance identical to this instance.
-        """
 
+        """
         return Board(board=self, name=self.name)
 
 
@@ -434,8 +437,8 @@ class Board(object):
         IndexError
             When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
             respectively.
-        """
 
+        """
         return self.board[row][col]
 
     def set_cell(self, number, row, col):
@@ -458,8 +461,8 @@ class Board(object):
         IndexError
             When `row` or `col` is not in SUDOKU_ROWS or SUDOKU_COLS,
             respectively.
-        """
 
+        """
         if str(number) not in self.SUDOKU_STRINGS:
             number = self.BLANK
         # This should already by an int, but make sure
@@ -488,8 +491,8 @@ class Board(object):
             topmost row, the next three its middle row, and the final three
             its bottom row. The inner lists themselves are ordered in the
             same way, mutatis mutandis.
-        """
 
+        """
         # Return cached version if possible
         if self._boxes is not None:
             return self._boxes
@@ -513,8 +516,8 @@ class Board(object):
         list of list of int
             In which each inner list represents a row in the board, and
             those inner lists are ordered from topmost row to bottommost.
-        """
 
+        """
         # Return cached version if possible
         if self._rows is not None:
             return self._rows
@@ -530,8 +533,8 @@ class Board(object):
             In which each inner list represents a column in the board, and
             those inner lists are ordered from leftmost column to
             rightmost.
-        """
 
+        """
         if self._columns is not None:
             return self._columns
 
@@ -548,8 +551,8 @@ class Board(object):
             A list with tuples of the form (number, row, column), where
             row, column is a location in the board and number is the value
             that location was assigned.
-        """
 
+        """
         #TODO: cache clues?
         clues = []
         for (row, col) in self.SUDOKU_CELLS:
@@ -565,8 +568,8 @@ class Board(object):
         -------
         int
             The number of cells in the puzzle that are not blank.
-        """
 
+        """
         return len(self.clues())
 
 
@@ -577,8 +580,8 @@ class Board(object):
         -------
         bool
             False if blanks found, True otherwise.
-        """
 
+        """
         return self.clue_count() == len(self.SUDOKU_CELLS)
 
     def is_consistent(self):
@@ -591,8 +594,8 @@ class Board(object):
         -------
         bool
             False if inconsistencies found, True otherwise.
-        """
 
+        """
         # Look for duplicates in each box
         for box in self.boxes():
             digit_box = [digit for digit in box if digit in self.SUDOKU_NUMBERS]
@@ -625,8 +628,8 @@ class Board(object):
         list of int tuple
             A list of (row, column) locations that are inconsistent
             according to the rules of Sudoku.
-        """
 
+        """
         inconsistent_locations = []
 
         # Look for duplicates in each box
@@ -673,8 +676,8 @@ class Board(object):
             A list of (row, column) locations for which the numbers at
             those locations differ between the `board` of this instance and
             the `board` of `board_instance`.
-        """
 
+        """
         diff_coordinates = []
         for (row, col) in self.SUDOKU_CELLS:
             if self.get_cell(row, col) != board_instance.get_cell(row, col):
@@ -712,8 +715,8 @@ class Board(object):
         -----
         This method could reasonably be called `candidates`, but such a
         name might suggest more analysis than what this actually does.
-        """
 
+        """
         current_number = self.get_cell(row, col)
         if current_number:
             return {current_number}

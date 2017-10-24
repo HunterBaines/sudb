@@ -2,7 +2,11 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+"""The module containing the SolverController class.
+
+"""
 from __future__ import print_function
+
 import os
 import re
 import stat
@@ -82,8 +86,8 @@ class SolverController(object):
     when equal to 2 should print a longer help message and return, and
     which should otherwise be ignored; and finally a Status constant as a
     return value.
-    """
 
+    """
     class Status(IntEnum):
         """Constants representing the reason a command returned.
 
@@ -107,8 +111,8 @@ class SolverController(object):
             commented out) in any command history.
         OTHER : int
             Constant used for abnormal return for some other reason.
-        """
 
+        """
         NONE = 0
         OK = 1
         STUCK = 2
@@ -153,8 +157,8 @@ class SolverController(object):
         width : int
             The width to use for wrapping text and deciding which version
             of the user-defined-candidates-displayed board to output.
-        """
 
+        """
         def __init__(self):
             # The leading space in the expansion of patterns that can begin
             # either at the start of the line ('^') or with whitespace
@@ -218,8 +222,8 @@ class SolverController(object):
         -------
         bool
             True if `puzzle` was successfully solved or False otherwise.
-        """
 
+        """
         command = ''
         last_command = 'step'
         # To determine if stdin is coming from file or terminal
@@ -263,14 +267,16 @@ class SolverController(object):
                 last_command = command
 
             if status & self.Status.STUCK:
-                # The solver is stuck (no solution possible or solved already)
-                # This can change if user, e.g., does an unstep, stepm, or restart
+                # The solver is stuck (no solution possible or solved
+                # already). NB: this can change if user, e.g., does an
+                # unstep, stepm, or restart
                 if self.puzzle.is_complete() and self.puzzle.is_consistent():
                     print('The puzzle is solved.')
                 else:
                     print('The solver is stuck. Try restarting.')
 
-        # Even if solved at some point during session, it may not be solved at quit time
+        # Even if solved at some point during session, it may not be solved
+        # at quit time
         return self.puzzle.is_complete() and self.puzzle.is_consistent()
 
     def run_command(self, command):
@@ -286,16 +292,16 @@ class SolverController(object):
         -------
         Status constant
             The return status of the command run.
-        """
 
+        """
         command_name, arg_str = self.parse_command(command)
         command_args = arg_str.split()
 
         if command_name is None:
             return self.Status.OTHER
         elif command_name == 'set prompt':
-            # Hack to get the prompt with literal everything (whitespace and
-            # comments) to `set prompt`
+            # Hack to get the prompt with literal everything (whitespace
+            # and comments) to `set prompt`
             try:
                 literal_argv = command.split(' ')
                 arg_index = literal_argv.index(command.split()[2])
@@ -336,8 +342,8 @@ class SolverController(object):
             `command` is 'se w 70', this method will return the tuple ('set
             width', '70'). If no command name can be determined, the first
             element of the tuple will be None.
-        """
 
+        """
         if not command or command.startswith(self.options.comment_char):
             # command was None, an empty string, or just a comment
             return None, ''
@@ -384,18 +390,20 @@ class SolverController(object):
                     return base_command_name, command_args
 
             if len(possible_commands) > 1:
-                # Check if list similiar to ['print candidates', 'print checkpoints'],
-                # so common name can be used in error message
+                # Check if list similiar to ['print candidates',
+                # 'print checkpoints'], so common name can be used in error
+                # message
                 base_names = set([cmd.split()[0] for cmd in possible_commands])
                 base_command_name = '{} '.format(base_names.pop()) if len(base_names) == 1 else ''
                 print('Ambiguous {}command "{}":'.format(base_command_name, command), end='')
                 print(' {}.'.format(', '.join(possible_commands)))
                 return None, command_args
             elif not possible_commands:
-                # There could never be an 'Undefined X command: "Y"' here (for
-                # command X with bad subcommand Y): Y has to be interpreted
-                # as args for X since command X may take non-command-name
-                # arguments (e.g., `break` can take a BREAKNO to delete).
+                # There could never be an 'Undefined X command: "Y"' here
+                # (for command X with bad subcommand Y): Y has to be
+                # interpreted as args for X since command X may take
+                # non-command-name arguments (e.g., `break` can take a
+                # BREAKNO to delete).
                 print('Undefined command: "', end='')
                 try:
                     print('{}'.format(command.split()[0]), end='')
@@ -433,8 +441,8 @@ class SolverController(object):
         args : list of str
             The text to be joined by a space and printed wrapped to the
             defined width.
-        """
 
+        """
         text = ' '.join(args)
         width = self.options.width
         width = 70 if not width else width
@@ -501,7 +509,6 @@ class SolverController(object):
             1 2 3   4 5 6   7 8 9
 
         """
-
         if solver is None:
             solver = self.solver
         if move_type is None:
@@ -516,8 +523,8 @@ class SolverController(object):
         colormap = None
         if locations and treat_move_type_as_reason or move_type == Solver.MoveType.REASON:
             title += ' (reasons)'
-            # If `move_type` is `REASON`, the move type to use in interpreting
-            # the reasons will equal `self.solver.last_move_type()`
+            # If `move_type` is `REASON`, the move type to use in
+            # interpreting the reasons is `self.solver.last_move_type()`
             colormap = self._get_reasons_colormap(locations, move_type, solver=solver)
         elif locations:
             if move_type == Solver.MoveType.GUESSED:
@@ -569,7 +576,8 @@ class SolverController(object):
 
         _, original_row, original_col = solver.moves()[-1]
 
-        # The color of the move to explain is always based on the actual move type
+        # The color of the move to explain is always based on the actual
+        # move type
         try:
             actual_color = self.options.move_type_colormap[actual_move_type]
         except KeyError:
@@ -653,8 +661,8 @@ class SolverController(object):
         -------
         method
             The command-style method with help-message code added.
-        """
 
+        """
         def _cmdhelp_decorator(cmd_func):
 
             def _decorator(self, argv, print_help=0):
@@ -698,8 +706,8 @@ class SolverController(object):
             pass
 
         self.breakno += 1
-        # Note that the location is the user-specified, not the actual, one
-        # If the breakpoint already exists, overwrite it
+        # Note that the location is the user-specified, not the actual,
+        # one. If the breakpoint already exists, overwrite it.
         self.breakpoints[(row, col)] = self.breakno
 
         print('Breakpoint {} at {}, {}'.format(self.breakno, row, col), end='')
@@ -880,7 +888,8 @@ class SolverController(object):
             print('A guess pulled from a solved version of the board.')
             return status | self.Status.OK
 
-        # See if a simple last-blank-in-{row,column,box} explanation is possible
+        # See if a simple last-blank-in-{row,column,box} explanation is
+        # possible
         elimination_explanation = self._get_elimination_explanation()
         if elimination_explanation:
             print(elimination_explanation)
@@ -891,19 +900,19 @@ class SolverController(object):
 
         locations = set()
 
-        # `move_type` can be changed when searching for reasons for manual move
+        # `move_type` can change when searching for reasons for manual move
         actual_move_type_is_manual = (move_type == Solver.MoveType.MANUAL)
         if actual_move_type_is_manual:
-            # See if manual move can be explained by known deductive methods
+            # See if manual move is explainable by known deductive methods
             max_locations = 0
             for deductive_type in Solver.DEDUCTIVE_MOVE_TYPES:
-                #TODO: max reasons does not necessarily equal best explanation:
-                # a single location may make nonviable all other locations in
-                # a box, whereas two location may make nonviable less than all
-                # locations in a column or row
+                #TODO: max reasons does not necessarily equal best
+                # explanation: a single location may make nonviable all
+                # other locations in a box, whereas two location may make
+                # nonviable less than all locations in a column or row
                 possible_reasons = self.solver.reasons(override_move_type=deductive_type)
                 if len(possible_reasons) > max_locations:
-                    # Try to find explanation with most locations (NB this
+                    # Try to find explanation with most locations (NB: this
                     # means the manual and deduced explanation may differ)
                     max_locations = len(possible_reasons)
                     locations = possible_reasons
@@ -913,17 +922,21 @@ class SolverController(object):
 
         if locations:
             if actual_move_type_is_manual:
-                # Here `move_type` is the move type to be used in interpreting the reasons found
+                # Here `move_type` is the move type to be used in
+                # interpreting the reasons found
                 self.print_puzzle(move_type=move_type, locations=locations,
                                   treat_move_type_as_reason=True)
                 print('Possible reasons for manual move.')
             else:
-                # Here the move type to use for interpreting the reasons will simply be
-                # `self.solver.last_move_type()`
+                # Here the move type to use for interpreting the reasons
+                # will simply be `self.solver.last_move_type()`
                 self.print_puzzle(move_type=Solver.MoveType.REASON, locations=locations)
 
             return status | self.Status.OK
 
+        #TODO: A manual move with no reasons except for its own location
+        # (e.g., `MoveType.ELIMINATION`) should output this, not the board
+        # with just the move itself highlighted
         print('No reason found for ', end='')
         print('{}move.'.format('manual ' if actual_move_type_is_manual else ''))
         return status | self.Status.OTHER
@@ -1064,7 +1077,8 @@ class SolverController(object):
 
         for (location, bno) in sorted_breaks:
             if not breaknos or bno in breaknos:
-                # str(bno) instead of just bno because strings left align, numbers don't
+                # str(bno) instead of just bno because strings left align,
+                # numbers don't
                 breakpoint_info_lines.append('{:2}\t{}, {}'.format(str(bno), *location))
                 seen_breaknos.add(bno)
 
@@ -1084,7 +1098,7 @@ class SolverController(object):
     def _subcmd_info_checkpoints(self, argv):
         checkpoints = argv[1:]
         if not checkpoints:
-            # Since order in checkpoints not available, order by move number
+            # Since no given checkpoints order, order by move number
             checkpoints = sorted(self.checkpoints.items(), key=lambda x: x[1].move_count())
             checkpoints = [key for key, _ in checkpoints]
 
@@ -1293,7 +1307,8 @@ class SolverController(object):
 
         try:
             temp_solver = self.checkpoints[checkpoint] if not temp_solver else temp_solver
-            # The original solver can't be changed in case of another restart here
+            # The original solver can't be changed in case of another
+            # restart here
             saved_solver = temp_solver.duplicate()
             locations = self.puzzle.differences(saved_solver.puzzle)
             self.puzzle.copy(saved_solver.puzzle)
