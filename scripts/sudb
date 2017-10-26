@@ -4,6 +4,6 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-import sudb
+from sudb import __main__
 
-sudb.main()
+__main__.main()

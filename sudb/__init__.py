@@ -8,14 +8,3 @@
 __license__ = "GPL3"
 __author__ = __maintainer__ = "Hunter Baines"
 __email__ = "0x68@protonmail.com"
-
-
-import sudb
-
-
-def main():
-    sudb.main()
-
-
-if __name__ == "__main__":
-    main()
