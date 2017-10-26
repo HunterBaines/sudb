@@ -198,6 +198,7 @@ def get_puzzles_from_file(filename=None):
             # path to downloaded copy
             filename = urllib.urlretrieve(filename)[0]
         except IOError as err:
+            # pylint: disable=no-member; `strerror` as a `str` has `lower`
             # `strerror` is more descriptive than `message` for the
             # exceptions that have this attribute
             error.error(err.strerror.lower(), prelude=filename)

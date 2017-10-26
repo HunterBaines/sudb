@@ -670,6 +670,9 @@ class SolverController(object):
             The command-style method with help-message code added.
 
         """
+        # pylint: disable=no-self-argument; it can't be an instance method
+        # and it can't (without unnecessary complexity) be static---and nor
+        # should it since the decorator only targets private methods
         def _cmdhelp_decorator(cmd_func):
 
             def _decorator(self, argv, print_help=0):
@@ -1428,6 +1431,7 @@ class SolverController(object):
             with open(filename, 'r') as f:
                 self.command_queue.extend([line for line in f.read().split('\n') if line])
         except IOError as err:
+            # pylint: disable=no-member; `strerror` as a `str` has `lower`
             print('Error reading "{}": {}.'.format(filename, err.strerror.lower()))
             return status | self.Status.OTHER
 
