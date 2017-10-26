@@ -5,7 +5,7 @@
 """The module containing the SolverController class.
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 import re
@@ -15,10 +15,10 @@ from collections import deque
 from functools import wraps
 from enum import IntEnum
 
-import formatter as frmt
-from cmdmap import CommandMapper
-from board import Board
-from solver import Solver
+from sudb import formatter as frmt
+from sudb.cmdmap import CommandMapper
+from sudb.board import Board
+from sudb.solver import Solver
 
 
 class SolverController(object):

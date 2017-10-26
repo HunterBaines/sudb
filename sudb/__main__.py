@@ -5,20 +5,20 @@
 """The main method for the package and an ErrorLogger subclass for Sudokus.
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import os
 import sys
 import tempfile
 from argparse import ArgumentParser
 
-import importer
-import generator
-import formatter as frmt
-import error
-from logger import ErrorLogger
-from solver import Solver
-from controller import SolverController
+from sudb import importer
+from sudb import generator
+from sudb import formatter as frmt
+from sudb import error
+from sudb.logger import ErrorLogger
+from sudb.solver import Solver
+from sudb.controller import SolverController
 
 
 INIT_FILE = '~/.sudbinit'

@@ -5,13 +5,13 @@
 """The module containing the Solver class.
 
 """
-from __future__ import division
+from __future__ import absolute_import, division
 
 from collections import namedtuple, OrderedDict
 import itertools
 from enum import IntEnum
 
-from board import Board
+from sudb.board import Board
 
 
 class Solver(object):

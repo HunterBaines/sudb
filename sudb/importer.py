@@ -48,14 +48,14 @@ Examples
     seed 0
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 from os import path
 import urllib
 
-import generator
-import error
-from board import Board
+from sudb import generator
+from sudb import error
+from sudb.board import Board
 
 
 def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
@@ -205,7 +205,7 @@ def get_puzzles_from_file(filename=None):
 
         if _is_image(filename):
             try:
-                import sudokuimg
+                from sudb import sudokuimg
                 lines = sudokuimg.puzzle_lines(filename)
             except ImportError as err:
                 error.error(err.message.lower(), prelude=filename)

@@ -5,9 +5,9 @@
 """The module containing the ErrorLogger class.
 
 """
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
-import error
+from sudb import error
 
 
 class ErrorLogger(object):

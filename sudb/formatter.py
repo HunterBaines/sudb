@@ -7,10 +7,12 @@
 """Functions for formatting Sudokus plus classes for colors and grid parts.
 
 """
+from __future__ import absolute_import
+
 import os
 import subprocess
 
-from board import Board
+from sudb.board import Board
 
 
 class GridComponentFormatter(object):

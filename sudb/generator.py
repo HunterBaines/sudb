@@ -58,10 +58,12 @@ Examples
 !.......!.......!.......!
 
 """
+from __future__ import absolute_import
+
 import random
 
-from board import Board
-from solver import Solver
+from sudb.board import Board
+from sudb.solver import Solver
 
 
 def generate(seed, minimized=False):
