@@ -202,7 +202,7 @@ class GridComponentFormatter(object):
         return box
 
 
-class Color():
+class Color(object):
     """Constants for printing colored output.
 
     """
