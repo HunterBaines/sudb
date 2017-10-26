@@ -216,12 +216,8 @@ class ErrorLogger(object):
             # The overall error count
             return sum(map(len, self.reverse_log.values()))
 
-        try:
-            flags = self.log_entry(obj)
-        except KeyError:
-            return 0
-
         count = 0
+        flags = self.log_entry(obj)
         while flags:
             flags = flags & (flags - 1)
             count += 1
@@ -247,14 +243,13 @@ class ErrorLogger(object):
         if prelude is None:
             prelude = str(hash(obj))
 
-        try:
-            flags = self.log_entry(obj)
-        except KeyError:
+        flags = self.log_entry(obj)
+        if not flags:
             error.error('(no errors)', prelude=prelude)
             return
 
         for err in self.errors:
-            if err & flags:
+            if err.errno & flags:
                 error.error(err.strerror, prelude=prelude)
 
     def print_summary(self):
