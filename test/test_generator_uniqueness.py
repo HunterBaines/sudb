@@ -13,7 +13,8 @@ class TestGeneratorUniqueness(unittest.TestCase):
     """
 
     START_SEED = 0
-    END_SEED = 1000
+    # A small amount so this doesn't hold back `python -m unittest discover`
+    END_SEED = 20
 
     def test_uniqueness(self):
         # NB: Testing this well requires generating from many seeds, which takes a long time
