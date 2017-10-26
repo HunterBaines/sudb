@@ -112,6 +112,13 @@ class SolverController(object):
         OTHER : int
             Constant used for abnormal return for some other reason.
 
+        Notes
+        -----
+        Ideally, this would subclass `enum.IntFlag`, but that class is not
+        included in the backport of `enum`. If this program ever only
+        supports Python 3.6 and above, the class it inherits from should be
+        changed.
+
         """
         NONE = 0
         OK = 1
