@@ -198,6 +198,8 @@ def get_puzzles_from_file(filename=None):
             # path to downloaded copy
             filename = urllib.urlretrieve(filename)[0]
         except IOError as err:
+            # `strerror` is more descriptive than `message` for the
+            # exceptions that have this attribute
             error.error(err.strerror.lower(), prelude=filename)
             return []
 
@@ -206,7 +208,7 @@ def get_puzzles_from_file(filename=None):
                 import sudokuimg
                 lines = sudokuimg.puzzle_lines(filename)
             except ImportError as err:
-                error.error(err.strerror.lower(), prelude=filename)
+                error.error(err.message.lower(), prelude=filename)
                 return []
         else:
             specify_lineno_in_name = True
