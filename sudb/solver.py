@@ -5,6 +5,8 @@
 """The module containing the Solver class.
 
 """
+from __future__ import division
+
 from collections import namedtuple, OrderedDict
 import itertools
 from enum import IntEnum
@@ -925,7 +927,7 @@ class Solver(object):
                     reasons_for_last_move.add(other_cell)
                 if number in boxes[box]:
                     boxes_i = boxes[box].index(number)
-                    row_in_box = 3 * (box / 3) + boxes_i / 3
+                    row_in_box = 3 * (box // 3) + boxes_i // 3
                     col_in_box = 3 * (box % 3) + boxes_i % 3
                     reasons_for_last_move.add((row_in_box, col_in_box))
 

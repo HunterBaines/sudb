@@ -7,6 +7,9 @@
 """The module containing the Board class.
 
 """
+from __future__ import division
+
+
 class Board(object):
     """A 9x9 Sudoku board.
 
@@ -111,7 +114,7 @@ class Board(object):
             Board.box_containing_cell.cell_box_map = {}
             for row_ in Board.SUDOKU_ROWS:
                 for col_ in Board.SUDOKU_COLS:
-                    box = 3 * (row_ / 3) + ((col_ / 3) % 3)
+                    box = 3 * (row_ // 3) + ((col_ // 3) % 3)
                     box_i = 3 * (row_ % 3) + (col_ % 3)
                     Board.box_containing_cell.cell_box_map[(row_, col_)] = (box, box_i)
             return Board.box_containing_cell(row, col)
@@ -144,7 +147,7 @@ class Board(object):
 
         """
         box, _ = Board.box_containing_cell(row, col)
-        return box / 3
+        return box // 3
 
     @staticmethod
     def stack_containing_cell(row, col):
@@ -636,7 +639,7 @@ class Board(object):
         for box_i, box in enumerate(self.boxes()):
             for i, number in enumerate(box):
                 if number in self.SUDOKU_NUMBERS and box.count(number) > 1:
-                    bad_row = 3 * (box_i / 3) + (i / 3)
+                    bad_row = 3 * (box_i // 3) + (i // 3)
                     bad_col = 3 * (box_i % 3) + (i % 3)
                     inconsistent_locations.append((bad_row, bad_col))
 

@@ -27,6 +27,8 @@ Examples
 !.......!.......!.......!
 
 """
+from __future__ import division
+
 import os
 import tempfile
 
@@ -212,7 +214,7 @@ def _get_columns_from_grid(image, threshold=0):
             if in_cell:
                 # Each sudoku cell should be ~1/9 the width; ignore
                 # anything less than half that
-                if x - start_x > right / 18:
+                if x - start_x > right // 18:
                     columns.append((start_x, x-1))
                 start_x = x
                 in_cell = False
@@ -267,7 +269,7 @@ def _get_rows_from_grid(image, threshold=0):
             if in_cell:
                 # Each sudoku cell should be ~1/9 the height; ignore
                 # anything less than half that
-                if y - start_y > bottom / 18:
+                if y - start_y > bottom // 18:
                     rows.append((start_y, y-1))
                 start_y = y
                 in_cell = False
