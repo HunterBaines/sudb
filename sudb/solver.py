@@ -9,7 +9,7 @@ from __future__ import absolute_import, division
 
 from collections import namedtuple, OrderedDict
 import itertools
-from enum import IntEnum
+from enum import IntEnum, unique
 
 from sudb.board import Board
 
@@ -47,8 +47,47 @@ class Solver(object):
         at the end of this dict.
 
     """
+    @unique
     class MoveType(IntEnum):
         """Constants for labeling the type of a move.
+
+        Attributes
+        ----------
+        NONE : int
+            No move type.
+        ROWWISE : int
+            A deductive move type based on a number having only one viable
+            location in a row.
+        COLWISE : int
+            A deductive move type based on a number having only one viable
+            location in a column.
+        BOXWISE : int
+            A deductive move type based on a number having only one viable
+            location in a box.
+        ELIMINATION : int
+            A deductive move type based on a location having only one
+            viable number.
+        GUESSED : int
+            A move type for a move that was not deduced (and not manually
+            made).
+        MANUAL : int
+            A move type for manual moves.
+        CORRECTED : int
+            A relative move type indicating the move corrects some other
+            move.
+        REASON : int
+            A relative move type indicating the move makes necessary some
+            other move.
+        DIFFERENCE : int
+            A relative move type indicating the move, while not necessarily
+            correcting some other move, does differ from it.
+
+        Notes
+        -----
+        While `MoveType = IntEnum('MoveType, ['NONE', ...]', start=0)`
+        would be more concise, it will make Pylint complain whenever any
+        member of `MoveType` is referenced, and it is more convoluted to
+        document.
 
         """
         NONE = 0
