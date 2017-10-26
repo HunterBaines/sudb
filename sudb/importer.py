@@ -48,6 +48,8 @@ Examples
     seed 0
 
 """
+from __future__ import print_function
+
 from os import path
 import urllib
 
@@ -213,10 +215,11 @@ def get_puzzles_from_file(filename=None):
             with open(filename, 'r') as puzzle_file:
                 lines = puzzle_file.read().split('\n')
     else:
-        print 'Enter the 9 characters in each row of the puzzle(s) from top to'
-        print 'bottom. Use 0 or any non-numerical, non-whitespace character to'
-        print 'represent a blank in the puzzle. When done, type a period on a'
-        print 'line by itself (or just type EOF, e.g., ctrl-D).\n'
+        print('Enter the 9 characters in each row of the puzzle(s) from top to',
+              'bottom. Use 0 or any non-numerical, non-whitespace character to',
+              'represent a blank in the puzzle. When done, type a period on a',
+              'line by itself (or just type EOF, e.g., ctrl-D).', sep='\n')
+        print()
 
         row = ''
         while row != '.':
@@ -225,7 +228,7 @@ def get_puzzles_from_file(filename=None):
                 lines.append(row)
             except EOFError:
                 break
-        print
+        print()
 
     return get_puzzles_from_lines(lines, name=filename, specify_lineno=specify_lineno_in_name)
 

@@ -7,6 +7,8 @@
 """The main method for the package and an ErrorLogger subclass for Sudokus.
 
 """
+from __future__ import print_function
+
 import os
 import sys
 import tempfile
@@ -136,7 +138,7 @@ def main():
     if log.error_count() > 0:
         # There was an import error; print a newline to stderr for spacing
         error.error('', prelude='')
-    print '{} puzzle{}to solve.'.format(len(puzzles), 's ' if len(puzzles) != 1 else ' ')
+    print('{} puzzle{}to solve.'.format(len(puzzles), 's ' if len(puzzles) != 1 else ' '))
 
     for i, puzzle in enumerate(puzzles):
         _feed_mushroom(puzzle, one_side=args.minimize, other_side=args.satisfactory)
@@ -166,15 +168,16 @@ def main():
                     solved_puzzles += 1
             except BaseException:
                 # To make it easier to return to board state at crash
-                print '\nFinal State of Puzzle {} ({}):'.format(i+1, puzzle.name)
-                print puzzle
-                print
+                print('\nFinal State of Puzzle {} ({}):'.format(i+1, puzzle.name))
+                print(puzzle)
+                print()
                 with open(CMDHIST_FILE, 'w+') as f:
                     f.write('\n'.join(solver.command_history))
                 puzzle_line_args = ' '.join(str(original_puzzle).split())
-                print 'Command history saved in "{}". To restore:'.format(CMDHIST_FILE)
-                print '{} -x "source {}" -l {}'.format(sys.argv[0], CMDHIST_FILE, puzzle_line_args)
-                print
+                print('Command history saved in "{}". To restore:'.format(CMDHIST_FILE))
+                print('{} -x "source {}" -l {}'.format(sys.argv[0], CMDHIST_FILE,
+                                                       puzzle_line_args))
+                print()
                 raise
 
         colormap = None
@@ -182,12 +185,12 @@ def main():
             colormap = frmt.get_colormap(puzzle.differences(original_puzzle), frmt.Color.GREEN)
         puzzle_str = frmt.strfboard(puzzle, colormap=colormap, ascii_mode=args.ascii)
 
-        print '\nEnd Board for Puzzle {}:'.format(i+1)
-        print '{}({})\n'.format(puzzle_str, puzzle.name)
+        print('\nEnd Board for Puzzle {}:'.format(i+1))
+        print('{}({})\n'.format(puzzle_str, puzzle.name))
 
-    print 'Solved {} of {}.'.format(solved_puzzles, len(puzzles))
+    print('Solved {} of {}.'.format(solved_puzzles, len(puzzles)))
     if log.error_count() > 0:
-        print
+        print()
         log.print_summary()
 
 

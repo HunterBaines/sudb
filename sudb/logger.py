@@ -5,6 +5,8 @@
 """The module containing the ErrorLogger class.
 
 """
+from __future__ import print_function
+
 import error
 
 
@@ -259,13 +261,13 @@ class ErrorLogger(object):
         """Print to stdout how many of each error were logged.
 
         """
-        print 'Error Summary:'
+        print('Error Summary:')
 
         if not self.error_count():
-            print '(no errors)'
+            print('(no errors)')
             return
 
         for err in self.errors:
             count = len(self.reverse_log[err.errno])
             if count > 0:
-                print '{} case{} of {}'.format(count, 's' if count != 1 else '', err.strerror)
+                print('{} case{} of {}'.format(count, 's' if count != 1 else '', err.strerror))
