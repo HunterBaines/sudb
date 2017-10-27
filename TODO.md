@@ -19,7 +19,7 @@ TODO
   printing the board with the reasons for the last move highlighted after
   each step.
 
-* Tab complete used-defined strings like checkpoint labels.
+* 6a6ffc1: ~~Tab complete used-defined strings like checkpoint labels.~~
 
 * Consider adding a `watch ROW COL [ROW COL ...]` command to
   `SolverController` that breaks stepping when the candidate list for a
