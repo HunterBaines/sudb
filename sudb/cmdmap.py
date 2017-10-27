@@ -7,7 +7,6 @@
 """
 import re
 import inspect
-import readline
 import rlcompleter
 
 
@@ -37,43 +36,61 @@ class CommandMapper(object):
 
     Attributes
     ----------
-    LocalCompleter : class
+    CommandCompleter : class
         A Completer instance that only matches the namespace it is
         initialized with (instead of also matching Python built-ins).
     commands : dict of str to method
         A mapping of cleaned-up method names (e.g., 'help') to the method
         itself (e.g., '_cmd_help').
-    completer : LocalCompleter instance
+    completer : CommandCompleter instance
         The engine for getting a full command name (e.g., 'help') from a
         partial one (e.g., 'h').
 
     """
-    class LocalCompleter(rlcompleter.Completer):
-        """A Completer subclass that doesn't match built-ins.
+    class CommandCompleter(rlcompleter.Completer):
+        """Completer that ignores builtins and uses ' ' as callable postfix
 
         """
         def global_matches(self, text):
-            # Patch global_matches in Completer to not match built-ins
+            # Patch `global_matches` in Completer to not match built-ins
             matches = []
             seen = set()
-            # pylint: disable=invalid-name; I'm matching the source code
-            n = len(text)
+            text_n = len(text)
             for word, val in self.namespace.items():
-                if word[:n] == text and word not in seen:
+                if word[:text_n] == text and word not in seen:
                     seen.add(word)
                     matches.append(self._callable_postfix(val, word))
             return matches
+
+        def _callable_postfix(self, val, word):
+            # Patch `_callable_postfix` to find commands that could take
+            # arguments or have subcommands and append ' ', not '('
+            word_n = len(word)
+            for other_word in self.namespace:
+                if not other_word.startswith(word):
+                    continue
+                try:
+                    next_char = other_word[word_n]
+                    if next_char != ' ':
+                        # A completion aside from space is possible
+                        return word
+                except IndexError:
+                    # Ignore when `other_word == word`
+                    pass
+            # Either `word` never prefixes any other command or in all
+            # commands it prefixes a space always follows that prefix
+            return word + ' '
 
 
     def __init__(self, obj, pattern=None, sep=None):
         regex_engine = re.compile('' if pattern is None else pattern)
 
-        self.commands = self._install_commands(obj, regex_engine, sep=sep)
-        self.completer = self._install_completer()
+        self.commands = self._get_commands(obj, regex_engine, sep=sep)
+        self.completer = self._get_completer(self.commands)
 
 
     @staticmethod
-    def _install_commands(obj, regex_engine, sep=None):
+    def _get_commands(obj, regex_engine, sep=None):
         def is_command(cmd):
             """Return True if is a callable whose name matching regex.
 
@@ -94,15 +111,10 @@ class CommandMapper(object):
 
         return command_dict
 
-    def _install_completer(self):
-        command_namespace = dict(zip(self.commands.keys(), self.commands.keys()))
-        command_completer = self.LocalCompleter(command_namespace)
-
-        #TODO: Does this belong here? Should the caller set up tab
-        # completion for itself?
-        readline.set_completer(command_completer.complete)
-        readline.parse_and_bind('tab: complete')
-
+    @staticmethod
+    def _get_completer(commands):
+        command_namespace = dict(zip(commands.keys(), commands.keys()))
+        command_completer = CommandMapper.CommandCompleter(command_namespace)
         return command_completer
 
 
@@ -127,20 +139,20 @@ class CommandMapper(object):
         possible_commands = ['']
 
         names = command_name.split()
+        # So `names.pop()` will return leftmost name
         names.reverse()
 
         while names:
             name = names.pop()
             new_possible_commands = []
             while possible_commands:
-                full_name = '{} {}'.format(possible_commands.pop(), name).strip()
-                next_state = 0
-                while True:
-                    next_name = self.completer.complete(full_name, next_state)
-                    if next_name is None:
-                        break
-                    new_possible_commands.append(next_name)
-                    next_state += 1
+                prev_name = possible_commands.pop()
+                full_name = '{} {}'.format(prev_name, name).strip()
+                for next_name in self.completer.global_matches(full_name):
+                    # Completions returned should not have a trailing
+                    # space, and `full_name` expects no such space from the
+                    # entries that make it into `possible_commands`
+                    new_possible_commands.append(next_name.strip())
             possible_commands = new_possible_commands[:]
 
         return possible_commands
