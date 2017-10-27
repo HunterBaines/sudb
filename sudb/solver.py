@@ -133,6 +133,7 @@ class Solver(object):
                 hash(tuple(self.step_order.keys())))
 
     def __eq__(self, other):
+        # pylint: disable=protected-access
         return self.__key() == other.__key()
 
     def __ne__(self, other):
@@ -1071,8 +1072,7 @@ class Solver(object):
         """
         if algorithm and algorithm == 'backtrack':
             return self._solve_backtrack()
-        else:
-            return self._solve_algorithm_x()
+        return self._solve_algorithm_x()
 
 
     def _solve_backtrack(self):
@@ -1270,7 +1270,8 @@ class Solver(object):
                 self._restore_columns(col_dict, row_dict, elem, saved_columns)
                 solution.pop()
 
-    def _delete_columns(self, col_dict, row_dict, chosen_row):
+    @staticmethod
+    def _delete_columns(col_dict, row_dict, chosen_row):
         columns_deleted = []
         # For each column asserted in the chosen row
         for col in row_dict[chosen_row]:
@@ -1285,14 +1286,16 @@ class Solver(object):
             columns_deleted.append(col_dict.pop(col))
         return columns_deleted
 
-    def _restore_columns(self, col_dict, row_dict, chosen_row, columns_to_restore):
+    @staticmethod
+    def _restore_columns(col_dict, row_dict, chosen_row, columns_to_restore):
         for col in reversed(list(row_dict[chosen_row])):
             col_dict[col] = columns_to_restore.pop()
             for other_row in col_dict[col]:
                 for other_col in [c for c in row_dict[other_row] if c != col]:
                     col_dict[other_col].add(other_row)
 
-    def _puzzle_universe(self, constraint_subsets_dict):
+    @staticmethod
+    def _puzzle_universe(constraint_subsets_dict):
         """Return a mapping of all possible row, col, num combinations.
 
         Return a mapping of all possible combinations of row, column, and

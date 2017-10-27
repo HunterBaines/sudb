@@ -92,8 +92,8 @@ def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
 
     """
     if logger is not None:
-        IMPORT_ERROR = error.Error('import error')
-        logger.add_error(IMPORT_ERROR)
+        import_error = error.Error('import error')
+        logger.add_error(import_error)
 
     puzzles = []
     get_from_stdin = True
@@ -115,7 +115,7 @@ def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
                 warned_about_image_import = True
             file_puzzles = get_puzzles_from_file(filename)
             if logger is not None and not file_puzzles:
-                logger.log_error(filename, IMPORT_ERROR)
+                logger.log_error(filename, import_error)
             puzzles.extend(file_puzzles)
 
     if seeds is not None:

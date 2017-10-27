@@ -49,10 +49,14 @@ class CommandMapper(object):
 
     """
     class LocalCompleter(rlcompleter.Completer):
+        """A Completer subclass that doesn't match built-ins.
+
+        """
         def global_matches(self, text):
             # Patch global_matches in Completer to not match built-ins
             matches = []
             seen = set()
+            # pylint: disable=invalid-name; I'm matching the source code
             n = len(text)
             for word, val in self.namespace.items():
                 if word[:n] == text and word not in seen:
@@ -68,8 +72,12 @@ class CommandMapper(object):
         self.completer = self._install_completer()
 
 
-    def _install_commands(self, obj, regex_engine, sep=None):
+    @staticmethod
+    def _install_commands(obj, regex_engine, sep=None):
         def is_command(cmd):
+            """Return True if is a callable whose name matching regex.
+
+            """
             if not inspect.isfunction(cmd) and not inspect.ismethod(cmd):
                 return False
             if not regex_engine.findall(cmd.__name__):

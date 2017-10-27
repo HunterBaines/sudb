@@ -109,13 +109,13 @@ def solved_puzzle(seed):
     """
     # Decreasing this allows for more randomness but can also increase the
     # time required to generate from some seeds
-    MIN_START_CLUES = 3
+    min_start_clues = 3
 
     random.seed(seed)
     target_row = random.choice(Board.SUDOKU_ROWS)
     columns = Board.SUDOKU_COLS[:]
     random.shuffle(columns)
-    column_count = random.randint(MIN_START_CLUES, len(columns))
+    column_count = random.randint(min_start_clues, len(columns))
 
     # Initialize a blank board
     puzzle = Board(name=str(seed))

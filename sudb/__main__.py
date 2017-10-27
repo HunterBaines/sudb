@@ -58,7 +58,8 @@ class PuzzleErrorLogger(ErrorLogger):
         """
         return self.INCONSISTENT_BOARD.errno
 
-    def autolog(self, puzzle, report=False):
+    def autolog(self, obj, report=False):
+        puzzle = obj
         error_count = 0
         # For error reporting
         name = str(hash(puzzle)) if not puzzle.name else puzzle.name
@@ -115,8 +116,8 @@ def main():
     if not args.no_init:
         init_path = os.path.expanduser(INIT_FILE)
         try:
-            with open(init_path, 'r') as f:
-                init_commands = [line for line in f.read().split('\n') if line]
+            with open(init_path, 'r') as init:
+                init_commands = [line for line in init.read().split('\n') if line]
         except IOError:
             pass
 
@@ -169,8 +170,8 @@ def main():
                 print('\nFinal State of Puzzle {} ({}):'.format(i+1, puzzle.name))
                 print(puzzle)
                 print()
-                with open(CMDHIST_FILE, 'w+') as f:
-                    f.write('\n'.join(solver.command_history))
+                with open(CMDHIST_FILE, 'w+') as cmdhist:
+                    cmdhist.write('\n'.join(solver.command_history))
                 puzzle_line_args = ' '.join(str(original_puzzle).split())
                 print('Command history saved in "{}". To restore:'.format(CMDHIST_FILE))
                 print('{} -x "source {}" -l {}'.format(sys.argv[0], CMDHIST_FILE,

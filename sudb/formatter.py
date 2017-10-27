@@ -538,15 +538,19 @@ def _candidate_cell_chars(candidates, size_id):
 
 def _detect_terminal_width():
     terminal_width = 80
+    fnull = None
 
     try:
-        FNULL = open(os.devnull, 'w')
-        _, terminal_width = subprocess.check_output(['stty', 'size'], stderr=FNULL).split()
+        fnull = open(os.devnull, 'w')
+        _, terminal_width = subprocess.check_output(['stty', 'size'], stderr=fnull).split()
         terminal_width = int(terminal_width)
-    except (OSError, subprocess.CalledProcessError):
+    except (IOError, OSError, subprocess.CalledProcessError):
         try:
             terminal_width = int(os.environ['COLUMNS'])
         except KeyError:
             pass
+
+    if fnull is not None:
+        fnull.close()
 
     return terminal_width

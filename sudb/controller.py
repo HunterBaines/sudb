@@ -121,6 +121,7 @@ class SolverController(object):
 
         """
         NONE = 0
+        # pylint: disable=invalid-name; `OK` is an okay name
         OK = 1
         STUCK = 2
         BREAK = 4
@@ -567,8 +568,8 @@ class SolverController(object):
         print(output)
 
     def _get_reasons_colormap(self, locations, reported_move_type, solver=None):
-        REASON_COLOR = self.options.move_type_colormap[Solver.MoveType.REASON]
-        NONVIABLE_BLANK_COLOR = frmt.Color.INVERT + REASON_COLOR
+        reason_color = self.options.move_type_colormap[Solver.MoveType.REASON]
+        nonviable_blank_color = frmt.Color.INVERT + reason_color
 
         if solver is None:
             solver = self.solver
@@ -577,7 +578,7 @@ class SolverController(object):
         if reported_move_type == Solver.MoveType.REASON:
             reported_move_type = actual_move_type
 
-        colormap = frmt.get_colormap(locations, REASON_COLOR)
+        colormap = frmt.get_colormap(locations, reason_color)
         if actual_move_type == Solver.MoveType.NONE:
             return colormap
 
@@ -604,9 +605,9 @@ class SolverController(object):
                     box_cells = [(r, c) for (r, c) in Board.cells_in_box(box) if r == original_row]
                     for box_row, box_col in box_cells:
                         if self.puzzle.get_cell(box_row, box_col) == Board.BLANK:
-                            colormap[(original_row, box_col)] = NONVIABLE_BLANK_COLOR
+                            colormap[(original_row, box_col)] = nonviable_blank_color
                 elif self.puzzle.get_cell(original_row, col) == Board.BLANK:
-                    colormap[(original_row, col)] = NONVIABLE_BLANK_COLOR
+                    colormap[(original_row, col)] = nonviable_blank_color
         elif reported_move_type == Solver.MoveType.COLWISE:
             original_stack = Board.stack_containing_cell(original_row, original_col)
             for row, col in locations:
@@ -617,9 +618,9 @@ class SolverController(object):
                     box_cells = [(r, c) for (r, c) in Board.cells_in_box(box) if c == original_col]
                     for box_row, box_col in box_cells:
                         if self.puzzle.get_cell(box_row, box_col) == Board.BLANK:
-                            colormap[(box_row, original_col)] = NONVIABLE_BLANK_COLOR
+                            colormap[(box_row, original_col)] = nonviable_blank_color
                 elif self.puzzle.get_cell(row, original_col) == Board.BLANK:
-                    colormap[(row, original_col)] = NONVIABLE_BLANK_COLOR
+                    colormap[(row, original_col)] = nonviable_blank_color
         elif reported_move_type == Solver.MoveType.BOXWISE:
             original_box, _ = Board.box_containing_cell(original_row, original_col)
             box_cells = Board.cells_in_box(original_box)
@@ -634,9 +635,9 @@ class SolverController(object):
                     box_number = self.solver.puzzle.get_cell(box_row, box_col)
                     if box_number == Board.BLANK:
                         if band == original_band and box_row == row:
-                            colormap[(row, box_col)] = NONVIABLE_BLANK_COLOR
+                            colormap[(row, box_col)] = nonviable_blank_color
                         if stack == original_stack and box_col == col:
-                            colormap[(box_row, col)] = NONVIABLE_BLANK_COLOR
+                            colormap[(box_row, col)] = nonviable_blank_color
 
         return colormap
 
@@ -888,6 +889,8 @@ class SolverController(object):
     @cmdhelp('Indicate the reason for the last move.',
              'explain')
     def _cmd_explain(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         status = self.Status.REPEAT
 
         move_type = self.solver.last_move_type()
@@ -976,6 +979,8 @@ class SolverController(object):
     @cmdhelp('Step until stuck or at solution or breakpoint.',
              'finish')
     def _cmd_finish(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         status = self.Status.REPEAT
         step_argv = ['step', '1']
         while True:
@@ -1012,18 +1017,28 @@ class SolverController(object):
         return status | self.Status.OK
 
     def _subcmd_help_delete(self, argv, print_help=0, print_title=False):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         return self._abstract_subcmd_help('delete', print_help=print_help, print_title=print_title)
 
     def _subcmd_help_help(self, argv, print_help=0, print_title=False):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         return self._abstract_subcmd_help('help', print_help=print_help, print_title=print_title)
 
     def _subcmd_help_info(self, argv, print_help=0, print_title=False):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         return self._abstract_subcmd_help('info', print_help=print_help, print_title=print_title)
 
     def _subcmd_help_print(self, argv, print_help=0, print_title=False):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         return self._abstract_subcmd_help('print', print_help=print_help, print_title=print_title)
 
     def _subcmd_help_set(self, argv, print_help=0, print_title=False):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         return self._abstract_subcmd_help('set', print_help=print_help, print_title=print_title)
 
     def _abstract_subcmd_help(self, command_name, print_help=0, print_title=False):
@@ -1248,6 +1263,8 @@ class SolverController(object):
     @cmdhelp('Print board with generated candidates noted.',
              'print candidates')
     def _subcmd_print_candidates(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         candidate_map = {}
         for (actual_row, actual_col) in Board.SUDOKU_CELLS:
             candidate_map[(actual_row, actual_col)] = self.solver.candidates(actual_row,
@@ -1278,6 +1295,8 @@ class SolverController(object):
     @cmdhelp('Print board with user-defined candidates noted.',
              'print marks')
     def _subcmd_print_marks(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         self.print_puzzle(candidate_map=self.marks)
         return self.Status.OK
 
@@ -1287,6 +1306,8 @@ class SolverController(object):
     @cmdhelp('Quit the solver.',
              'quit')
     def _cmd_quit(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         status = self.Status.REPEAT
 
         if self.puzzle.is_complete() and self.puzzle.is_consistent():
@@ -1351,6 +1372,8 @@ class SolverController(object):
     @cmdhelp('Toggle whether to use UTF-8 in output.',
              'set ascii')
     def _subcmd_set_ascii(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         ascii_mode = not self.options.ascii
         self.options.ascii = ascii_mode
         print('UTF-8 output {}.'.format('enabled' if not ascii_mode else 'disabled'))
@@ -1359,6 +1382,8 @@ class SolverController(object):
     @cmdhelp('Toggle whether to break on guesses.',
              'set guessbreak')
     def _subcmd_set_guessbreak(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         guessbreak = not self.options.guessbreak
         self.options.guessbreak = guessbreak
 
@@ -1368,6 +1393,8 @@ class SolverController(object):
     @cmdhelp('Toggle whether to always print the board with marks noted.',
              'set markview')
     def _subcmd_set_markview(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
         markview = not self.options.markview
         self.options.markview = markview
 
@@ -1428,8 +1455,8 @@ class SolverController(object):
         filename = ' '.join(args)
 
         try:
-            with open(filename, 'r') as f:
-                self.command_queue.extend([line for line in f.read().split('\n') if line])
+            with open(filename, 'r') as source:
+                self.command_queue.extend([line for line in source.read().split('\n') if line])
         except IOError as err:
             # pylint: disable=no-member; `strerror` as a `str` has `lower`
             print('Error reading "{}": {}.'.format(filename, err.strerror.lower()))
@@ -1496,7 +1523,7 @@ class SolverController(object):
                 print('Exactly three arguments required.')
             return self.Status.OTHER
 
-        if self._validate_cell(row, col) != self.Status.OK:
+        if not self._valid_cell(row, col):
             return self.Status.OTHER
 
         actual_row, actual_col = self._zero_correct(row, col)
@@ -1618,7 +1645,7 @@ class SolverController(object):
             # Avoid getting hung up on cached moves outside of location
             self.solver.flush_step_cache()
             status = status | self._cmd_step(args)
-            # Unnecessary parentheses for clarity
+            # pylint: disable=superfluous-parens; parens for clarity
             if not (status & self.Status.OK):
                 break
 
@@ -1698,37 +1725,6 @@ class SolverController(object):
                                                                          ' '.join(argv[1:])))
             return self.Status.OTHER
 
-
-    def _zero_correct(self, row, col, inverted=False):
-        actual_row = self._zero_correct_row(row, inverted=inverted)
-        actual_col = self._zero_correct_column(col, inverted=inverted)
-        return actual_row, actual_col
-
-    def _zero_correct_row(self, row, inverted=False):
-        actual_row = row
-        if Board.SUDOKU_ROWS[0] == 0:
-            actual_row += -1 if not inverted else 1
-        return actual_row
-
-    def _zero_correct_column(self, col, inverted=False):
-        actual_col = col
-        if Board.SUDOKU_COLS[0] == 0:
-            actual_col += -1 if not inverted else 1
-        return actual_col
-
-
-    def _validate_cell(self, row, col):
-        actual_row, actual_col = self._zero_correct(row, col)
-
-        if actual_row not in Board.SUDOKU_ROWS:
-            print('Invalid row {0} in ({0}, {1}).'.format(row, col))
-            return self.Status.OTHER
-        if actual_col not in Board.SUDOKU_COLS:
-            print('Invalid column {1} in ({0}, {1}).'.format(row, col))
-            return self.Status.OTHER
-
-        return self.Status.OK
-
     def _confirm(self, message):
         confirmation_message = '{} (y or n) '.format(message)
 
@@ -1763,7 +1759,43 @@ class SolverController(object):
         return False
 
 
-    def _get_repeats(self, argv):
+    @staticmethod
+    def _valid_cell(row, col):
+        actual_row, actual_col = SolverController._zero_correct(row, col)
+
+        if actual_row not in Board.SUDOKU_ROWS:
+            print('Invalid row {0} in ({0}, {1}).'.format(row, col))
+            return False
+        if actual_col not in Board.SUDOKU_COLS:
+            print('Invalid column {1} in ({0}, {1}).'.format(row, col))
+            return False
+
+        return True
+
+
+    @staticmethod
+    def _zero_correct(row, col, inverted=False):
+        actual_row = SolverController._zero_correct_row(row, inverted=inverted)
+        actual_col = SolverController._zero_correct_column(col, inverted=inverted)
+        return actual_row, actual_col
+
+    @staticmethod
+    def _zero_correct_row(row, inverted=False):
+        actual_row = row
+        if Board.SUDOKU_ROWS[0] == 0:
+            actual_row += -1 if not inverted else 1
+        return actual_row
+
+    @staticmethod
+    def _zero_correct_column(col, inverted=False):
+        actual_col = col
+        if Board.SUDOKU_COLS[0] == 0:
+            actual_col += -1 if not inverted else 1
+        return actual_col
+
+
+    @staticmethod
+    def _get_repeats(argv):
         try:
             repeats = int(argv[1])
             if repeats < 1:
@@ -1777,7 +1809,8 @@ class SolverController(object):
 
         return repeats
 
-    def _get_locations(self, args, validate_cells=True):
+    @staticmethod
+    def _get_locations(args, validate_cells=True):
         try:
             locations = ''.join(args)
             if len(locations) < 2:
@@ -1785,14 +1818,15 @@ class SolverController(object):
                 return None
             locations = zip(map(int, locations[::2]), map(int, locations[1::2]))
             for (row, col) in locations:
-                if validate_cells and self._validate_cell(row, col) != self.Status.OK:
+                if validate_cells and not SolverController._valid_cell(row, col):
                     return None
             return locations
         except ValueError:
             print('Location arguments must be integer pairs.')
             return None
 
-    def _get_numbers(self, args, sudoku_numbers=False):
+    @staticmethod
+    def _get_numbers(args, sudoku_numbers=False):
         numbers = []
 
         for arg in args:
@@ -1823,15 +1857,18 @@ class SolverController(object):
 
         return numbers
 
-    def _get_locations_and_numbers(self, args, validate_cells=True):
+    @staticmethod
+    def _get_locations_and_numbers(args, validate_cells=True):
         new_args = [''.join(list(tup)) for tup in re.findall(r'(.-.)|(.)', ''.join(args))]
 
         try:
-            row, col = self._get_locations(new_args[:2], validate_cells=validate_cells)[0]
+            locations = SolverController._get_locations(new_args[:2],
+                                                        validate_cells=validate_cells)
+            row, col = locations[0]
         except TypeError:
             # _get_locations returned None
             return None
 
-        numbers = self._get_numbers(new_args[2:], sudoku_numbers=True)
+        numbers = SolverController._get_numbers(new_args[2:], sudoku_numbers=True)
 
         return row, col, numbers

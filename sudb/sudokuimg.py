@@ -61,7 +61,6 @@ def puzzle_lines(filename):
 
     config_file = tempfile.NamedTemporaryFile()
     config_file.write("tessedit_char_whitelist 123456789")
-    config_options = "-psm 10 {}".format(config_file.name)
     config_file.close()
 
     bw_filename = os.path.join(tempfile.gettempdir(), "bw_puzzle.png")
@@ -81,7 +80,7 @@ def puzzle_lines(filename):
             crop_area = (start_x+5, start_y+5, end_x-5, end_y-5)
             digit = image.crop(crop_area)
             digit = _autocropped(digit)
-            digit_val = tess.image_to_string(digit, config=config_options)
+            digit_val = tess.image_to_string(digit, config="-psm 10 {}".format(config_file.name))
             line += digit_val if digit_val else "0"
         lines.append(line)
 
@@ -205,6 +204,7 @@ def _get_columns_from_grid(image, threshold=0):
     start_x = 0
     in_cell = False
 
+    # pylint: disable=invalid-name; `x` and `y` are reasonable here
     for x in range(left, right):
         pixel_col = []
         for y in range(top, bottom):
@@ -260,6 +260,7 @@ def _get_rows_from_grid(image, threshold=0):
     start_y = 0
     in_cell = False
 
+    # pylint: disable=invalid-name; `x` and `y` are reasonable here
     for y in range(top, bottom):
         pixel_row = []
         for x in range(left, right):

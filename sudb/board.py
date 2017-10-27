@@ -369,6 +369,7 @@ class Board(object):
         return tuple(map(tuple, self.rows()))
 
     def __eq__(self, other):
+        # pylint: disable=protected-access
         return self.__key() == other.__key()
 
     def __ne__(self, other):
