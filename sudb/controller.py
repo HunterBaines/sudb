@@ -200,46 +200,16 @@ class SolverController(object):
             self.width = 0
 
 
-    class TabCompleter(CommandMapper.CommandCompleter):
-
-        def setup_tab_completion(self):
-            # The default delims prevent completion of commands with spaces
-            readline.set_completer_delims('\n')
-            readline.set_completer(self.complete)
-            readline.parse_and_bind('tab: complete')
-
-        def add_completion(self, command_name):
-            """Add to the completer namespace the given command.
-
-            Parameters
-            ----------
-            command_name : str
-                The command name to add to the namespace of
-                `self.completer`.
-
-            """
-            self.namespace[command_name] = command_name
-
-        def del_completion(self, command_name):
-            """Delete from the completer namespace the given command.
-
-            Parameters
-            ----------
-            command_name : str
-                The command name to delete from the namespace of
-                `self.completer`.
-
-            """
-            del self.namespace[command_name]
-
-
     def __init__(self, puzzle, init_commands=None, command_queue=None, options=None):
-        self.cmd = CommandMapper(self, pattern='^_(sub)?cmd_')
+        self.cmd = CommandMapper(obj=self, pattern='^_(sub)?cmd_', use_trailing_sep=False)
 
-        self._tab_completer = self.TabCompleter(self.cmd.completer.namespace.copy())
+        # A separate completer that can be added to in order to improve
+        # what can be tab-completed without borking command completion
+        self._tabcmd = CommandMapper(use_trailing_sep=True)
+        self._tabcmd.commands = self.cmd.commands.copy()
         for command in self.cmd.commands:
-            self._tab_completer.add_completion('help {}'.format(command))
-        self._tab_completer.setup_tab_completion()
+            self._tabcmd.commands['help {}'.format(command)] = None
+        self._setup_tab_completion()
 
         self.puzzle = puzzle
         self.solver = Solver(puzzle)
@@ -257,6 +227,12 @@ class SolverController(object):
         if init_commands is not None:
             for command in init_commands:
                 self.run_command(command)
+
+    def _setup_tab_completion(self):
+        # The default delims prevent completion of commands with spaces
+        readline.set_completer_delims('\n')
+        readline.set_completer(self._tabcmd.complete)
+        readline.parse_and_bind('tab: complete')
 
 
     def solve(self):
@@ -783,7 +759,8 @@ class SolverController(object):
         self.checkpoints[checkpoint] = saved_solver
         for checkpoint_arg_command in ['restart', 'delete checkpoints',
                                        'info checkpoints', 'print checkpoints']:
-            self._tab_completer.add_completion(checkpoint_arg_command + ' ' + checkpoint)
+            # Add commands with custom checkpoint name to tab completion
+            self._tabcmd.commands[checkpoint_arg_command + ' ' + checkpoint] = None
 
         print('Current state saved at "{}".'.format(checkpoint))
 
@@ -870,7 +847,9 @@ class SolverController(object):
                 seen_checkpoints.add(checkpoint)
                 for checkpoint_arg_command in ['restart', 'delete checkpoints',
                                                'info checkpoints', 'print checkpoints']:
-                    self._tab_completer.del_completion(checkpoint_arg_command + ' ' + checkpoint)
+                    # Delete commands with custom checkpoint name from tab
+                    # completion
+                    del self._tabcmd.commands[checkpoint_arg_command + ' ' + checkpoint]
             except KeyError:
                 pass
 

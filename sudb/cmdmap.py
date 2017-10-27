@@ -7,7 +7,6 @@
 """
 import re
 import inspect
-import rlcompleter
 
 
 class CommandMapper(object):
@@ -16,83 +15,64 @@ class CommandMapper(object):
     A tool that, given an object such as a class or module, discovers
     methods or functions within it that contain some specified text and
     then maps the names of those methods or functions (minus the specified
-    text and with underscores replaced with, by default, spaces) to the
+    text and with underscores replaced, by default, with spaces) to the
     methods or functions themselves. Methods are also provided for
     completing a function name given some of its initial characters.
 
     Parameters
     ----------
-    obj : object
+    obj : object, optional
         The object (e.g., class or module) whose methods or functions are
-        to be mapped.
+        to be mapped (default None); if None, the user is expected to
+        define `self.commands` manually before using the instance.
     pattern : str, optional
         A regex string specifying the text that must be contained in the
         names of the methods or functions for it to be mapped and that
         will ultimately be removed from those names in the final mapping of
         name to method/function (default '', which matches all
         methods/functions and removes nothing from their names).
-    sep : str
-        The text to replace underscores in method names with (default ' ').
+    sep : str, optional
+        The value to assign to the attribute `sep` (default ' '); see
+        below.
+    use_trailing_sep : bool, optional
+        The value to assign to the attribute `use_trailing_sep` (default
+        False); see below.
 
     Attributes
     ----------
-    CommandCompleter : class
-        A Completer instance that only matches the namespace it is
-        initialized with (instead of also matching Python built-ins).
-    commands : dict of str to method
-        A mapping of cleaned-up method names (e.g., 'help') to the method
-        itself (e.g., '_cmd_help').
-    completer : CommandCompleter instance
-        The engine for getting a full command name (e.g., 'help') from a
-        partial one (e.g., 'h').
+    commands : dict of str to callable
+        A mapping of cleaned-up method/function names (e.g., 'help') to the
+        callables (e.g., `<function _cmd_help at 0x7375646f6b75>`)
+        themselves.
+    sep : str
+        The text to replace underscores with in the cleaned-up
+        method/function names used in `self.commands` and for completions.
+    use_trailing_sep : bool
+        True if completions should take into account a trailing `sep` and
+        return completions with a trailing `sep` when possible; this can be
+        useful, for example, when setting up the class to be used with tab
+        completion.
 
     """
-    class CommandCompleter(rlcompleter.Completer):
-        """Completer that ignores builtins and uses ' ' as callable postfix
-
-        """
-        def global_matches(self, text):
-            # Patch `global_matches` in Completer to not match built-ins
-            matches = []
-            seen = set()
-            text_n = len(text)
-            for word, val in self.namespace.items():
-                if word[:text_n] == text and word not in seen:
-                    seen.add(word)
-                    matches.append(self._callable_postfix(val, word))
-            return matches
-
-        def _callable_postfix(self, val, word):
-            # Patch `_callable_postfix` to find commands that could take
-            # arguments or have subcommands and append ' ', not '('
-            word_n = len(word)
-            for other_word in self.namespace:
-                if not other_word.startswith(word):
-                    continue
-                try:
-                    next_char = other_word[word_n]
-                    if next_char != ' ':
-                        # A completion aside from space is possible
-                        return word
-                except IndexError:
-                    # Ignore when `other_word == word`
-                    pass
-            # Either `word` never prefixes any other command or in all
-            # commands it prefixes a space always follows that prefix
-            return word + ' '
-
-
-    def __init__(self, obj, pattern=None, sep=None):
-        regex_engine = re.compile('' if pattern is None else pattern)
-
-        self.commands = self._get_commands(obj, regex_engine, sep=sep)
-        self.completer = self._get_completer(self.commands)
-
+    def __init__(self, obj=None, pattern=None, sep=None, use_trailing_sep=False):
+        self.use_trailing_sep = use_trailing_sep
+        self.sep = ' ' if sep is None else sep
+        pattern = '' if pattern is None else pattern
+        self.commands = self._get_commands(obj, pattern, self.sep)
+        # A cache of completions
+        self._matches = []
 
     @staticmethod
-    def _get_commands(obj, regex_engine, sep=None):
+    def _get_commands(obj, pattern, sep):
+        # Return a dict of cleaned-up method/function names to the
+        # methods/functions itself
+        if obj is None:
+            return None
+
+        regex_engine = re.compile(pattern)
+
         def is_command(cmd):
-            """Return True if is a callable whose name matching regex.
+            """Return True if is a callable whose name matches regex.
 
             """
             if not inspect.isfunction(cmd) and not inspect.ismethod(cmd):
@@ -100,8 +80,6 @@ class CommandMapper(object):
             if not regex_engine.findall(cmd.__name__):
                 return False
             return True
-
-        sep = ' ' if sep is None else sep
 
         command_dict = {}
         for command_name, command in inspect.getmembers(obj, predicate=is_command):
@@ -111,15 +89,39 @@ class CommandMapper(object):
 
         return command_dict
 
-    @staticmethod
-    def _get_completer(commands):
-        command_namespace = dict(zip(commands.keys(), commands.keys()))
-        command_completer = CommandMapper.CommandCompleter(command_namespace)
-        return command_completer
 
+    def complete(self, command_name, state):
+        """Return the next possible completion for given text.
+
+        Parameters
+        ----------
+        command_name : str
+            The text to attempt to complete.
+        state : int
+            The index of the completion to return (starting from 0).
+
+        Returns
+        -------
+        str
+            The `state`th completion of `command_name` or None if no
+            completions are left.
+
+        Notes
+        -----
+        This is based on the `complete` method in `rlcompleter.Completer`
+        and has the appropriate parameters for use with
+        `readline.set_completer`.
+
+        """
+        if state == 0:
+            self._matches = self.completions(command_name)
+        try:
+            return self._matches[state]
+        except IndexError:
+            return None
 
     def completions(self, command_name):
-        """Return possible command completions for the given text.
+        """Return all possible command completions for the given text.
 
         Parameters
         ----------
@@ -130,29 +132,55 @@ class CommandMapper(object):
         -------
         list of str
             A list of possible command completions for the given text (e.g,
-            ['print', 'put']).
+            ['print', 'put']) sorted alphabetically.
 
         """
         if not command_name:
             return self.commands.keys()
 
-        possible_commands = ['']
+        possible_commands = []
 
-        names = command_name.split()
-        # So `names.pop()` will return leftmost name
-        names.reverse()
+        # Comprehension to remove empty strings due to repeated `self.sep`
+        words = [w for w in command_name.split(self.sep) if w]
+        if self.use_trailing_sep and command_name.endswith(self.sep):
+            # Require at least one word beyond those in `command_name`
+            words.append('')
 
-        while names:
-            name = names.pop()
-            new_possible_commands = []
-            while possible_commands:
-                prev_name = possible_commands.pop()
-                full_name = '{} {}'.format(prev_name, name).strip()
-                for next_name in self.completer.global_matches(full_name):
-                    # Completions returned should not have a trailing
-                    # space, and `full_name` expects no such space from the
-                    # entries that make it into `possible_commands`
-                    new_possible_commands.append(next_name.strip())
-            possible_commands = new_possible_commands[:]
+        for other_command_name in self.commands:
+            other_words = other_command_name.split()
+            for i, word in enumerate(words):
+                try:
+                    other_word = other_words[i]
+                except IndexError:
+                    break
+                if not other_word.startswith(word):
+                    break
+            else:
+                # Every word in `other_command_name` has the
+                # coresponding word in `command_name` as a prefix
+                match_name = other_command_name
+                if self.use_trailing_sep:
+                    match_name = self._sep_postfixed_name(match_name)
+                possible_commands.append(match_name)
 
-        return possible_commands
+        return sorted(possible_commands)
+
+    def _sep_postfixed_name(self, command_name):
+        # Return `command_name` with `self.sep` added to its end if
+        # `command_name` never prefixes any other command or if in all
+        # commands it prefixes `self.sep` follows that prefix; otherwise
+        # just return `command_name`
+        name_n = len(command_name)
+        for other_command_name in self.commands:
+            if not other_command_name.startswith(command_name):
+                continue
+            try:
+                next_char = other_command_name[name_n]
+                if next_char != self.sep:
+                    # A next-char completion aside from `self.sep` is
+                    # possible
+                    return command_name
+            except IndexError:
+                # Ignore when `other_command_name == command_name`
+                pass
+        return command_name + self.sep
