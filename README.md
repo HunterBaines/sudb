@@ -13,19 +13,47 @@ require guessing.
 
 Installing
 ----------
-Simply use `python setup.py install`, which will install the sudb package
-and copy the script invoking that package's main method into a directory in
-your `PATH`. (If this complains about `No module named enum`, you'll need
-to install enum34, the backport of Enum from Python 3.4: if pip is
-installed, `pip install enum34` will do it.) To test it out, try this:
+```shell
+# clone the repository
+$ git clone https://github.com/HunterBaines/sudb.git
 
+# change into the project's root directory
+$ cd sudb/
+
+# install the sudb package and copy the script 
+# invoking its main method into your PATH
+$ sudo python setup.py install
 ```
-sudb --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
+
+To test that everything worked, try this:
+
+```shell
+$ sudb --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
 ```
 
 (The `--auto` option tells the program to solve the puzzles without
 interaction; `--difference` tells it to colorize the cells in the solved
 puzzles it outputs that were originally blank.)
+
+To import from images, a few additional steps are required. First, install
+the packages needed to preprocess and manipulate the images using one of
+the following commands, for example:
+
+```shell
+# using the Python package manager pip:
+$ sudo pip install numpy scipy pillow
+
+# using the default package manager on Debian/Ubuntu:
+$ sudo apt install python-numpy python-scipy python-imaging
+```
+
+Then install the OCR engine used to recognize digits in the images and the
+Python wrapper for that engine:
+
+```shell
+$ sudo apt install tesseract-ocr
+$ sudo pip install pytesseract
+```
 
 
 Importing
@@ -52,8 +80,8 @@ The option `--lines LINE1 LINE2 ...` imports a Sudoku from the nine rows of
 the puzzle passed to it as arguments (using the puzzle format just
 described). One could import the above puzzle using this:
 
-```
-sudb --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000
+```shell
+$ sudb --lines 100624008 360700520 400000009 000207000 000000037 030180090 209310000 000006100 070000000
 ```
 
 The option `--file FILENAME` imports puzzles from text or image files (or
@@ -62,7 +90,8 @@ Multiple puzzles may be included in the same file, and the importer will do
 its best to ignore lines that don't appear to part of the puzzles. Image
 files should be cleanly cropped to the border of the puzzle with sharp text
 and a high-contrast grid for best results---and even then the importer may
-miss clues. Importing from images requires numpy, PIL, and pytesseract.
+miss clues. Importing from images requires numpy, scipy, PIL, and
+pytesseract.
 
 The option `--random [SEED]` generates a puzzle given one or more integer
 seeds (or from a random seed if none is given).
