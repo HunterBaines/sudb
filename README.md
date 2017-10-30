@@ -8,7 +8,10 @@ generated from a random seed. These puzzles can also be made harder by
 removing unnecessary clues or easier by adding in clues that seem to
 require guessing.
 
-![screenshot](screenshots/step_and_explain.png)
+
+Demo
+----
+<a href="screenshots/sudb_demo.mp4"><img alt="watch demo" height="40%" src="screenshots/sudb_demo.png"/></a>
 
 
 Installing
