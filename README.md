@@ -11,7 +11,7 @@ require guessing.
 
 Demo
 ----
-<a href="https://raw.githubusercontent.com/HunterBaines/sudb/master/screenshots/sudb_demo.mp4"><img alt="watch demo" src="screenshots/sudb_demo.png"/></a>
+<a href="https://raw.githubusercontent.com/HunterBaines/sudb/master/screenshots/sudb_demo.webm"><img alt="watch demo" src="screenshots/sudb_demo.png"/></a>
 
 
 Installing
