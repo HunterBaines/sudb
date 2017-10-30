@@ -13,7 +13,7 @@ require guessing.
 
 Demo
 ----
-[![asciicast](https://asciinema.org/a/144971.png)](https://asciinema.org/a/144971)
+<a href=https://asciinema.org/a/144971><img src="https://asciinema.org/a/144971.png" alt="asciicast" width="480"/></a>
 
 
 Installing
