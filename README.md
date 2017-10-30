@@ -8,10 +8,12 @@ generated from a random seed. These puzzles can also be made harder by
 removing unnecessary clues or easier by adding in clues that seem to
 require guessing.
 
+![example usage](screenshots/short_demo.gif)
+
 
 Demo
 ----
-[![asciicast](https://asciinema.org/a/144858.png)](https://asciinema.org/a/144858)
+[![asciicast](https://asciinema.org/a/144971.png)](https://asciinema.org/a/144971)
 
 
 Installing
