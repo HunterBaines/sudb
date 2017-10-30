@@ -71,8 +71,11 @@ def puzzle_lines(filename):
     rows = _get_rows_from_grid(image, threshold=10)
     cols = _get_columns_from_grid(image, threshold=10)
 
-    assert len(rows) >= 9, "Too few rows detected in puzzle."
-    assert len(cols) >= 9, "Too few columns detected in puzzle."
+    if len(rows) < 9 or len(cols) < 9:
+        # Too few rows or columns detected in the puzzle, which can happen
+        # when, e.g., the puzzle contains differently shaded cells and was
+        # not able to be binarized
+        return []
 
     for (start_y, end_y) in rows:
         line = ""
