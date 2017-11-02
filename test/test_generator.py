@@ -16,6 +16,15 @@ class TestGeneratorMethods(unittest.TestCase):
     # Seeds that, when generated with `minimized=True`, yield puzzles that require guessing
     NONSATISFACTORY_SEEDS = [3, 13, 15]
 
+
+    @classmethod
+    def setUpClass(cls):
+        # For reproducible tests, initialize `random` with predefined seed
+        cls.seed = 198404
+        #cls.seed = random.random()
+        random.seed(cls.seed)
+
+
     def test_generate(self):
         # Test that the same seed generates the same puzzle
         seed = random.random()
@@ -90,7 +99,7 @@ class TestGeneratorMethods(unittest.TestCase):
         original_clues = set(original_puzzle.clues())
         min_seed = generator.random_seed()
         # Small to keep the test short
-        test_seed_count = 50
+        test_seed_count = 5
         for seed in range(min_seed, min_seed + test_seed_count + 1):
             min_clues = random.randint(17, 34)
             similar_puzzle = generator.similar_puzzle(original_puzzle, seed, min_clues=min_clues)
