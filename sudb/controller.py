@@ -747,6 +747,7 @@ class SolverController(object):
     @cmdhelp('Save the current board state at a given or default label.',
              'checkpoint [CHECKPOINT]',
              'If CHECKPOINT is not given, the current move number will be used.'\
+             + ' Anything after whitespace in CHECKPOINT is ignored.'\
              + ' Use "restart CHECKPOINT" to restore this state of the board.')
     def _cmd_checkpoint(self, argv):
         try:
