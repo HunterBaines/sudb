@@ -1147,8 +1147,10 @@ class SolverController(object):
     def _subcmd_info_checkpoints(self, argv):
         checkpoints = argv[1:]
         if not checkpoints:
-            # Since no given checkpoints order, order by move number
-            checkpoints = sorted(self.checkpoints.items(), key=lambda x: x[1].move_count())
+            # Since order cannot be taken from arg order, order by move number and then label
+            # First sort labels so those with same moveno display in alphabetical order
+            label_sorted_checks = sorted(self.checkpoints.items())
+            checkpoints = sorted(label_sorted_checks, key=lambda x: x[1].move_count())
             checkpoints = [key for key, _ in checkpoints]
 
         title = 'Check'
