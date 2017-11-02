@@ -51,9 +51,9 @@ TODO
 
 
 ### /test/test\_controller\_\*.py ###
-* Write output test for `checkpoint`-related commands: `checkpoint`,
-  `restart`, `delete checkpoint`, `print checkpoint`, and `info
-  checkpoint`.
+* c28eb89: ~~Write output test for `checkpoint`-related commands:
+  `checkpoint`, `restart`, `delete checkpoint`, `print checkpoint`, and
+  `info checkpoint`.~~
 
 * Write output test for `breakpoint`-related commands: `breakpoint`,
   `delete`/`delete breakpoint`, `info breakpoint`, and all step variants as
