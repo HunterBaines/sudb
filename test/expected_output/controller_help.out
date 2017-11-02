@@ -75,8 +75,9 @@ value of the cell at that location is known.
 Save the current board state at a given or default label.
 Usage: checkpoint [CHECKPOINT]
 
-If CHECKPOINT is not given, the current move number will be used. Use
-"restart CHECKPOINT" to restore this state of the board.
+If CHECKPOINT is not given, the current move number will be used.
+Anything after whitespace in CHECKPOINT is ignored. Use "restart
+CHECKPOINT" to restore this state of the board.
 (sudb) help delete
 List of delete subcommands:
 
