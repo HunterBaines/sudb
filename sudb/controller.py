@@ -755,8 +755,15 @@ class SolverController(object):
             # Default checkpoint label is the move number
             checkpoint = str(self.solver.move_count())
 
+        try:
+            moveno = self.checkpoints[checkpoint].move_count()
+            print('Note: redefined from checkpoint at move {}.'.format(moveno))
+        except KeyError:
+            pass
+
         saved_solver = self.solver.duplicate()
         self.checkpoints[checkpoint] = saved_solver
+
         for checkpoint_arg_command in ['restart', 'delete checkpoints',
                                        'info checkpoints', 'print checkpoints']:
             # Add commands with custom checkpoint name to tab completion
