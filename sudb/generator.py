@@ -66,11 +66,12 @@ from sudb.board import Board
 from sudb.solver import Solver
 
 
-def generate(seed, minimized=False):
+def generate(seed, minimized=False, symmetric=False):
     """Return a puzzle generated from the provided seed.
 
     Return a satisfactory puzzle generated from `seed` with optional
-    minimization if `minimized` is True.
+    minimization if `minimized` is True and optional 180-degree symmetry if
+    `symmetric` is True.
 
     Parameters
     ----------
@@ -79,6 +80,9 @@ def generate(seed, minimized=False):
     minimized : bool, optional
         Whether to attempt to remove redundant clues from generated puzzle
         (at the expense of additional time for generation) (default False).
+    symmetric : bool, optional
+        Whether to force the puzzle to have 180-degree rotational symmetry
+        (at the expense of likely adding redundant clues) (default False).
 
     Returns
     -------
@@ -88,8 +92,12 @@ def generate(seed, minimized=False):
     """
     puzzle = solved_puzzle(seed)
     puzzle = similar_puzzle(puzzle, seed)
-    if minimized:
+    if minimized and not symmetric:
+        # If `symmetric`, symmetry-maintaining minimization will be done
+        # within the function `make_rotationally_symmetric`
         minimize(puzzle, threshold=20)
+    elif symmetric:
+        make_rotationally_symmetric(puzzle, minimized=minimized)
     return puzzle
 
 
@@ -191,7 +199,7 @@ def make_satisfactory(puzzle):
     Returns
     -------
     int
-        The number of clues added.
+        The difference between the puzzle's new clue count and its old.
 
     See Also
     --------
@@ -225,7 +233,7 @@ def minimize(puzzle, threshold=17):
     Returns
     -------
     int
-        The number of clues removed.
+        The difference between the puzzle's new clue count and its old.
 
     See Also
     --------
@@ -252,27 +260,106 @@ def minimize(puzzle, threshold=17):
     [Accessed 25 Jun. 2017].
 
     """
-    if threshold < 17 or puzzle.clue_count() <= threshold:
+    original_clue_count = puzzle.clue_count()
+
+    if threshold < 17 or original_clue_count <= threshold:
         return 0
 
-    overall_clues_removed = 0
     solver = Solver(puzzle)
-
     while True:
         clues_removed = 0
-        clues = puzzle.clues()
-        for (num, row, col) in clues:
+        for (num, row, col) in puzzle.clues():
             puzzle.set_cell(Board.BLANK, row, col)
             if solver.solution_count() > 1:
                 # Multiple solutions after this change, so reset
                 puzzle.set_cell(num, row, col)
             else:
                 clues_removed += 1
-                overall_clues_removed += 1
         if not clues_removed:
             break
 
-    return overall_clues_removed
+    return puzzle.clue_count() - original_clue_count
+
+
+def make_rotationally_symmetric(puzzle, minimized=False, keep_satisfactory=False):
+    """Give puzzle 180-deg rotational symmetry; return clue count change.
+
+    Add and, if `minimized` is True, remove clues from `puzzle` such that,
+    if this new puzzle were rotated 180 degrees, the cells with clues in
+    them in the rotated and non-rotated puzzles would be the same.
+
+    Parameters
+    ----------
+    puzzle : Board instance
+        The puzzle to make symmetric by adding or removing clues.
+    minimized : bool, optional
+        Whether any clues that can be removed from `puzzle` without
+        destroying its symmetry or properness should be removed (default
+        False).
+    keep_satisfactory : bool, optional
+        Whether a clue should be prevented from being removed if doing so
+        introduces needing to guess to solve (default False).
+
+    Returns
+    -------
+    int
+        The difference between the puzzle's new clue count and its old.
+
+    """
+    clues = puzzle.clues()
+    original_clue_count = len(clues)
+
+    original_guess_count = 0
+    if keep_satisfactory:
+        temp_solver = Solver(puzzle.duplicate())
+        temp_solver.autosolve()
+        original_guess_count = len(temp_solver.guessed_moves())
+
+    solver = Solver(puzzle.duplicate())
+    solver.autosolve_without_history()
+
+    for (num, row, col) in clues:
+        rot_row, rot_col = _rotated_location(row, col)
+        rot_num = solver.puzzle.get_cell(rot_row, rot_col)
+
+        if not minimized:
+            puzzle.set_cell(rot_num, rot_row, rot_col)
+            continue
+
+        # See if the puzzle still has a unique solution with the clues at
+        # the original location and its rotational partner location removed
+        puzzle.set_cell(Board.BLANK, row, col)
+        puzzle.set_cell(Board.BLANK, rot_row, rot_col)
+
+        temp_solver = Solver(puzzle.duplicate())
+        if temp_solver.solution_count() != 1 or keep_satisfactory:
+            new_guess_count = 0
+            if keep_satisfactory:
+                # Check if changes introduced additional guesses
+                temp_solver.autosolve()
+                new_guess_count = len(temp_solver.guessed_moves())
+
+            if not keep_satisfactory or new_guess_count > original_guess_count:
+                # Puzzle no longer has a unique solution or now has more
+                # guesses than before; undo changes
+                puzzle.set_cell(num, row, col)
+                puzzle.set_cell(rot_num, rot_row, rot_col)
+
+    return puzzle.clue_count() - original_clue_count
+
+
+def _rotated_location(row, col, rotations=2):
+    # Return location if rotated by `rotations`*90 degrees
+    max_row = max(Board.SUDOKU_ROWS)
+    rot_row = row
+    rot_col = col
+
+    for _ in range(rotations % 4):
+        rot_row = col
+        rot_col = max_row - row
+        row, col = rot_row, rot_col
+
+    return (rot_row, rot_col)
 
 
 def random_seed(rand_min=0, rand_max=2147483647):
