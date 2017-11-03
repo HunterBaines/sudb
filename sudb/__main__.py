@@ -140,7 +140,7 @@ def main():
     print('{} puzzle{}to solve.'.format(len(puzzles), 's ' if len(puzzles) != 1 else ' '))
 
     for i, puzzle in enumerate(puzzles):
-        _feed_mushroom(puzzle, one_side=args.minimize, other_side=args.satisfactory)
+        _edit_puzzle(puzzle, args.satisfactory, args.minimized, args.symmetrical)
 
         skip_solving = False
         if log.autolog(puzzle, report=True) and log.in_mask(puzzle, log.unsolvable_mask()):
@@ -209,7 +209,7 @@ def _get_parser():
     parser.add_argument('-f', '--file', nargs='+', help=file_help)
     parser.add_argument('-l', '--lines', metavar='LINE', nargs=9, action='append',
                         help='import a puzzle from the nine lines given')
-    parser.add_argument('-m', '--minimize', action='store_true',
+    parser.add_argument('-m', '--minimized', action='store_true',
                         help='remove clues that are not needed to guarantee a unique solution')
     parser.add_argument('-n', '--no-init', action='store_true',
                         help='do not execute commands from {}'.format(INIT_FILE))
@@ -217,6 +217,8 @@ def _get_parser():
                         help='generate a random board with a random seed or the seed(s) given')
     parser.add_argument('-s', '--satisfactory', action='store_true',
                         help='add clues that seem to require guessing instead of deduction')
+    parser.add_argument('-S', '--symmetrical', action='store_true',
+                        help='add or remove clues to give puzzle 180-degree rotational symmetry')
     parser.add_argument('-x', '--execute', metavar='COMMAND', action='append',
                         help='execute the command given (use -x "source FILE" '\
                              'to execute commands from file FILE)')
@@ -224,25 +226,45 @@ def _get_parser():
     return parser
 
 
-def _feed_mushroom(puzzle, one_side=False, other_side=False):
-    if not one_side and not other_side:
+def _edit_puzzle(puzzle, satisfactory, minimized, symmetrical):
+    if not satisfactory and not minimized and not symmetrical:
         return
 
-    if one_side:
-        clue_change = -1 * generator.minimize(puzzle)
-        puzzle.name += ', {:+}'.format(clue_change)
+    original_clue_count = puzzle.clue_count()
+    func_trace = ''
+    clue_trace = ''
+    func_count = 0
 
-        if other_side:
-            puzzle.name += '/'
-        else:
-            puzzle.name += ' clue{}'.format('s' if clue_change != -1 else '')
+    if minimized and not symmetrical:
+        # If `symmetrical`, a symmetry-preserving minimize will be used
+        # instead later on when making the puzzle rotationally symmetric
+        clue_change = generator.minimize(puzzle)
+        func_trace += 'min'
+        clue_trace += '{:+}'.format(clue_change)
+        func_count += 1
 
-    if other_side:
-        if not one_side:
-            puzzle.name += ', '
-
+    if satisfactory:
         clue_change = generator.make_satisfactory(puzzle)
-        puzzle.name += '{:+} clue{}'.format(clue_change, 's' if clue_change != 1 else '')
+        func_trace += '+' if func_trace else ''
+        func_trace += 'sat'
+        clue_trace += '{:+}'.format(clue_change)
+        func_count += 1
+
+    if symmetrical:
+        clue_change = generator.make_rotationally_symmetric(puzzle, minimized=minimized,
+                                                            keep_satisfactory=satisfactory)
+        func_trace += '+' if func_trace else ''
+        func_trace += 'minsym' if minimized else 'sym'
+        clue_trace += '{:+}'.format(clue_change)
+        func_count += 1
+
+    if clue_trace.startswith('+'):
+        clue_trace = clue_trace[1:]
+
+    clue_change = puzzle.clue_count() - original_clue_count
+    puzzle.name += ', {:+} clue{}'.format(clue_change, 's' if abs(clue_change) != 1 else '')
+    puzzle.name += ' [' if func_count < 2 else ' [{}, '.format(clue_trace)
+    puzzle.name += '{}]'.format(func_trace)
 
 
 if __name__ == '__main__':
