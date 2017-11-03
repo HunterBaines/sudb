@@ -6,7 +6,8 @@ interactively using GDB-style commands to query or control the solver.
 Puzzles can be entered row by row, imported from text or image files, or
 generated from a random seed. These puzzles can also be made harder by
 removing unnecessary clues or easier by adding in clues that seem to
-require guessing.
+require guessing, or they can even be given the 180-degree rotational
+symmetry popular in published Sudokus.
 
 ![example usage](screenshots/short_demo.gif)
 
@@ -100,6 +101,10 @@ pytesseract.
 
 The option `--random [SEED]` generates a puzzle given one or more integer
 seeds (or from a random seed if none is given).
+
+The options `--minimized`, `--satisfactory`, and `--symmetrical` can be
+used to alter the puzzle(s) imported or generated. Please see `sudb --help`
+for more information.
 
 
 Interacting
