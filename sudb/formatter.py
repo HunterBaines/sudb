@@ -242,8 +242,8 @@ def get_colormap(locations, color):
     return colormap
 
 
-def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
-              show_axes=False, zero_indexed=False, ascii_mode=False):
+def strfboard(board, colormap=None, candidate_map=None, terminal_width=0, show_axes=False,
+              zero_indexed=False, ascii_mode=False, ansi_mode=False):
     """Return a formatted string version of the board.
 
     Return a string-formatted version of the board, optionally
@@ -275,8 +275,13 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
         and columns should begin at 0, and False if they should begin at 1
         (default False).
     ascii_mode : bool, optional
-        True if only ascii should be used in the output, and False if
-        UTF-8 may be used (default False).
+        True if only ascii should be used in the output string, and False
+        if UTF-8 may be used (default False).
+    ansi_mode : bool, optional
+        True if ANSI escape sequences may be used to decorate cetain
+        elements in the output string (e.g., making the axes dim), and
+        False otherwise (default False); this option does not affect ANSI
+        sequences defined in, e.g., the `colormap` parameter.
 
     Returns
     -------
@@ -391,14 +396,16 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
                 color = None
 
             cell = _cell_str(board, row, col, formatter, size_id,
-                             candidate_map=candidate_map, color=color)
+                             candidate_map=candidate_map, color=color, ansi_mode=ansi_mode)
             cell_row.append(cell.split('\n'))
         cell_row.append(stack_border.split('\n'))
 
         for i, line in enumerate(zip(*cell_row)):
             if show_axes and i == row_index_target:
-                row_label = Color.DIM + '{} '.format(row + (0 if zero_indexed else 1))
-                row_label += Color.RESET
+                # If `ansi_mode`, make row label dim
+                row_label = Color.DIM if ansi_mode else ''
+                row_label += '{} '.format(row + (0 if zero_indexed else 1))
+                row_label += Color.RESET if ansi_mode else ''
                 board_str += row_label
             else:
                 board_str += ' ' * padding
@@ -414,7 +421,8 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
 
     if show_axes:
         # Construct the column number label
-        col_label = Color.DIM
+        # If `ansi_mode`, make column label dim
+        col_label = Color.DIM if ansi_mode else ''
         col_label += ' ' * padding + ' ' * extra_padding
         for col in Board.SUDOKU_COLS:
             if col % 3 == 0:
@@ -423,13 +431,14 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0,
             col = col + 1 if not zero_indexed else col
             col_label += '{}{}'.format(col, ' ' * col_padding)
         col_label = col_label.rstrip()
-        col_label += Color.RESET
+        col_label += Color.RESET if ansi_mode else ''
         board_str += col_label + '\n'
 
     return board_str
 
 
-def _cell_str(board, row, col, formatter, size_id, candidate_map=None, color=None):
+def _cell_str(board, row, col, formatter, size_id,
+              candidate_map=None, color=None, ansi_mode=False):
     if size_id == 0 or candidate_map is None:
         height, width = 0, 0
     elif size_id == 1:
@@ -449,13 +458,20 @@ def _cell_str(board, row, col, formatter, size_id, candidate_map=None, color=Non
         cell_str = str(number)
     elif number != Board.BLANK:
         blank_line = ' ' * (width + 2) + '\n'
-        number = Color.BOLD + str(number) + Color.RESET
+        # If `ansi_mode`, make non-candidate number bold
+        bold_number = Color.BOLD if ansi_mode else ''
+        bold_number += str(number)
+        bold_number += Color.RESET if ansi_mode else ''
         if size_id == 2:
             # Place number in upper left of imaginary box (center not possible)
-            cell_str = blank_line + ' {}{}\n'.format(number, ' ' * width) + (height-0) * blank_line
+            cell_str = blank_line
+            cell_str += ' {}{}\n'.format(bold_number, ' ' * width)
+            cell_str += (height-0) * blank_line
         else:
             # Place number in center of imaginary box
-            cell_str = 2 * blank_line + '  {}  \n'.format(number) + (height-1) * blank_line
+            cell_str = 2 * blank_line
+            cell_str += '  {}  \n'.format(number)
+            cell_str += (height-1) * blank_line
     elif not candidates:
         # An empty cell
         cell_str = formatter.box(height, width)
