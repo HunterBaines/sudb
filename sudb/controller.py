@@ -576,8 +576,8 @@ class SolverController(object):
             candidate_map = self.marks
 
         puzzle_str = frmt.strfboard(puzzle, colormap=colormap, candidate_map=candidate_map,
-                                    ascii_mode=self.options.ascii, show_axes=show_axes,
-                                    terminal_width=self.options.width)
+                                    show_axes=show_axes, terminal_width=self.options.width,
+                                    ascii_mode=self.options.ascii, ansi_mode=True)
 
         output = separator + title + puzzle_str
         print(output)
