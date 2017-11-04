@@ -13,7 +13,7 @@ Examples
 >>> puzzle_str += '++81+29++\nrandom line\n7!@#$%^&8\n--67-82--\n'
 >>> puzzle_str += 'bl26a95nk\n8bb2b3bb9\n\n\nXX5X1X3XX\n'
 >>> puzzle_str += '12345678' # Lines with line length != 9 chars are ignored
->>> puzzles = importer.get_puzzles(lines=puzzle_str.split('\n'), seeds=range(1))
+>>> puzzles = importer.get_puzzles(lines=puzzle_str.split('\n'), seeds=[0])
 >>> for puzzle in puzzles:
     ...     print '{}{}\n'.format(frmt.strfboard(puzzle, ascii_mode=True), puzzle.name)
     ... 

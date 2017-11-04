@@ -68,13 +68,13 @@ class Board(object):
     """
     # Calling these SUDOKU_X instead of just X to avoid any ambiguity over
     # whether the X applies to the instance or the class itself
-    SUDOKU_NUMBERS = range(1, 10)
+    SUDOKU_NUMBERS = list(range(1, 10))
     SUDOKU_STRINGS = map(str, SUDOKU_NUMBERS)
     # The rows and columns are zero-indexed
-    SUDOKU_ROWS = range(9)
+    SUDOKU_ROWS = list(range(9))
     SUDOKU_COLS = SUDOKU_ROWS
     SUDOKU_BOXES = SUDOKU_ROWS
-    SUDOKU_BANDS = range(3)
+    SUDOKU_BANDS = list(range(3))
     SUDOKU_STACKS = SUDOKU_BANDS
     SUDOKU_CELLS = [(row, col) for row in SUDOKU_ROWS for col in SUDOKU_COLS]
     BLANK = 0
