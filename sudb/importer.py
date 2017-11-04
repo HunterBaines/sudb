@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Author: Hunter Baines <0x68@protonmail.com>
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
@@ -6,46 +8,53 @@
 
 Examples
 --------
->>> import importer
->>> import formatter as frmt
->>> puzzle_str = 'My Puzzle\n' # Lines with whitespace are ignored
->>> puzzle_str += '003020600\n9__3_5__1\n**18*64**\n' # Not 1-9, then blank
->>> puzzle_str += '++81+29++\nrandom line\n7!@#$%^&8\n--67-82--\n'
->>> puzzle_str += 'bl26a95nk\n8bb2b3bb9\n\n\nXX5X1X3XX\n'
->>> puzzle_str += '12345678' # Lines with line length != 9 chars are ignored
+>>> import sudb.importer as importer
+>>> import sudb.formatter as frmt
+>>> puzzle_str = 'My Puzzle\n' # ignore lines w/ whitespace
+>>> puzzle_str += '12345678\n' # ignore lines w/o 9 chars
+>>> puzzle_str += '003020600\n' # to represent blanks, use 0 or
+>>> puzzle_str += '9__3_5__1\n' # a non-whitespace, non-digit char
+>>> puzzle_str += '**18*64**\n' # the blank char can change row-by-row
+>>> puzzle_str += '+-81+29-+\n' # or even within the same row
+>>> puzzle_str += '7!@#$%^&8\n'
+>>> puzzle_str += '--67-82--\n'
+>>> puzzle_str += 'bl26a95nk\n'
+>>> puzzle_str += '8bb2b3bb9\n'
+>>> puzzle_str += 'XX5X1X3XX\n'
 >>> puzzles = importer.get_puzzles(lines=puzzle_str.split('\n'), seeds=[0])
 >>> for puzzle in puzzles:
-    ...     print '{}{}\n'.format(frmt.strfboard(puzzle, ascii_mode=True), puzzle.name)
-    ... 
-    .........................
-    ! _ _ 3 ! _ 2 _ ! 6 _ _ !
-    ! 9 _ _ ! 3 _ 5 ! _ _ 1 !
-    ! _ _ 1 ! 8 _ 6 ! 4 _ _ !
-    !.......!.......!.......!
-    ! _ _ 8 ! 1 _ 2 ! 9 _ _ !
-    ! 7 _ _ ! _ _ _ ! _ _ 8 !
-    ! _ _ 6 ! 7 _ 8 ! 2 _ _ !
-    !.......!.......!.......!
-    ! _ _ 2 ! 6 _ 9 ! 5 _ _ !
-    ! 8 _ _ ! 2 _ 3 ! _ _ 9 !
-    ! _ _ 5 ! _ 1 _ ! 3 _ _ !
-    !.......!.......!.......!
-    lines argument
-
-    .........................
-    ! _ 4 _ ! 3 7 _ ! _ _ 9 !
-    ! _ 5 7 ! _ _ 9 ! 6 _ _ !
-    ! _ _ 8 ! 6 _ _ ! _ _ 3 !
-    !.......!.......!.......!
-    ! 5 _ _ ! 7 _ _ ! _ _ _ !
-    ! _ 6 _ ! 5 9 2 ! _ _ 8 !
-    ! _ 9 _ ! _ _ _ ! _ _ _ !
-    !.......!.......!.......!
-    ! 6 8 _ ! _ _ 5 ! _ 7 _ !
-    ! _ _ _ ! _ _ _ ! _ 8 6 !
-    ! 4 2 _ ! _ _ 7 ! _ _ _ !
-    !.......!.......!.......!
-    seed 0
+...     print('{}{}\n'.format(frmt.strfboard(puzzle), puzzle.name))
+... 
+┌───────┬───────┬───────┐
+│ □ □ 3 │ □ 2 □ │ 6 □ □ │
+│ 9 □ □ │ 3 □ 5 │ □ □ 1 │
+│ □ □ 1 │ 8 □ 6 │ 4 □ □ │
+├───────┼───────┼───────┤
+│ □ □ 8 │ 1 □ 2 │ 9 □ □ │
+│ 7 □ □ │ □ □ □ │ □ □ 8 │
+│ □ □ 6 │ 7 □ 8 │ 2 □ □ │
+├───────┼───────┼───────┤
+│ □ □ 2 │ 6 □ 9 │ 5 □ □ │
+│ 8 □ □ │ 2 □ 3 │ □ □ 9 │
+│ □ □ 5 │ □ 1 □ │ 3 □ □ │
+└───────┴───────┴───────┘
+lines argument
+<BLANKLINE>
+┌───────┬───────┬───────┐
+│ □ 4 □ │ 3 7 □ │ □ 5 □ │
+│ □ □ 7 │ □ □ 9 │ 6 □ □ │
+│ □ □ □ │ 6 5 □ │ □ 2 3 │
+├───────┼───────┼───────┤
+│ 5 □ □ │ 7 □ □ │ □ 6 □ │
+│ □ 6 1 │ 5 9 □ │ □ □ 8 │
+│ □ 9 □ │ □ 3 □ │ □ □ □ │
+├───────┼───────┼───────┤
+│ 6 □ □ │ □ □ □ │ □ 7 4 │
+│ □ □ □ │ 9 □ □ │ □ □ □ │
+│ 4 2 □ │ □ □ 7 │ □ □ □ │
+└───────┴───────┴───────┘
+seed 0
+<BLANKLINE>
 
 """
 from __future__ import absolute_import, print_function

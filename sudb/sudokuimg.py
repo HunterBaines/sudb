@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Author: Hunter Baines <0x68@protonmail.com>
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
@@ -6,25 +8,26 @@
 
 Examples
 --------
->>> import sudokuimg
->>> import formatter as frmt
->>> from board import Board
->>> puzzle_lines = sudokuimg.puzzle_lines('../examples/puzzle.png')
+>>> import sudb.sudokuimg as sudokuimg
+>>> import sudb.formatter as frmt
+>>> from sudb.board import Board
+>>> puzzle_lines = sudokuimg.puzzle_lines('examples/puzzle.png')
 >>> puzzle = Board(lines=puzzle_lines)
->>> print frmt.strfboard(puzzle, ascii_mode=True)
-.........................
-! 1 _ _ ! 6 2 4 ! _ _ 8 !
-! 3 6 _ ! 7 _ _ ! 5 2 _ !
-! 4 _ _ ! _ _ _ ! _ _ 9 !
-!.......!.......!.......!
-! _ _ _ ! 2 _ 7 ! _ _ _ !
-! _ _ _ ! _ _ _ ! _ 3 7 !
-! _ 3 _ ! 1 8 _ ! _ 9 _ !
-!.......!.......!.......!
-! 2 _ 9 ! 3 1 _ ! _ _ _ !
-! _ _ _ ! _ _ 6 ! 1 _ _ !
-! _ 7 _ ! _ _ _ ! _ _ _ !
-!.......!.......!.......!
+>>> print(frmt.strfboard(puzzle))
+┌───────┬───────┬───────┐
+│ 1 □ □ │ 6 2 4 │ □ □ 8 │
+│ 3 6 □ │ 7 □ □ │ 5 2 □ │
+│ 4 □ □ │ □ □ □ │ □ □ 9 │
+├───────┼───────┼───────┤
+│ □ □ □ │ 2 □ 7 │ □ □ □ │
+│ □ □ □ │ □ □ □ │ □ 3 7 │
+│ □ 3 □ │ 1 8 □ │ □ 9 □ │
+├───────┼───────┼───────┤
+│ 2 □ 9 │ 3 1 □ │ □ □ □ │
+│ □ □ □ │ □ □ 6 │ 1 □ □ │
+│ □ 7 □ │ □ □ □ │ □ □ □ │
+└───────┴───────┴───────┘
+<BLANKLINE>
 
 """
 from __future__ import division

@@ -504,33 +504,6 @@ class SolverController(object):
             naming in the parameter `move_type` which deductive move type
             it should be treated as; False otherwise (default False).
 
-        Examples
-        --------
-        >>> from controller import SolverController
-        >>> from board import Board
-        >>> puzzle_lines = ['003020600', '900305001', '001806400']
-        >>> puzzle_lines.extend(['008102900', '700000008', '006708200'])
-        >>> puzzle_lines.extend(['002609500', '800203009', '005010300'])
-        >>> puzzle = Board(lines=puzzle_lines)
-        >>> control = SolverController(puzzle, ascii_mode=True)
-        >>> control.print_puzzle()
-
-           MOVE 0
-          .........................
-        1 ! _ _ 3 ! _ 2 _ ! 6 _ _ !
-        2 ! 9 _ _ ! 3 _ 5 ! _ _ 1 !
-        3 ! _ _ 1 ! 8 _ 6 ! 4 _ _ !
-          !.......!.......!.......!
-        4 ! _ _ 8 ! 1 _ 2 ! 9 _ _ !
-        5 ! 7 _ _ ! _ _ _ ! _ _ 8 !
-        6 ! _ _ 6 ! 7 _ 8 ! 2 _ _ !
-          !.......!.......!.......!
-        7 ! _ _ 2 ! 6 _ 9 ! 5 _ _ !
-        8 ! 8 _ _ ! 2 _ 3 ! _ _ 9 !
-        9 ! _ _ 5 ! _ 1 _ ! 3 _ _ !
-          !.......!.......!.......!
-            1 2 3   4 5 6   7 8 9
-
         """
         if solver is None:
             solver = self.solver
