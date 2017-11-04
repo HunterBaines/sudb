@@ -1042,7 +1042,7 @@ class SolverController(object):
             return status | self.Status.OK
 
         print('List of commands:\n')
-        for command_name in sorted(self.cmd.commands.keys()):
+        for command_name in sorted(self.cmd.commands):
             command = self.cmd.commands[command_name]
             print('{} -- '.format(command_name), end='')
             command([], print_help=1)
@@ -1088,7 +1088,7 @@ class SolverController(object):
             print('List of {} subcommands:'.format(command_name))
             print()
 
-        for subcommand_name in sorted(self.cmd.commands.keys()):
+        for subcommand_name in sorted(self.cmd.commands):
             if subcommand_name.startswith(command_name):
                 command = self.cmd.commands[subcommand_name]
                 print('{} -- '.format(subcommand_name), end='')

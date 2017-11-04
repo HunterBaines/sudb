@@ -136,7 +136,8 @@ class CommandMapper(object):
 
         """
         if not command_name:
-            return self.commands.keys()
+            # Return all keys in `self.commands` if no name given
+            return list(self.commands)
 
         possible_commands = []
 

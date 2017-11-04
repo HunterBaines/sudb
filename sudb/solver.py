@@ -130,7 +130,7 @@ class Solver(object):
 
     def __key(self):
         return (hash(self.puzzle), hash(self.solved_puzzle), hash(tuple(self.move_history)),
-                hash(tuple(self.step_order.keys())))
+                hash(tuple(self.step_order)))
 
     def __eq__(self, other):
         # pylint: disable=protected-access
