@@ -21,14 +21,14 @@ class GridComponentFormatter(object):
     Parameters
     ----------
     ascii_mode : bool, optional
-        True if only ascii should be used in the values returned by all
+        True if only ASCII should be used in the values returned by all
         methods, and False if UTF-8 may be used (default False).
 
     Attributes
     ----------
     ascii_mode : bool
-        Whether UTF-8 is allowed to be used in any strings returned by
-        methods (default False).
+        True if object was initialized with the ASCII grid components, and
+        False if the UTF-8 versions were used instead.
     blankc : str
         The character to use for representing a blank.
     gridc : list of str
@@ -242,8 +242,9 @@ def get_colormap(locations, color):
     return colormap
 
 
-def strfboard(board, colormap=None, candidate_map=None, terminal_width=0, show_axes=False,
-              zero_indexed=False, ascii_mode=False, ansi_mode=False):
+def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
+              colormap=None, candidate_map=None, terminal_width=0,
+              show_axes=False, zero_indexed=False):
     """Return a formatted string version of the board.
 
     Return a string-formatted version of the board, optionally
@@ -257,31 +258,37 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0, show_a
     ----------
     board : Board instance
         The board to format into a string.
+    formatter : GridComponentFormatter instance, optional
+        The object that determines what characters are used to create the
+        puzzle grid, which will be the defaults for the class if this
+        argument is None (default None).
+    ascii_mode : bool, optional
+        Used when `formatter` is None to determine if the default formatter
+        should use only the ASCII variants of its standard grid components
+        (`ascii_mode=True`) or if the UTF-8 variants should be used instead
+        (`ascii_mode=False`) (default False).
+    ansi_mode : bool, optional
+        True if ANSI escape sequences may be used to decorate cetain
+        elements in the output string (e.g., making the axes dim), and
+        False otherwise (default False); ANSI sequences defined in the
+        `colormap` parameter will still be applied.
     colormap : dict of tuple to Color constant, optional
         A mapping of row, column locations to a string constant in the
         Color class (default None).
-    candidate_map : dict of tuple to int set
+    candidate_map : dict of tuple to int set, optional
         A mapping of row, column locations to the set of numbers
         representing possible values for that location (default None).
     terminal_width : int, optional
-        Used when `candidate_map` is defined to determine whether the
+        Used when `candidate_map` is not None to determine whether the
         candidates should be fitted into a skinnier or wider version of the
         board; if this is zero, the width will be calculated (default 0).
     show_axes : bool, optional
         True if the rows and columns of the board should be numbered,
         and False otherwise (default False).
     zero_indexed : bool, optional
-        Used when `show_axes` is True; True if the numbering on the rows
-        and columns should begin at 0, and False if they should begin at 1
-        (default False).
-    ascii_mode : bool, optional
-        True if only ascii should be used in the output string, and False
-        if UTF-8 may be used (default False).
-    ansi_mode : bool, optional
-        True if ANSI escape sequences may be used to decorate cetain
-        elements in the output string (e.g., making the axes dim), and
-        False otherwise (default False); this option does not affect ANSI
-        sequences defined in, e.g., the `colormap` parameter.
+        Used when `show_axes` is True to determine whether the numbering on
+        the rows and columns should begin at 0 (`zero_indexed=True`) or 1
+        (`zero_indexed=False`) (default False).
 
     Returns
     -------
@@ -328,6 +335,25 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0, show_a
         0 1 2   3 4 5   6 7 8
     <BLANKLINE>
     >>> candidates = {}
+    >>> grid_formatter = frmt.GridComponentFormatter()
+    >>> grid_formatter.blankc = '.'
+    >>> grid_formatter.gridc = ['-', '|', '+', '+', '+', '+',
+    ...                         '+', '+', '+', '+', '+']
+    >>> print(frmt.strfboard(puzzle, formatter=grid_formatter))
+    +-------+-------+-------+
+    | . . 3 | . 2 . | 6 . . |
+    | 9 . . | 3 . 5 | . . 1 |
+    | . . 1 | 8 . 6 | 4 . . |
+    +-------+-------+-------+
+    | . . 8 | 1 . 2 | 9 . . |
+    | 7 . . | . . . | . . 8 |
+    | . . 6 | 7 . 8 | 2 . . |
+    +-------+-------+-------+
+    | . . 2 | 6 . 9 | 5 . . |
+    | 8 . . | 2 . 3 | . . 9 |
+    | . . 5 | . 1 . | 3 . . |
+    +-------+-------+-------+
+    <BLANKLINE>
     >>> for cell in Board.SUDOKU_CELLS:
     ...     candidates[cell] = puzzle.possibilities(*cell)
     ... 
@@ -410,7 +436,7 @@ def strfboard(board, colormap=None, candidate_map=None, terminal_width=0, show_a
 
     padding = 0 if not show_axes else 2
 
-    formatter = GridComponentFormatter(ascii_mode=ascii_mode)
+    formatter = GridComponentFormatter(ascii_mode=ascii_mode) if formatter is None else formatter
 
     # Construct horizontal border between adjacent boxes
     band_border = formatter.band_seperator(width, 'middle', padding, thick=thick_lines)
