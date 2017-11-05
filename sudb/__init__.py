@@ -5,6 +5,8 @@
 """Modules for solving, generating, importing, and formatting 9x9 Sudokus.
 
 """
+from __future__ import absolute_import, division, print_function
+
 __license__ = "GPL3"
 __author__ = __maintainer__ = "Hunter Baines"
 __email__ = "0x68@protonmail.com"

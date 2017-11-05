@@ -5,6 +5,8 @@
 """The module containing the CommandMapper class.
 
 """
+from __future__ import absolute_import, division, print_function
+
 import re
 import inspect
 

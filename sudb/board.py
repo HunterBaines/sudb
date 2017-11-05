@@ -7,7 +7,7 @@
 """The module containing the Board class.
 
 """
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
 
 class Board(object):
