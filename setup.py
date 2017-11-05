@@ -31,10 +31,23 @@ if len(sys.argv) > 1 and sys.argv[1] == 'install':
 
 
 setup(name='sudb',
+      description='Sudoku debugger',
+      long_description=sudb.__doc__,
       author=sudb.__author__,
       author_email=sudb.__email__,
       license=sudb.__license__,
       packages=['sudb'],
       scripts=['scripts/sudb'],
-      requires=['enum']
+      requires=['enum'],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Environment :: Console',
+          'Intended Audience :: Developers',
+          'Intended Audience :: End Users/Desktop',
+          'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+          'Operating System :: MacOS',
+          'Operating System :: POSIX',
+          'Programming Language :: Python :: 2 :: Only',
+          'Topic :: Games/Entertainment :: Puzzle Games'
+          ]
      )
