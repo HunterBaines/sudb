@@ -72,6 +72,7 @@ class PuzzleErrorLogger(ErrorLogger):
                 colormap = frmt.get_colormap(inconsistent_locations, frmt.Color.RED)
                 msg = 'puzzle has an inconsistent board:\n\n'
                 msg += frmt.strfboard(puzzle, colormap=colormap, ascii_mode=True)
+                msg += '\n'
                 error.error(msg, prelude=name)
 
         # See the generator module for references on 17 being the minimum
@@ -185,7 +186,7 @@ def main():
         puzzle_str = frmt.strfboard(puzzle, colormap=colormap, ascii_mode=args.ascii)
 
         print('\nEnd Board for Puzzle {}:'.format(i+1))
-        print('{}({})\n'.format(puzzle_str, puzzle.name))
+        print('{}\n({})\n'.format(puzzle_str, puzzle.name))
 
     print('Solved {} of {}.'.format(solved_puzzles, len(puzzles)))
     if log.error_count() > 0:

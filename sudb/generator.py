@@ -26,7 +26,6 @@ Examples
 │ 4 8 1 │ 2 9 5 │ 3 6 7 │
 │ 2 7 5 │ 6 3 4 │ 8 9 1 │
 └───────┴───────┴───────┘
-<BLANKLINE>
 >>> puzzle = generator.similar_puzzle(puzzle, seed)
 >>> print(frmt.strfboard(puzzle))
 ┌───────┬───────┬───────┐
@@ -42,7 +41,6 @@ Examples
 │ 4 8 □ │ 2 □ □ │ □ □ 7 │
 │ □ □ 5 │ □ □ □ │ □ □ □ │
 └───────┴───────┴───────┘
-<BLANKLINE>
 >>> minimized_puzzle = puzzle.duplicate()
 >>> generator.minimize(minimized_puzzle)
 -6
@@ -60,7 +58,6 @@ Examples
 │ 4 8 □ │ 2 □ □ │ □ □ 7 │
 │ □ □ 5 │ □ □ □ │ □ □ □ │
 └───────┴───────┴───────┘
-<BLANKLINE>
 >>> symmetric_puzzle = puzzle.duplicate()
 >>> generator.make_rotationally_symmetric(symmetric_puzzle, minimized=True)
 0
@@ -78,7 +75,6 @@ Examples
 │ □ □ □ │ 2 □ □ │ □ □ 7 │
 │ □ 7 5 │ □ 4 □ │ 8 □ □ │
 └───────┴───────┴───────┘
-<BLANKLINE>
 
 """
 from __future__ import absolute_import, division, print_function

@@ -552,7 +552,7 @@ class SolverController(object):
                                     show_axes=show_axes, terminal_width=self.options.width,
                                     ascii_mode=self.options.ascii, ansi_mode=True)
 
-        output = separator + title + puzzle_str
+        output = separator + title + puzzle_str + '\n'
         print(output)
 
     def _get_reasons_colormap(self, locations, reported_move_type, solver=None):

@@ -23,7 +23,7 @@ Examples
 >>> puzzle_str += 'XX5X1X3XX\n'
 >>> puzzles = importer.get_puzzles(lines=puzzle_str.split('\n'), seeds=[0])
 >>> for puzzle in puzzles:
-...     print('{}{}\n'.format(frmt.strfboard(puzzle), puzzle.name))
+...     print('{}\n{}\n'.format(frmt.strfboard(puzzle), puzzle.name))
 ... 
 ┌───────┬───────┬───────┐
 │ □ □ 3 │ □ 2 □ │ 6 □ □ │

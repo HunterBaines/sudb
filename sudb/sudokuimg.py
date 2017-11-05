@@ -27,7 +27,6 @@ Examples
 │ □ □ □ │ □ □ 6 │ 1 □ □ │
 │ □ 7 □ │ □ □ □ │ □ □ □ │
 └───────┴───────┴───────┘
-<BLANKLINE>
 
 """
 from __future__ import absolute_import, division, print_function

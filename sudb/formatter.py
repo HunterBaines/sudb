@@ -317,7 +317,6 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
     │ 8 □ □ │ 2 □ 3 │ □ □ 9 │
     │ □ □ 5 │ □ 1 □ │ 3 □ □ │
     └───────┴───────┴───────┘
-    <BLANKLINE>
     >>> print(frmt.strfboard(puzzle, show_axes=True, zero_indexed=True))
       ┌───────┬───────┬───────┐
     0 │ □ □ 3 │ □ 2 □ │ 6 □ □ │
@@ -333,7 +332,6 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
     8 │ □ □ 5 │ □ 1 □ │ 3 □ □ │
       └───────┴───────┴───────┘
         0 1 2   3 4 5   6 7 8
-    <BLANKLINE>
     >>> candidates = {}
     >>> grid_formatter = frmt.GridComponentFormatter()
     >>> grid_formatter.blankc = '.'
@@ -353,7 +351,6 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
     | 8 . . | 2 . 3 | . . 9 |
     | . . 5 | . 1 . | 3 . . |
     +-------+-------+-------+
-    <BLANKLINE>
     >>> for cell in Board.SUDOKU_CELLS:
     ...     candidates[cell] = puzzle.possibilities(*cell)
     ... 
@@ -408,7 +405,6 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
     ║ │   │ │7 9│       ║ │   │       │7  │ ║       │78 │ │7  │ ║
     ║ └───┘ └───┘       ║ └───┘       └───┘ ║       └───┘ └───┘ ║
     ╚═══════════════════╩═══════════════════╩═══════════════════╝
-    <BLANKLINE>
 
     """
     if candidate_map is not None:
@@ -485,7 +481,6 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
 
     # Bottom border of board
     board_str += formatter.band_seperator(width, 'bottom', padding, thick=thick_lines)
-    board_str += '\n'
 
     if show_axes:
         # Construct the column number label
@@ -500,7 +495,7 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
             col_label += '{}{}'.format(col, ' ' * col_padding)
         col_label = col_label.rstrip()
         col_label += Color.RESET if ansi_mode else ''
-        board_str += col_label + '\n'
+        board_str += '\n' + col_label
 
     return board_str
 
