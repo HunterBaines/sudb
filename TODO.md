@@ -15,6 +15,12 @@ TODO
   mappings (e.g., `Solver.MoveType.GUESSED` -> `formatter.Color.GREEN`,
   etc.) and update the rest of `SolverController` to use these mappings.~~
 
+* Python 3 compatibility: fix uses of `map`, `filter`, and `zip` that
+  expect a list to be returned instead of, as in Python 3, an iterator.
+
+* Python 3 compatibility: use `input`, not `raw_input`, e.g. by using `from
+  builtins import input`.
+
 * Add a new `set` subcommand (maybe `set explainview`) that defaults to
   printing the board with the reasons for the last move highlighted after
   each step.
