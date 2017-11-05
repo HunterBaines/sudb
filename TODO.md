@@ -21,6 +21,9 @@ TODO
 
 * 6a6ffc1: ~~Tab complete user-defined strings like checkpoint labels.~~
 
+* Consider moving some static methods and inner classes to the module level
+  instead of tucking them away inside the module's primary class.
+
 * Consider adding a `watch ROW COL [ROW COL ...]` command to
   `SolverController` that breaks stepping when the candidate list for a
   location changes.
