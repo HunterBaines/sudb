@@ -359,7 +359,7 @@ class Solver(object):
         Returns
         -------
         bool
-            True if `puzzle` was successfully solved or False otherwise.
+            True if `puzzle` was successfully solved, and False if not.
 
         """
         self.step_until_stuck()
@@ -1061,7 +1061,7 @@ class Solver(object):
         Returns
         -------
         bool
-            True if `puzzle` was successfully solved or False otherwise.
+            True if `puzzle` was successfully solved, and False if not.
 
         Notes
         -----
@@ -1081,7 +1081,7 @@ class Solver(object):
         Returns
         -------
         bool
-            True if `puzzle` was successfully solved or False otherwise.
+            True if `puzzle` was successfully solved, and False if not.
 
         See Also
         --------
@@ -1122,7 +1122,7 @@ class Solver(object):
         Returns
         -------
         bool
-            True if `puzzle` was successfully solved or False otherwise.
+            True if `puzzle` was successfully solved, and False if not.
 
         Notes
         -----

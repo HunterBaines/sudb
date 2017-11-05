@@ -257,8 +257,8 @@ def get_puzzles_from_lines(lines, name=None, specify_lineno=False):
     name : str, optional
         The name to save in the Board instances (default 'stdin').
     specify_lineno : bool, optional
-        Whether to specify the line number the puzzle begins at in the
-        puzzle's name (e.g., 'puzzle.txt:1') (default False).
+        True if the line number the puzzle begins at should be included in
+        its name (e.g., 'puzzle.txt:1'), and False if not (default False).
 
     Returns
     -------

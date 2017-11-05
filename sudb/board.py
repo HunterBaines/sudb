@@ -583,7 +583,7 @@ class Board(object):
         Returns
         -------
         bool
-            False if blanks found, True otherwise.
+            True if no blanks are found, and False if at least one is.
 
         """
         return self.clue_count() == len(self.SUDOKU_CELLS)
@@ -592,12 +592,13 @@ class Board(object):
         """Return whether any inconsistencies exist in the board.
 
         Check for row, columns, or boxes with duplicate numbers and
-        return False if any are found or True otherwise.
+        return False if any are found and True otherwise.
 
         Returns
         -------
         bool
-            False if inconsistencies found, True otherwise.
+            True if all clues are consistent with each other, and False if
+            any inconsistencies are found.
 
         """
         # Look for duplicates in each box

@@ -70,7 +70,7 @@ class GridComponentFormatter(object):
             side (default 0).
         thick : bool, optional
             True if the thicker variants of the grid characters, e.g., '║'
-            instead of '│', should be used, and False otherwise (default
+            instead of '│', should be used, and False if not (default
             False).
 
         Returns
@@ -121,7 +121,7 @@ class GridComponentFormatter(object):
             (default 0).
         thick : bool, optional
             True if the thicker variants of the grid characters, e.g., '║'
-            instead of '│', should be used, and False otherwise (default
+            instead of '│', should be used, and False if not (default
             False).
 
         Returns
@@ -167,7 +167,7 @@ class GridComponentFormatter(object):
             (default 0).
         thick : bool, optional
             True if the thicker variants of the grid characters, e.g., '║'
-            instead of '│', should be used, and False otherwise (default
+            instead of '│', should be used, and False if not (default
             False).
 
         Returns
@@ -270,7 +270,7 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
     ansi_mode : bool, optional
         True if ANSI escape sequences may be used to decorate cetain
         elements in the output string (e.g., making the axes dim), and
-        False otherwise (default False); ANSI sequences defined in the
+        False if not (default False); ANSI sequences defined in the
         `colormap` parameter will still be applied.
     colormap : dict of tuple to Color constant, optional
         A mapping of row, column locations to a string constant in the
@@ -284,7 +284,7 @@ def strfboard(board, formatter=None, ascii_mode=False, ansi_mode=False,
         board; if this is zero, the width will be calculated (default 0).
     show_axes : bool, optional
         True if the rows and columns of the board should be numbered,
-        and False otherwise (default False).
+        and False if not (default False).
     zero_indexed : bool, optional
         Used when `show_axes` is True to determine whether the numbering on
         the rows and columns should begin at 0 (`zero_indexed=True`) or 1

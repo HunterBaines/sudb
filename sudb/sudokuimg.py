@@ -126,8 +126,8 @@ def _uniform_pixels(pixels, threshold):
     Returns
     -------
     bool
-        True if the measure of deviation is less than `threshold` or False
-        otherwise.
+        True if the measure of deviation is less than `threshold`, and
+        False if not.
 
     """
     pixel_arr = numpy.array(pixels)

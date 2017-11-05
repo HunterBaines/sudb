@@ -51,8 +51,8 @@ class ErrorLogger(object):
         obj : hashable
             The object to check for errors.
         report : bool, optional
-            Whether to print to stderr a description of each error found in
-            `obj`.
+            True if a description of each error found in `obj` should be
+            printed to stderr, and False if not (default False).
 
         Returns
         -------
@@ -137,7 +137,7 @@ class ErrorLogger(object):
         -------
         bool
             True if the log entry for `obj` contains errors given in
-            `mask`, and False otherwise.
+            `mask`, and False if not.
 
         """
         return self.log_entry(obj) & mask

@@ -97,11 +97,13 @@ def generate(seed, minimized=False, symmetric=False):
     seed : int, long, or hashable
         The seed to use for generating the puzzle.
     minimized : bool, optional
-        Whether to attempt to remove redundant clues from generated puzzle
-        (at the expense of additional time for generation) (default False).
+        True if any redundant clues should be removed from the generated
+        puzzle (at the expense of additional time for generation), and
+        False if they may be left in (default False).
     symmetric : bool, optional
-        Whether to force the puzzle to have 180-degree rotational symmetry
-        (at the expense of likely adding redundant clues) (default False).
+        True if the puzzle should be given 180-degree rotational symmetry
+        (at the expense of likely adding redundant clues), and False if it
+        should be left, in all likelihood, asymmetrical (default False).
 
     Returns
     -------
@@ -312,12 +314,14 @@ def make_rotationally_symmetric(puzzle, minimized=False, keep_satisfactory=False
     puzzle : Board instance
         The puzzle to make symmetric by adding or removing clues.
     minimized : bool, optional
-        Whether any clues that can be removed from `puzzle` without
-        destroying its symmetry or properness should be removed (default
-        False).
+        True if clues may be removed from the puzzle provided this can be
+        done while preserving symmetry and properness, and False if
+        symmetry may only be created by adding clues (default False).
     keep_satisfactory : bool, optional
-        Whether a clue should be prevented from being removed if doing so
-        introduces needing to guess to solve (default False).
+        Used when `minimized` is True to determine if clues whose removal
+        introduce guessing may still be removed (`keep_satisfactory=True`)
+        or if that should be prevented (`keep_satisfactory=False`) (default
+        False).
 
     Returns
     -------

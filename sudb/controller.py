@@ -162,7 +162,7 @@ class SolverController(object):
             default.
         guessbreak : bool
             True if the solver should always break on guessed moves, and
-            False otherwise.
+            False if it may continue through them.
         width : int
             The width to use for wrapping text and deciding which version
             of the user-defined-candidates-displayed board to output.
@@ -244,7 +244,7 @@ class SolverController(object):
         Returns
         -------
         bool
-            True if `puzzle` was successfully solved or False otherwise.
+            True if `puzzle` was successfully solved, and False if not.
 
         """
         command = ''
@@ -502,7 +502,7 @@ class SolverController(object):
             `last_move_type` that is non-deductive (e.g.,
             `MoveType.MANUAL`) to still display reasons by explicitly
             naming in the parameter `move_type` which deductive move type
-            it should be treated as; False otherwise (default False).
+            it should be treated as; False if not (default False).
 
         """
         if solver is None:
