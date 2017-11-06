@@ -18,8 +18,8 @@ class TestGeneratorUniqueness(unittest.TestCase):
 
     def test_uniqueness(self):
         # NB: Testing this well requires generating from many seeds, which takes a long time
-        # (on my machine, running this test with 1001 seeds takes about 6.7 minutes). As of
-        # 2017 October 8, the test passes for seeds between 0 and 10000 inclusive.
+        # (on my machine, running this test with 1001 seeds takes about 11.3 minutes). As of
+        # 2017 November 6, the test passes for seeds between 0 and 10000 inclusive.
         puzzle_hash_dict = {}
         repeated_puzzles = []
 
