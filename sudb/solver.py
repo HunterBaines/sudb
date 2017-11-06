@@ -1007,7 +1007,7 @@ class Solver(object):
                     seen_puzzles[puzzle] = True
                     yield puzzle
 
-    def solution_count(self, algorithm=None):
+    def solution_count(self, algorithm=None, limit=0):
         """Return the number of solutions possible for the puzzle.
 
         Count the number of solutions the puzzle has without keeping a move
@@ -1017,7 +1017,10 @@ class Solver(object):
         ----------
         algorithm : str, optional
             The name of the algorithm to use to find the solutions (if an
-            invalid or no name is specified, Algorithm X is used.)
+            invalid or no name is specified, Algorithm X is used).
+        limit : int, optional
+            The number of solutions after which no additional solutions
+            should be sought, where 0 represents no limit (default 0).
 
         Returns
         -------
@@ -1031,6 +1034,8 @@ class Solver(object):
         if algorithm and algorithm == 'backtrack':
             for _ in self.all_solutions(algorithm=algorithm):
                 count += 1
+                if limit and count == limit:
+                    return limit
         else:
             col_dict = self._puzzle_constraint_subsets()
             row_dict = self._puzzle_universe(col_dict)
@@ -1039,6 +1044,8 @@ class Solver(object):
             unique_hitting_sets = set()
             for hitting_set in self._exact_hitting_set(col_dict, row_dict, solution):
                 unique_hitting_sets.add(tuple(sorted(hitting_set)))
+                if limit and len(unique_hitting_sets) == limit:
+                    return limit
             count = len(unique_hitting_sets)
 
         return count
