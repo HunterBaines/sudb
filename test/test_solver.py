@@ -41,6 +41,9 @@ class TestSolverMethods(unittest.TestCase):
     # The first (num, row, col) move normally made for the prioritizable puzzle
     PRIORITY_NORMAL_FIRST_MOVE = (4, 0, 5)
 
+    # A puzzle with more than one solution
+    IMPROPER_PUZZLE_LINES = ['006000125', '000000000', '000060009', '000020003', '020000000',
+                             '000000000', '000007204', '480200007', '005000000']
 
     @classmethod
     def setUpClass(cls):
@@ -394,8 +397,11 @@ class TestSolverMethods(unittest.TestCase):
         self.assertFalse(breakpoints)
 
     def test_solution_count(self):
+        improper_solver = Solver(Board(lines=self.IMPROPER_PUZZLE_LINES))
         for alg in self.algorithms:
             self.assertEqual(self.solver.solution_count(algorithm=alg), self.SOLUTION_COUNT)
+            # Test that limiting solution count works
+            self.assertEqual(improper_solver.solution_count(algorithm=alg, limit=2), 2)
 
     def test_step(self):
         duplicate_solver = self.solver.duplicate()
