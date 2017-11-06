@@ -291,7 +291,7 @@ def minimize(puzzle, threshold=17):
         clues_removed = 0
         for (num, row, col) in puzzle.clues():
             puzzle.set_cell(Board.BLANK, row, col)
-            if solver.solution_count() > 1:
+            if solver.solution_count(limit=2) != 1:
                 # Multiple solutions after this change, so reset
                 puzzle.set_cell(num, row, col)
             else:
@@ -355,7 +355,7 @@ def make_rotationally_symmetric(puzzle, minimized=False, keep_satisfactory=False
         puzzle.set_cell(Board.BLANK, rot_row, rot_col)
 
         temp_solver = Solver(puzzle.duplicate())
-        if temp_solver.solution_count() != 1 or keep_satisfactory:
+        if temp_solver.solution_count(limit=2) != 1 or keep_satisfactory:
             new_guess_count = 0
             if keep_satisfactory:
                 # Check if changes introduced additional guesses
