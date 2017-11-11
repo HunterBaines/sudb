@@ -14,7 +14,7 @@ symmetry popular in published Sudokus.
 
 Demo
 ----
-<a href=https://asciinema.org/a/144971><img src="https://asciinema.org/a/144971.png" alt="asciicast" width="480"/></a>
+<a href=https://asciinema.org/a/144971><img src="screenshots/asciinema_thumb.png" alt="asciicast" width="480"/></a>
 
 
 Installing
