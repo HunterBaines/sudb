@@ -1,0 +1,195 @@
+Starting solver on puzzle with ID "test".
+
+   MOVE 0
+  ┌───────┬───────┬───────┐
+[1;2m1 [00m│ 2 □ □ │ □ □ 9 │ □ 5 □ │
+[1;2m2 [00m│ □ 5 □ │ □ □ 1 │ 4 □ □ │
+[1;2m3 [00m│ □ 3 □ │ □ 2 6 │ □ 8 1 │
+  ├───────┼───────┼───────┤
+[1;2m4 [00m│ □ □ □ │ 4 8 □ │ □ □ □ │
+[1;2m5 [00m│ 1 □ □ │ 2 □ □ │ □ □ 7 │
+[1;2m6 [00m│ □ □ 8 │ □ 1 3 │ 9 □ □ │
+  ├───────┼───────┼───────┤
+[1;2m7 [00m│ 9 □ □ │ □ 3 □ │ 1 □ □ │
+[1;2m8 [00m│ 7 □ □ │ □ □ □ │ □ □ 9 │
+[1;2m9 [00m│ □ □ □ │ □ □ □ │ □ □ 6 │
+  └───────┴───────┴───────┘
+[1;2m    1 2 3   4 5 6   7 8 9[00m
+
+(sudb) # test setting breakpoints and `info break`
+(sudb) break 3 1
+Breakpoint 1 at 3, 1.
+(sudb) info break 1
+Num	Cell
+1 	3, 1
+(sudb) break 3 3
+Breakpoint 2 at 3, 3.
+(sudb) info break 2
+Num	Cell
+2 	3, 3
+(sudb) break 3 4
+Breakpoint 3 at 3, 4.
+(sudb) info break 3
+Num	Cell
+3 	3, 4
+(sudb) break 3 7
+Breakpoint 4 at 3, 7.
+(sudb) info break 4
+Num	Cell
+4 	3, 7
+(sudb) # show all breakpoints via `info` in various ways
+(sudb) info break
+Num	Cell
+1 	3, 1
+2 	3, 3
+3 	3, 4
+4 	3, 7
+(sudb) info break 1-4
+Num	Cell
+1 	3, 1
+2 	3, 3
+3 	3, 4
+4 	3, 7
+(sudb) # test breaking on breakpoints
+(sudb) finish
+
+   MOVE 1
+  ┌───────┬───────┬───────┐
+[1;2m1 [00m│ 2 □ □ │ □ □ 9 │ □ 5 □ │
+[1;2m2 [00m│ □ 5 □ │ □ □ 1 │ 4 □ □ │
+[1;2m3 [00m│ [1;34m4[00m 3 □ │ □ 2 6 │ □ 8 1 │
+  ├───────┼───────┼───────┤
+[1;2m4 [00m│ □ □ □ │ 4 8 □ │ □ □ □ │
+[1;2m5 [00m│ 1 □ □ │ 2 □ □ │ □ □ 7 │
+[1;2m6 [00m│ □ □ 8 │ □ 1 3 │ 9 □ □ │
+  ├───────┼───────┼───────┤
+[1;2m7 [00m│ 9 □ □ │ □ 3 □ │ 1 □ □ │
+[1;2m8 [00m│ 7 □ □ │ □ □ □ │ □ □ 9 │
+[1;2m9 [00m│ □ □ □ │ □ □ □ │ □ □ 6 │
+  └───────┴───────┴───────┘
+[1;2m    1 2 3   4 5 6   7 8 9[00m
+
+Breakpoint 1: 3, 1.
+(sudb) # should be breakpoint 1
+(sudb) finish
+
+   MOVE 2
+  ┌───────┬───────┬───────┐
+[1;2m1 [00m│ 2 □ □ │ □ □ 9 │ □ 5 □ │
+[1;2m2 [00m│ □ 5 □ │ □ □ 1 │ 4 □ □ │
+[1;2m3 [00m│ 4 3 [1;34m9[00m │ □ 2 6 │ □ 8 1 │
+  ├───────┼───────┼───────┤
+[1;2m4 [00m│ □ □ □ │ 4 8 □ │ □ □ □ │
+[1;2m5 [00m│ 1 □ □ │ 2 □ □ │ □ □ 7 │
+[1;2m6 [00m│ □ □ 8 │ □ 1 3 │ 9 □ □ │
+  ├───────┼───────┼───────┤
+[1;2m7 [00m│ 9 □ □ │ □ 3 □ │ 1 □ □ │
+[1;2m8 [00m│ 7 □ □ │ □ □ □ │ □ □ 9 │
+[1;2m9 [00m│ □ □ □ │ □ □ □ │ □ □ 6 │
+  └───────┴───────┴───────┘
+[1;2m    1 2 3   4 5 6   7 8 9[00m
+
+Breakpoint 2: 3, 3.
+(sudb) # should be breakpoint 2
+(sudb) finish
+
+   MOVE 3
+  ┌───────┬───────┬───────┐
+[1;2m1 [00m│ 2 □ □ │ □ □ 9 │ □ 5 □ │
+[1;2m2 [00m│ □ 5 □ │ □ □ 1 │ 4 □ □ │
+[1;2m3 [00m│ 4 3 9 │ [1;34m5[00m 2 6 │ □ 8 1 │
+  ├───────┼───────┼───────┤
+[1;2m4 [00m│ □ □ □ │ 4 8 □ │ □ □ □ │
+[1;2m5 [00m│ 1 □ □ │ 2 □ □ │ □ □ 7 │
+[1;2m6 [00m│ □ □ 8 │ □ 1 3 │ 9 □ □ │
+  ├───────┼───────┼───────┤
+[1;2m7 [00m│ 9 □ □ │ □ 3 □ │ 1 □ □ │
+[1;2m8 [00m│ 7 □ □ │ □ □ □ │ □ □ 9 │
+[1;2m9 [00m│ □ □ □ │ □ □ □ │ □ □ 6 │
+  └───────┴───────┴───────┘
+[1;2m    1 2 3   4 5 6   7 8 9[00m
+
+Breakpoint 3: 3, 4.
+(sudb) # should be breakpoint 3
+(sudb) finish
+
+   MOVE 4
+  ┌───────┬───────┬───────┐
+[1;2m1 [00m│ 2 □ □ │ □ □ 9 │ □ 5 □ │
+[1;2m2 [00m│ □ 5 □ │ □ □ 1 │ 4 □ □ │
+[1;2m3 [00m│ 4 3 9 │ 5 2 6 │ [1;34m7[00m 8 1 │
+  ├───────┼───────┼───────┤
+[1;2m4 [00m│ □ □ □ │ 4 8 □ │ □ □ □ │
+[1;2m5 [00m│ 1 □ □ │ 2 □ □ │ □ □ 7 │
+[1;2m6 [00m│ □ □ 8 │ □ 1 3 │ 9 □ □ │
+  ├───────┼───────┼───────┤
+[1;2m7 [00m│ 9 □ □ │ □ 3 □ │ 1 □ □ │
+[1;2m8 [00m│ 7 □ □ │ □ □ □ │ □ □ 9 │
+[1;2m9 [00m│ □ □ □ │ □ □ □ │ □ □ 6 │
+  └───────┴───────┴───────┘
+[1;2m    1 2 3   4 5 6   7 8 9[00m
+
+Breakpoint 4: 3, 7.
+(sudb) # should be breakpoint 4
+(sudb) # test deleting
+(sudb) delete 1
+Deleted 1 breakpoint.
+(sudb) # test deleting a range
+(sudb) delete 2-3
+Deleted 2 breakpoints.
+(sudb) # test deleting all
+(sudb) delete
+Delete all breakpoints? (y or n) [assumed Y]
+(sudb) # test passing bad arguments to various commands
+(sudb) # Too few arguments
+(sudb) break 1
+Too few arguments.
+(sudb) # Invalid row
+(sudb) break 0 1
+Invalid row 0 in (0, 1).
+(sudb) # Invalid column
+(sudb) break 1 0
+Invalid column 0 in (1, 0).
+(sudb) # Must be integer
+(sudb) break x y
+Location arguments must be integer pairs.
+(sudb) info break x
+Number argument must be integer or integer range.
+(sudb) delete break x
+Number argument must be integer or integer range.
+(sudb) # No matching breakpoints
+(sudb) info break 0
+No matching breakpoints.
+(sudb) delete break 0
+No matching breakpoints.
+(sudb) info break
+No matching breakpoints.
+(sudb) delete break
+No breakpoints to delete.
+(sudb) # test setting breakpoint on already-passed cell
+(sudb) break 3 1
+Breakpoint 5 at 3, 1 (already passed).
+(sudb) # test giving `info` a partially bad range
+(sudb) info break 5-7
+Num	Cell
+5 	3, 1
+No breakpoint number 6.
+No breakpoint number 7.
+(sudb) # test redefining a breakpoint
+(sudb) break 3 1
+Note: redefined from breakpoint 5.
+Breakpoint 6 at 3, 1 (already passed).
+(sudb) # test deleting with longer version of `delete`
+(sudb) delete break 6
+Deleted 1 breakpoint.
+(sudb) # add back to do another `delete` test
+(sudb) break 3 1
+Breakpoint 7 at 3, 1 (already passed).
+(sudb) # test giving `delete` a partially bad range
+(sudb) delete break 7-9
+Deleted 1 breakpoint.
+No breakpoint number 8.
+No breakpoint number 9.
+(sudb) quit
+The puzzle has not been solved.
+Quit anyway? (y or n) [assumed Y]
