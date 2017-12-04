@@ -64,14 +64,13 @@ TODO
   `checkpoint`, `restart`, `delete checkpoint`, `print checkpoint`, and
   `info checkpoint`.~~
 
-* Write output test for `breakpoint`-related commands: `breakpoint`,
-  `delete`/`delete breakpoint`, `info breakpoint`, and all step variants as
-  well as `finish` in so far as each should actually break on breakpoints
+* 722ec16: ~~Write output test for `breakpoint`-related commands:
+  `breakpoint`, `delete`/`delete breakpoint`, and `info breakpoint`~~
 
 * Write output test for everything that can be set with `set`
 
 * Write output test(s) for all step variants: `step`, `stepm`, `stepb`,
-  `stepc`, and `stepr`
+  `stepc`, and `stepr`. Make sure all break on breakpoints.
 
 * Write output test for `unstep` (if not already sufficiently tested in
   step-variant tests)
