@@ -43,9 +43,9 @@ class TestGeneratorMethods(unittest.TestCase):
 
         # Test that `symmetric` parameter works
         puzzle2 = generator.generate(seed, symmetric=True)
-        rows = map(tuple, np.array(self._binarize_rows(puzzle2.rows())))
+        rows = list(map(tuple, np.array(self._binarize_rows(puzzle2.rows()))))
         # `k=-2` means 180-degree, clockwise rotation
-        rot_rows = map(tuple, np.rot90(rows, k=-2))
+        rot_rows = list(map(tuple, np.rot90(rows, k=-2)))
         self.assertEqual(rows, rot_rows)
 
 
@@ -76,8 +76,8 @@ class TestGeneratorMethods(unittest.TestCase):
                 prev_clue_count = 0 if minimized else clue_count
 
                 # Test that the puzzle is actually symmetric
-                rows = map(tuple, np.array(self._binarize_rows(symmetric_puzzle.rows())))
-                rot_rows = map(tuple, np.rot90(rows, k=-2))
+                rows = list(map(tuple, np.array(self._binarize_rows(symmetric_puzzle.rows()))))
+                rot_rows = list(map(tuple, np.rot90(rows, k=-2)))
                 assertion_msg = '{} != {} {}'.format(rows, rot_rows, iter_info)
                 self.assertEqual(rows, rot_rows, assertion_msg)
 
@@ -92,8 +92,8 @@ class TestGeneratorMethods(unittest.TestCase):
                                               keep_satisfactory=True)
 
         # Test that the puzzle is now actually symmetric
-        rows = map(tuple, np.array(self._binarize_rows(satisfactory_puzzle.rows())))
-        rot_rows = map(tuple, np.rot90(rows, k=-2))
+        rows = list(map(tuple, np.array(self._binarize_rows(satisfactory_puzzle.rows()))))
+        rot_rows = list(map(tuple, np.rot90(rows, k=-2)))
         self.assertEqual(rows, rot_rows)
 
         # Test that the puzzle is still satisfactory
