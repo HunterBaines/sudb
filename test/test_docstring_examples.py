@@ -2,11 +2,11 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+import doctest
 import os
 import sys
-from cStringIO import StringIO
 import unittest
-import doctest
+from io import StringIO
 
 
 class TestDocstringExamples(unittest.TestCase):
