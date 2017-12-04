@@ -375,7 +375,7 @@ class TestSolverMethods(unittest.TestCase):
         # If no move has been made, `reasons` should return empty set
         self.assertFalse(locations)
 
-        breakpoints = self.REASONS.keys()
+        breakpoints = list(self.REASONS)
         while breakpoints and not duplicate_solver.puzzle.is_complete():
             location = duplicate_solver.step()
             if not location:
