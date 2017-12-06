@@ -69,11 +69,11 @@ TODO
 
 * Write output test for everything that can be set with `set`
 
-* Write output test(s) for all step variants: `step`, `stepm`, `stepb`,
-  `stepc`, and `stepr`. Make sure all break on breakpoints.
+* 597bb9e: ~~Write output test(s) for all step variants: `step`, `stepm`,
+  `stepb`, `stepc`, and `stepr`. Make sure all break on breakpoints.~~
 
-* Write output test for `unstep` (if not already sufficiently tested in
-  step-variant tests)
+* 597bb9e: ~~Write output test for `unstep` (if not already sufficiently
+  tested in step-variant tests)~~
 
 * Write output test for candidate-related commands: `x` and `print
   candidates`.
