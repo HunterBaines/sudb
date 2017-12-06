@@ -1428,7 +1428,7 @@ class SolverController(object):
             print('Argument must be an integer.')
             return self.Status.OTHER
         except IndexError:
-            print('Exactly one argument required.')
+            print('One argument required.')
             return self.Status.OTHER
 
         if width < 0:
@@ -1519,15 +1519,15 @@ class SolverController(object):
     def _cmd_stepm(self, argv):
         args = argv[1:]
 
+        move = ''.join(args)
         try:
-            move = ''.join(args)
             # Allow the arguments to be given by a single 3-digit number
-            row, col, number = [int(digit) for digit in move]
+            row, col, number = [int(digit) for digit in move][:3]
         except ValueError:
-            if len(args) == 3:
+            if len(move) == 3:
                 print('Arguments must be integers.')
-            elif not args or len(str(args[0])) != 3:
-                print('Exactly three arguments required.')
+            else:
+                print('Three arguments required.')
             return self.Status.OTHER
 
         if not self._valid_cell(row, col):
