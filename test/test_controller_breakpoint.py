@@ -35,8 +35,6 @@ class TestControllerBreakpoint(OutputTester):
     INFO_CMD = 'info'
     # E.g., 'delete', 'del', 'd', etc.
     DELETE_CMD = 'delete'
-    # Which string to insert between arguments (e.g., ' ', '')
-    ARG_SEP = ' '
 
 
     @classmethod
