@@ -49,13 +49,14 @@ TODO
 -----
 * Write a README for testing
 
-* Write tests for "sudb.py" (specifically for its commandline options)
+* Write tests for "\_\_main\_\_.py" (specifically for its commandline
+  options)
 
 * Write tests for "board.py"
 
 * Write tests for "importer.py"
 
-* Once "controller.py", "sudb.py", "board.py", and "importer.py" have
+* Once "controller.py", "\_\_main\_\_.py", "board.py", and "importer.py" have
   tests, write tests for any other files with poor test coverage
 
 
