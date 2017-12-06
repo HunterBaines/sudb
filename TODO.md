@@ -67,7 +67,7 @@ TODO
 * 722ec16: ~~Write output test for `breakpoint`-related commands:
   `breakpoint`, `delete`/`delete breakpoint`, and `info breakpoint`~~
 
-* Write output test for everything that can be set with `set`
+* 8728dcd: ~~Write output test for everything that can be set with `set`~~
 
 * 597bb9e: ~~Write output test(s) for all step variants: `step`, `stepm`,
   `stepb`, `stepc`, and `stepr`. Make sure all break on breakpoints.~~
