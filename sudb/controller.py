@@ -1219,7 +1219,7 @@ class SolverController(object):
                 candidates = self.marks[(actual_row, actual_col)]
                 if not candidates:
                     raise KeyError
-                location_info = '{}, {}\t{}'.format(row, col, sorted(list(candidates)))
+                location_info = '{}, {}\t{}'.format(row, col, sorted(candidates))
                 locations_info_lines.append(location_info)
             except KeyError:
                 error_lines.append('No candidates defined for ({}, {}).'.format(row, col))
@@ -1724,7 +1724,7 @@ class SolverController(object):
                 error_lines.append('Invalid column {1} in ({0}, {1}).'.format(row, col))
             else:
                 candidates = self.solver.candidates(actual_row, actual_col)
-                location_info = '{}, {}\t{}'.format(row, col, list(candidates))
+                location_info = '{}, {}\t{}'.format(row, col, sorted(candidates))
                 locations_info_lines.append(location_info)
 
         if len(locations_info_lines) == 1:
