@@ -28,10 +28,10 @@ TODO
 * Python 3 compatibility: adapt to `random` not generating same values
   given same seed across Python 2 and 3
 
-* Python 3 compatibility: figure out why the puzzle associated with a given
-  seed is not stable in Python 3 (it definitely involves the Solver method
-  `autosolve_without_history`---and ultimately, it seems, the backend
-  `_exact_hitting_set` in particular)
+* 9d2f13e: ~~Python 3 compatibility: figure out why the puzzle associated
+  with a given seed is not stable in Python 3 (it definitely involves the
+  Solver method `autosolve_without_history`---and ultimately, it seems, the
+  backend `_exact_hitting_set` in particular)~~
 
 * Add a new `set` subcommand (maybe `set explainview`) that defaults to
   printing the board with the reasons for the last move highlighted after
