@@ -67,6 +67,16 @@ from sudb import error
 from sudb.board import Board
 
 
+# Redefine builtin `input` to equal `raw_input` like in Python 3
+try:
+    # Python 2
+    # pylint: disable=redefined-builtin,invalid-name
+    input = raw_input
+except NameError:
+    # Python 3
+    pass
+
+
 def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
     """Return puzzles from lines, files, or seeds with optional logging.
 
@@ -236,7 +246,7 @@ def get_puzzles_from_file(filename=None):
         row = ''
         while row != '.':
             try:
-                row = raw_input()
+                row = input()
                 lines.append(row)
             except EOFError:
                 break

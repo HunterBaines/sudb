@@ -22,6 +22,16 @@ from sudb.board import Board
 from sudb.solver import Solver
 
 
+# Redefine builtin `input` to equal `raw_input` like in Python 3
+try:
+    # Python 2
+    # pylint: disable=redefined-builtin,invalid-name
+    input = raw_input
+except NameError:
+    # Python 3
+    pass
+
+
 class SolverController(object):
     """An interactive 9x9 Sudoku solver modeled after a debugger.
 
@@ -264,11 +274,11 @@ class SolverController(object):
             else:
                 try:
                     if stdin_piped:
-                        command = raw_input()
+                        command = input()
                         # Mimic how this would look if input from terminal
                         print(self.options.prompt, command, sep='')
                     else:
-                        command = raw_input(self.options.prompt).lower()
+                        command = input(self.options.prompt).lower()
                 except EOFError:
                     command = 'quit'
                     if stdin_piped:
@@ -1745,7 +1755,7 @@ class SolverController(object):
 
         while True:
             try:
-                confirm = raw_input(confirmation_message).lower()
+                confirm = input(confirmation_message).lower()
             except EOFError:
                 print('EOF [assumed Y]')
                 return True
