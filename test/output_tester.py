@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+
 import os
 import sys
 import tempfile
@@ -24,9 +26,9 @@ class OutputTester(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         if cls.compare_file is None:
-            print
-            print 'Output written to {}.'.format(cls.EXPECTED_OUTPUT_FILE)
-            print 'Future tests will compare actual output to this file.'
+            print()
+            print('Output written to {}.'.format(cls.EXPECTED_OUTPUT_FILE))
+            print('Future tests will compare actual output to this file.')
         else:
             cls.compare_file.close()
         cls.output_file.close()
