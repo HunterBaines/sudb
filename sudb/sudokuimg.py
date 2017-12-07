@@ -61,7 +61,8 @@ def puzzle_lines(filename):
     """
     lines = []
 
-    config_file = tempfile.NamedTemporaryFile()
+    # The default mode, 'w+b', can be problematic in Python 3
+    config_file = tempfile.NamedTemporaryFile(mode='w')
     config_file.write("tessedit_char_whitelist 123456789")
     config_file.close()
 

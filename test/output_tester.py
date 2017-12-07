@@ -18,7 +18,8 @@ class OutputTester(unittest.TestCase):
     def setUpClass(cls):
         if os.path.exists(cls.EXPECTED_OUTPUT_FILE):
             cls.compare_file = open(cls.EXPECTED_OUTPUT_FILE, 'r')
-            cls.output_file = tempfile.NamedTemporaryFile()
+            # The default mode, 'w+b', can be problematic in Python 3
+            cls.output_file = tempfile.NamedTemporaryFile(mode='w+')
         else:
             cls.compare_file = None
             cls.output_file = open(cls.EXPECTED_OUTPUT_FILE, 'w')
