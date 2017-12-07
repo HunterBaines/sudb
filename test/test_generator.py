@@ -86,7 +86,7 @@ class TestGeneratorMethods(unittest.TestCase):
         clue_difference = generator.make_satisfactory(satisfactory_puzzle)
         puzzle_differences = puzzle.differences(satisfactory_puzzle)
         # Test that clues were added
-        self.assertGreater(puzzle_differences, 0)
+        self.assertGreater(len(puzzle_differences), 0)
         # Make puzzle symmetric while keeping it satisfactory
         generator.make_rotationally_symmetric(satisfactory_puzzle, minimized=True,
                                               keep_satisfactory=True)
