@@ -732,6 +732,11 @@ class Solver(object):
             When `number` is not in Board.SUDOKU_NUMBERS or `box` is not in
             Board.SUDOKU_BOXES.
 
+        See Also
+        --------
+        possible_locations_in_column : the column version of this method
+        possible_locations_in_row : the row version of this method
+
         """
         if number not in Board.SUDOKU_NUMBERS:
             min_val, max_val = min(Board.SUDOKU_NUMBERS), max(Board.SUDOKU_NUMBERS)
@@ -785,6 +790,7 @@ class Solver(object):
         See Also
         --------
         possible_locations_in_column : the column version of this method
+        possible_locations_in_box : the box version of this method
         _possible_locations_in_line : the backend for this method
 
         """
@@ -818,6 +824,7 @@ class Solver(object):
         See Also
         --------
         possible_locations_in_row : the row version of this method
+        possible_locations_in_box : the box version of this method
         _possible_locations_in_line : the backend for this method
 
         """
@@ -1400,7 +1407,7 @@ class Solver(object):
         given number; and each box can only have one of a given number.
 
         Returns
-        ----------
+        -------
         dict of str to set
             A mapping of a set name to a subset of the str-encoded row,
             column, number combinations in the (to use set theory
