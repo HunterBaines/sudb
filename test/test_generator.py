@@ -2,7 +2,6 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-import random
 import unittest
 
 import numpy as np
@@ -13,24 +12,31 @@ from sudb.solver import Solver
 
 
 class TestGeneratorMethods(unittest.TestCase):
+    """Test methods in `sudb.generator`.
 
-    MINIMIZABLE_SEEDS = [1, 5, 6]
+    Test `sudb.generator` methods under the assumption that module is using
+    `numpy.random` for RNG.
+
+    """
+    # Again, these constants assume the generator is using `numpy.random`
+    MINIMIZABLE_SEEDS = [3, 5, 6]
     # Seeds that, when generated with `minimized=True`, yield puzzles that
     # require guessing
-    NONSATISFACTORY_SEEDS = [3, 13, 15]
+    NONSATISFACTORY_SEEDS = [1, 2, 7]
 
 
     @classmethod
     def setUpClass(cls):
+        # All tests assume this is true
+        assert generator.using_numpy_random(), 'Generator is not using `numpy.random`'
         # For reproducible tests, initialize `random` with predefined seed
         cls.seed = 198404
-        #cls.seed = random.random()
-        random.seed(cls.seed)
+        np.random.seed(cls.seed)
 
 
     def test_generate(self):
         # Test that the same seed generates the same puzzle
-        seed = random.random()
+        seed = self._random_seed()
         puzzle1 = generator.generate(seed)
         puzzle2 = generator.generate(seed)
         self.assertEqual(puzzle1, puzzle2)
@@ -108,7 +114,7 @@ class TestGeneratorMethods(unittest.TestCase):
 
     def test_make_satisfactory(self):
         # Test that the return value is 0 when nothing can be added
-        solved_puzzle = generator.solved_puzzle(random.random())
+        solved_puzzle = generator.solved_puzzle(self._random_seed())
         clues_added = generator.make_satisfactory(solved_puzzle)
         self.assertFalse(clues_added)
 
@@ -131,7 +137,7 @@ class TestGeneratorMethods(unittest.TestCase):
 
     def test_minimize(self):
         # Test that it removes no clues if `threshold` is below 17
-        original_puzzle = generator.solved_puzzle(random.random())
+        original_puzzle = generator.solved_puzzle(self._random_seed())
         minimized_puzzle = original_puzzle.duplicate()
         clues_removed = generator.minimize(minimized_puzzle, threshold=16)
         self.assertFalse(clues_removed)
@@ -154,7 +160,7 @@ class TestGeneratorMethods(unittest.TestCase):
             self.assertEqual(clues_removed, clue_difference)
 
     def test_random_seed(self):
-        # Just some basic tests
+        # `random_seed` includes the upper limit
         self.assertEqual(generator.random_seed(rand_min=0, rand_max=0), 0)
         with self.assertRaises(ValueError):
             generator.random_seed(rand_min=1, rand_max=0)
@@ -162,18 +168,18 @@ class TestGeneratorMethods(unittest.TestCase):
     def test_similar_puzzle(self):
         # Test that it fails when the puzzle has fewer clues than
         # `min_clues`
-        similar_puzzle = generator.similar_puzzle(Board(), random.random(), min_clues=17)
+        similar_puzzle = generator.similar_puzzle(Board(), self._random_seed(), min_clues=17)
         self.assertFalse(similar_puzzle)
 
         # Test that the similar puzzle has at least `min_clues` from
         # original
-        original_puzzle = generator.solved_puzzle(random.random())
+        original_puzzle = generator.solved_puzzle(self._random_seed())
         original_clues = set(original_puzzle.clues())
         min_seed = generator.random_seed()
         # Small to keep the test short
         test_seed_count = 5
         for seed in range(min_seed, min_seed + test_seed_count + 1):
-            min_clues = random.randint(17, 34)
+            min_clues = np.random.randint(17, 34)
             similar_puzzle = generator.similar_puzzle(original_puzzle, seed, min_clues=min_clues)
             similar_clues = set(similar_puzzle.clues())
             self.assertGreaterEqual(len(original_clues.intersection(similar_clues)), min_clues)
@@ -186,3 +192,9 @@ class TestGeneratorMethods(unittest.TestCase):
         for seed in range(min_seed, min_seed + test_seed_count + 1):
             puzzle = generator.solved_puzzle(seed)
             self.assertTrue(puzzle.is_consistent() and puzzle.is_complete())
+
+
+    def _random_seed(self):
+        # A local `random_seed` so the seed given to `np.random.seed()`
+        # in `setUpClass` applies
+        return np.random.randint(0, 4294967295)
