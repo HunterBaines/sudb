@@ -8,6 +8,7 @@
 
 Examples
 --------
+>>> # Examples involving seeds may vary if `numpy.random` isn't installed
 >>> import sudb.importer as importer
 >>> import sudb.formatter as frmt
 >>> puzzle_str = 'My Puzzle\n' # ignore lines w/ whitespace
@@ -41,17 +42,17 @@ Examples
 lines argument
 <BLANKLINE>
 ┌───────┬───────┬───────┐
-│ □ 4 □ │ 3 7 □ │ □ 5 □ │
-│ □ □ 7 │ □ □ 9 │ 6 □ □ │
-│ □ □ □ │ 6 5 □ │ □ 2 3 │
+│ 1 □ 5 │ □ □ □ │ □ □ □ │
+│ □ □ □ │ □ 9 □ │ □ □ 1 │
+│ □ 2 □ │ □ 8 □ │ □ □ 5 │
 ├───────┼───────┼───────┤
-│ 5 □ □ │ 7 □ □ │ □ 6 □ │
-│ □ 6 1 │ 5 9 □ │ □ □ 8 │
-│ □ 9 □ │ □ 3 □ │ □ □ □ │
+│ 9 □ □ │ 6 □ □ │ 5 □ 4 │
+│ □ □ □ │ □ 3 □ │ 9 □ □ │
+│ □ 8 □ │ 9 □ 4 │ □ □ 2 │
 ├───────┼───────┼───────┤
-│ 6 □ □ │ □ □ □ │ □ 7 4 │
-│ □ □ □ │ 9 □ □ │ □ □ □ │
-│ 4 2 □ │ □ □ 7 │ □ □ □ │
+│ □ 1 □ │ 4 □ □ │ □ 2 □ │
+│ □ □ □ │ □ □ □ │ 4 □ 6 │
+│ □ 9 3 │ □ □ 5 │ □ □ □ │
 └───────┴───────┴───────┘
 seed 0
 <BLANKLINE>
