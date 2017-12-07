@@ -2,6 +2,8 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
+from __future__ import absolute_import, division, print_function
+
 import unittest
 
 from sudb.board import Board
@@ -484,7 +486,7 @@ class TestSolverMethods(unittest.TestCase):
         # Test that moves unfold in same order after unstepping
         duplicate_solver = self.solver.duplicate()
         steps = 10
-        unsteps = steps / 2
+        unsteps = steps // 2
         for _ in range(steps):
             location = duplicate_solver.step()
             if not location:
