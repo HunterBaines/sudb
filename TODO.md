@@ -19,8 +19,8 @@ TODO
   that expect a list to be returned instead of, as in Python 3, an
   iterator.~~
 
-* Python 3 compatibility: use `input`, not `raw_input`, e.g. by using `from
-  builtins import input`.
+* c8b1852: ~~Python 3 compatibility: use `input`, not `raw_input`, e.g. by
+  using `from builtins import input`.~~
 
 * Python 3 compatibility: adapt to changes to `urllib` in Python 3.
 
