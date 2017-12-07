@@ -39,7 +39,7 @@ class TestControllerBreakpoint(OutputTester):
 
     @classmethod
     def setUpClass(cls):
-        assert len(cls.BREAKPOINTS) >= 3, "Must have 4 or more breakpoints to test `delete`"
+        assert len(cls.BREAKPOINTS) >= 3, 'Must have 4 or more breakpoints to test `delete`'
         super(TestControllerBreakpoint, cls).setUpClass()
         cls.maxDiff = None
 
