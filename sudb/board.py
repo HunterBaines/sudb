@@ -69,14 +69,18 @@ class Board(object):
     # Calling these SUDOKU_X instead of just X to avoid any ambiguity over
     # whether the X applies to the instance or the class itself
     SUDOKU_NUMBERS = list(range(1, 10))
-    SUDOKU_STRINGS = [str(n) for n in SUDOKU_NUMBERS]
+    # Using another `range` instead of `SUDOKU_NUMBERS` to avoid any
+    # problems with class scope in Python 3
+    SUDOKU_STRINGS = [str(n) for n in range(1, 10)]
     # The rows and columns are zero-indexed
     SUDOKU_ROWS = list(range(9))
     SUDOKU_COLS = SUDOKU_ROWS
     SUDOKU_BOXES = SUDOKU_ROWS
     SUDOKU_BANDS = list(range(3))
     SUDOKU_STACKS = SUDOKU_BANDS
-    SUDOKU_CELLS = [(row, col) for row in SUDOKU_ROWS for col in SUDOKU_COLS]
+    # Using `range`s instead of `SUDOKU_ROWS` and `SUDOKU_COLS`
+    # respectively to avoid problems with class scope in Python 3
+    SUDOKU_CELLS = [(row, col) for row in range(9) for col in range(9)]
     BLANK = 0
 
     @staticmethod
