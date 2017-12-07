@@ -996,10 +996,13 @@ class Solver(object):
         """
         if algorithm and algorithm == 'backtrack':
             temp_puzzle = self.puzzle.duplicate()
-            for puzzle in self._backtrack(temp_puzzle):
+            # Force `_backtrack` to have a stable yield order for
+            # consistency with `_algorithm_x`
+            for puzzle in self._backtrack(puzzle=temp_puzzle, stable_yield_order=True):
                 yield puzzle
         else:
             seen_puzzles = {}
+            # `_algorithm_x` always has a stable yield order
             for puzzle in self._algorithm_x():
                 try:
                     seen_puzzles[puzzle]
@@ -1032,7 +1035,12 @@ class Solver(object):
         count = 0
 
         if algorithm and algorithm == 'backtrack':
-            for _ in self.all_solutions(algorithm=algorithm):
+            # The backtrack algorithm used never returns duplicates so this
+            # code can be simpler than the algorithm X version
+            temp_puzzle = self.puzzle.duplicate()
+            # Turn off `stable_yield_order` to speed up calculation since
+            # we only care about the number, not the order, yielded anyway
+            for _ in self._backtrack(puzzle=temp_puzzle, stable_yield_order=False):
                 count += 1
                 if limit and count == limit:
                     return limit
@@ -1095,12 +1103,14 @@ class Solver(object):
         _backtrack : the backend for this method.
 
         """
-        for puzzle in self._backtrack():
+        # Use `stable_yield_order` to guarantee the same puzzle is copied
+        # if more than one solution exists
+        for puzzle in self._backtrack(stable_yield_order=True):
             self.puzzle.copy(puzzle)
             return self.puzzle.is_complete() and self.puzzle.is_consistent()
         return False
 
-    def _backtrack(self, puzzle=None, row=0, col=0):
+    def _backtrack(self, puzzle=None, row=0, col=0, stable_yield_order=False):
         if puzzle is None:
             puzzle = self.puzzle.duplicate()
 
@@ -1111,13 +1121,19 @@ class Solver(object):
         if row > 8:
             yield puzzle.duplicate()
         else:
-            possible_numbers = list(puzzle.possibilities(row, col))
+            possible_numbers = puzzle.possibilities(row, col)
             if not possible_numbers:
                 yield None
+            elif stable_yield_order:
+                # Guarantee iteration order over (by definition, unordered)
+                # set by converting to sorted list
+                possible_numbers = sorted(possible_numbers)
+
             for num in possible_numbers:
                 original_num = puzzle.get_cell(row, col)
                 puzzle.set_cell(num, row, col)
-                for new_puzzle in self._backtrack(puzzle=puzzle, row=row, col=col+1):
+                for new_puzzle in self._backtrack(puzzle=puzzle, row=row, col=col+1,
+                                                  stable_yield_order=stable_yield_order):
                     if new_puzzle:
                         yield new_puzzle
                 puzzle.set_cell(original_num, row, col)
@@ -1246,7 +1262,9 @@ class Solver(object):
         This implementation, along with its two helper methods for deleting
         and restoring columns, is Ali Assaf's implementation[1]_ of Knuth's
         Algorithm X with slightly more informative variable names and some
-        comments.
+        comments. Also, some collections not sorted in the original are
+        sorted here to help guarantee that the lists are always yielded in
+        the same order.
 
         References
         ----------
@@ -1255,16 +1273,18 @@ class Solver(object):
            [Accessed 23 Jun. 2017].
 
         """
-        #TODO: have it return only one version of each set
         if not col_dict:
             # The last matrix had exactly one entry in every column
             yield list(solution)
         else:
-            # Pick column with fewest members
-            set_id = min(col_dict, key=lambda sid: len(col_dict[sid]))
+            # Pick column with fewest members; the sort is needed to make
+            # method always return lists in same order since without it
+            # `min` may not always return the same value in case of ties
+            set_id, _ = min(sorted(col_dict.items()), key=lambda pair: len(pair[1]))
             # Consider the rows in any order (where elem is an element from
-            # the universe)
-            for elem in col_dict[set_id]:
+            # the universe); sorted order is used so the order lists are
+            # returned in doesn't vary from one call to another
+            for elem in sorted(col_dict[set_id]):
                 # Add row to partial solution list
                 solution.append(elem)
                 saved_columns = self._delete_columns(col_dict, row_dict, elem)
@@ -1280,8 +1300,9 @@ class Solver(object):
     @staticmethod
     def _delete_columns(col_dict, row_dict, chosen_row):
         columns_deleted = []
-        # For each column asserted in the chosen row
-        for col in row_dict[chosen_row]:
+        # For each column asserted in the chosen row (sorted to guarantee
+        # the order elements are added to `columns_deleted`)
+        for col in sorted(row_dict[chosen_row]):
             # Consider all other rows where that column is also asserted
             for other_row in col_dict[col]:
                 # Then consider each other asserted column in those rows
@@ -1295,7 +1316,8 @@ class Solver(object):
 
     @staticmethod
     def _restore_columns(col_dict, row_dict, chosen_row, columns_to_restore):
-        for col in reversed(list(row_dict[chosen_row])):
+        # Iterate in the reverse of the order used in `_delete_columns`
+        for col in reversed(sorted(row_dict[chosen_row])):
             col_dict[col] = columns_to_restore.pop()
             for other_row in col_dict[col]:
                 for other_col in [c for c in row_dict[other_row] if c != col]:
