@@ -386,14 +386,14 @@ def _rotated_location(row, col, rotations=2):
 
 
 def random_seed(rand_min=0, rand_max=2147483647):
-    """Return a random integer between the given min and max.
+    """Return a random integer between the given min and max inclusive.
 
     Parameters
     ----------
     rand_min : int, optional
         The minimum seed (default 0).
     rand_max : int, optional
-        The maximum seed (default 2^31).
+        The maximum seed (default 2**31 - 1).
 
     """
     return random.randint(rand_min, rand_max)
