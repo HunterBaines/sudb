@@ -10,79 +10,89 @@ Examples
 --------
 >>> import sudb.generator as generator
 >>> import sudb.formatter as frmt
+>>> generator.using_numpy_random() # These examples assume this is True
+True
 >>> seed = 3
 >>> puzzle = generator.solved_puzzle(seed)
 >>> print(frmt.strfboard(puzzle))
 ┌───────┬───────┬───────┐
-│ 3 4 6 │ 8 7 9 │ 1 2 5 │
-│ 9 5 2 │ 3 4 1 │ 7 8 6 │
-│ 8 1 7 │ 5 6 2 │ 4 3 9 │
+│ 3 4 6 │ 1 5 8 │ 2 7 9 │
+│ 1 2 5 │ 9 7 3 │ 4 6 8 │
+│ 7 8 9 │ 2 4 6 │ 5 1 3 │
 ├───────┼───────┼───────┤
-│ 1 6 4 │ 9 2 8 │ 5 7 3 │
-│ 5 2 9 │ 7 1 3 │ 6 4 8 │
-│ 7 3 8 │ 4 5 6 │ 9 1 2 │
+│ 4 6 3 │ 5 1 7 │ 9 8 2 │
+│ 5 9 2 │ 8 6 4 │ 1 3 7 │
+│ 8 1 7 │ 3 9 2 │ 6 5 4 │
 ├───────┼───────┼───────┤
-│ 6 9 3 │ 1 8 7 │ 2 5 4 │
-│ 4 8 1 │ 2 9 5 │ 3 6 7 │
-│ 2 7 5 │ 6 3 4 │ 8 9 1 │
+│ 9 7 1 │ 4 8 5 │ 3 2 6 │
+│ 2 5 8 │ 6 3 9 │ 7 4 1 │
+│ 6 3 4 │ 7 2 1 │ 8 9 5 │
 └───────┴───────┴───────┘
 >>> puzzle = generator.similar_puzzle(puzzle, seed)
 >>> print(frmt.strfboard(puzzle))
 ┌───────┬───────┬───────┐
-│ □ □ 6 │ □ 8 □ │ 1 2 5 │
-│ 1 □ □ │ □ 9 5 │ □ □ □ │
-│ □ □ □ │ □ 6 □ │ □ □ 9 │
+│ □ □ □ │ □ 5 3 │ 2 □ 9 │
+│ 1 6 □ │ 9 4 □ │ □ □ 8 │
+│ □ □ 5 │ □ □ 6 │ □ 1 □ │
 ├───────┼───────┼───────┤
-│ 7 □ □ │ 9 2 1 │ □ □ 3 │
-│ 9 2 □ │ □ □ □ │ □ □ 6 │
-│ □ □ □ │ □ 3 □ │ □ □ □ │
+│ □ □ □ │ □ □ 7 │ □ 8 2 │
+│ 5 1 □ │ 3 □ □ │ □ □ □ │
+│ 8 □ 7 │ □ □ □ │ □ 5 4 │
 ├───────┼───────┼───────┤
-│ □ □ 1 │ □ □ 7 │ 2 □ 4 │
-│ 4 8 □ │ 2 □ □ │ □ □ 7 │
-│ □ □ 5 │ □ □ □ │ □ □ □ │
+│ □ □ □ │ 7 □ □ │ □ □ 6 │
+│ □ □ □ │ □ □ 9 │ □ □ □ │
+│ □ □ 4 │ □ 2 □ │ □ □ □ │
 └───────┴───────┴───────┘
 >>> minimized_puzzle = puzzle.duplicate()
 >>> generator.minimize(minimized_puzzle)
--6
+-3
 >>> print(frmt.strfboard(minimized_puzzle))
 ┌───────┬───────┬───────┐
-│ □ □ 6 │ □ 8 □ │ 1 2 □ │
-│ □ □ □ │ □ 9 5 │ □ □ □ │
-│ □ □ □ │ □ □ □ │ □ □ 9 │
+│ □ □ □ │ □ □ □ │ 2 □ 9 │
+│ 1 6 □ │ 9 4 □ │ □ □ 8 │
+│ □ □ 5 │ □ □ 6 │ □ 1 □ │
 ├───────┼───────┼───────┤
-│ 7 □ □ │ 9 □ 1 │ □ □ 3 │
-│ 9 □ □ │ □ □ □ │ □ □ 6 │
-│ □ □ □ │ □ 3 □ │ □ □ □ │
+│ □ □ □ │ □ □ □ │ □ 8 2 │
+│ 5 1 □ │ 3 □ □ │ □ □ □ │
+│ 8 □ 7 │ □ □ □ │ □ 5 4 │
 ├───────┼───────┼───────┤
-│ □ □ 1 │ □ □ 7 │ 2 □ □ │
-│ 4 8 □ │ 2 □ □ │ □ □ 7 │
-│ □ □ 5 │ □ □ □ │ □ □ □ │
+│ □ □ □ │ 7 □ □ │ □ □ 6 │
+│ □ □ □ │ □ □ 9 │ □ □ □ │
+│ □ □ 4 │ □ 2 □ │ □ □ □ │
 └───────┴───────┴───────┘
 >>> symmetric_puzzle = puzzle.duplicate()
 >>> generator.make_rotationally_symmetric(symmetric_puzzle, minimized=True)
-0
+3
 >>> print(frmt.strfboard(symmetric_puzzle))
 ┌───────┬───────┬───────┐
-│ □ □ 6 │ □ 8 □ │ 1 2 □ │
-│ 1 □ □ │ □ □ 5 │ □ □ □ │
-│ □ □ □ │ 1 □ □ │ 3 □ 9 │
+│ □ □ □ │ □ 5 □ │ 2 □ □ │
+│ 1 6 □ │ 9 4 □ │ □ □ 8 │
+│ □ □ 5 │ □ □ 6 │ □ 1 □ │
 ├───────┼───────┼───────┤
-│ 7 □ □ │ 9 2 1 │ □ □ □ │
-│ 9 □ □ │ □ □ □ │ □ □ 6 │
-│ □ □ □ │ 4 3 6 │ □ □ 2 │
+│ 3 □ □ │ □ □ □ │ □ 8 2 │
+│ □ 1 □ │ 3 □ 4 │ □ 9 □ │
+│ 8 9 □ │ □ □ □ │ □ □ 4 │
 ├───────┼───────┼───────┤
-│ 6 □ 1 │ □ □ 7 │ □ □ □ │
-│ □ □ □ │ 2 □ □ │ □ □ 7 │
-│ □ 7 5 │ □ 4 □ │ 8 □ □ │
+│ □ 3 □ │ 7 □ □ │ 8 □ □ │
+│ 6 □ □ │ □ 3 9 │ □ 2 5 │
+│ □ □ 4 │ □ 2 □ │ □ □ □ │
 └───────┴───────┴───────┘
 
 """
 from __future__ import absolute_import, division, print_function
 
-import random
-
 from sudb.board import Board
 from sudb.solver import Solver
+
+_USING_NUMPY_RANDOM = False
+try:
+    # Prefer `numpy.random` because the builtin `random` yields different
+    # results for the same seeds in Python 2 and 3, which makes testing
+    # across versions difficult. All examples and tests use `numpy.random`.
+    from numpy import random
+    _USING_NUMPY_RANDOM = True
+except ImportError:
+    import random
 
 
 def generate(seed, minimized=False, symmetric=False):
@@ -144,7 +154,10 @@ def solved_puzzle(seed):
     target_row = random.choice(Board.SUDOKU_ROWS)
     columns = Board.SUDOKU_COLS[:]
     random.shuffle(columns)
-    column_count = random.randint(min_start_clues, len(columns))
+
+    # `numpy.random` excludes upper limit; builtin `random` includes it
+    upper_limit_adjustment = 1 if using_numpy_random() else 0
+    column_count = random.randint(min_start_clues, len(columns)+upper_limit_adjustment)
 
     # Initialize a blank board
     puzzle = Board(name=str(seed))
@@ -396,4 +409,19 @@ def random_seed(rand_min=0, rand_max=2147483647):
         The maximum seed (default 2**31 - 1).
 
     """
-    return random.randint(rand_min, rand_max)
+    # Effectively include `rand_max` if using `numpy.random`
+    upper_limit_adjustment = 1 if using_numpy_random() else 0
+    return random.randint(rand_min, rand_max+upper_limit_adjustment)
+
+
+def using_numpy_random():
+    """Return True if `numpy.random`, not builtin `random`, is being used.
+
+    Returns
+    -------
+    bool
+        True if RNG is provided by `numpy.random`, and False if provided by
+        Python's builtin `random`.
+
+    """
+    return _USING_NUMPY_RANDOM
