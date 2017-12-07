@@ -808,7 +808,9 @@ class SolverController(object):
 
         seen_breaknos = set()
         for bno in breaknos:
-            for loc, loc_bno in self.breakpoints.items():
+            # For Python 3 compatibility, make sure `items` is a list so
+            # the dict it is drawn from can be modified while iterating
+            for loc, loc_bno in list(self.breakpoints.items()):
                 if loc_bno == bno:
                     del self.breakpoints[loc]
                     seen_breaknos.add(bno)
