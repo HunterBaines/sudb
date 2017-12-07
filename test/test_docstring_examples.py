@@ -6,7 +6,13 @@ import doctest
 import os
 import sys
 import unittest
-from io import StringIO
+try:
+    # Python 2; even though io.StringIO exists in Python 2, using it can
+    # cause some unnecessary `str` vs `unicode` woes
+    from cStringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import StringIO
 
 
 class TestDocstringExamples(unittest.TestCase):
