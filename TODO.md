@@ -22,6 +22,8 @@ TODO
 * Python 3 compatibility: use `input`, not `raw_input`, e.g. by using `from
   builtins import input`.
 
+* Python 3 compatibility: adapt to changes to `urllib` in Python 3.
+
 * Add a new `set` subcommand (maybe `set explainview`) that defaults to
   printing the board with the reasons for the last move highlighted after
   each step.
