@@ -214,7 +214,7 @@ class ErrorLogger(object):
         """
         if obj is None:
             # The overall error count
-            return sum(map(len, self.reverse_log.values()))
+            return sum(len(hash_set) for hash_set in self.reverse_log.values())
 
         count = 0
         flags = self.log_entry(obj)

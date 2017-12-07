@@ -401,7 +401,11 @@ class SolverController(object):
             base_command_name = ''
             # Check if list similiar to ['set', 'set width', 'set ascii']
             # or to ['step', 'stepm'] and return common prefix if so
-            prefixes = map(set, zip(*map(list, possible_commands)))
+
+            # E.g., `[['s', 'e', 't'], ['s', 'e', 't', ' ', 'w', 'i', 'd', 't', 'h']]`
+            command_char_arrays = [list(cmd) for cmd in possible_commands]
+            # E.g., `[{'s'}, {'e'}, {'t'}]`
+            prefixes = [set(nth_chars) for nth_chars in zip(*command_char_arrays)]
             for char_set in prefixes:
                 if len(char_set) == 1:
                     base_command_name += char_set.pop()
@@ -1823,7 +1827,9 @@ class SolverController(object):
             if len(locations) < 2:
                 print('Too few arguments.')
                 return None
-            locations = zip(map(int, locations[::2]), map(int, locations[1::2]))
+            possible_rows = [int(r) for r in locations[::2]]
+            possible_cols = [int(c) for c in locations[1::2]]
+            locations = list(zip(possible_rows, possible_cols))
             for (row, col) in locations:
                 if validate_cells and not SolverController._valid_cell(row, col):
                     return None
@@ -1839,7 +1845,7 @@ class SolverController(object):
         for arg in args:
             try:
                 if '-' in arg:
-                    min_num, max_num = map(int, arg.split('-'))
+                    min_num, max_num = [int(n) for n in arg.split('-')]
                     if min_num >= max_num:
                         print('Invalid range {}-{}.'.format(min_num, max_num))
                     else:

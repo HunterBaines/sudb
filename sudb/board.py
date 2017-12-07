@@ -69,7 +69,7 @@ class Board(object):
     # Calling these SUDOKU_X instead of just X to avoid any ambiguity over
     # whether the X applies to the instance or the class itself
     SUDOKU_NUMBERS = list(range(1, 10))
-    SUDOKU_STRINGS = map(str, SUDOKU_NUMBERS)
+    SUDOKU_STRINGS = [str(n) for n in SUDOKU_NUMBERS]
     # The rows and columns are zero-indexed
     SUDOKU_ROWS = list(range(9))
     SUDOKU_COLS = SUDOKU_ROWS
@@ -357,7 +357,7 @@ class Board(object):
         board_str = ''
         rows = self.rows()
         for i, row in enumerate(rows):
-            board_str += ''.join(map(str, row))
+            board_str += ''.join(str(n) for n in row)
             if i + 1 < len(rows):
                 board_str += '\n'
         return board_str
@@ -366,7 +366,7 @@ class Board(object):
         return str(self.board)
 
     def __key(self):
-        return tuple(map(tuple, self.rows()))
+        return tuple(tuple(row) for row in self.rows())
 
     def __eq__(self, other):
         # pylint: disable=protected-access
@@ -542,7 +542,7 @@ class Board(object):
         if self._columns is not None:
             return self._columns
 
-        self._columns = map(list, zip(*self.rows()))
+        self._columns = [list(col_tuple) for col_tuple in zip(*self.rows())]
         return self._columns
 
 
