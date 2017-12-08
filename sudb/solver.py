@@ -953,7 +953,7 @@ class Solver(object):
                 if number in columns[col]:
                     associated_row = columns[col].index(number)
                     reasons_for_last_move.add((associated_row, col))
-            # Remove location of move from set if its in there
+            # Remove location of move from set if it's in there
             reasons_for_last_move -= {(move_row, move_col)}
             return reasons_for_last_move
         elif move_type == self.MoveType.ELIMINATION:
