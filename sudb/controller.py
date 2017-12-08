@@ -915,28 +915,38 @@ class SolverController(object):
         status = self.Status.REPEAT
 
         move_type = self.solver.last_move_type()
+        try:
+            move_num, move_row, move_col = self.solver.moves()[-1]
+        except IndexError:
+            move_num = move_row = move_col = None
+
+        if move_num and move_num == Board.BLANK:
+            # Don't try to explain moves that remove clues from board
+            self._print_simple_explanation('', move_type, move_row, move_col)
+            return status | self.Status.OK
+
+        # Try to find a simple explanation
+        simple_explanation = ''
         if move_type == Solver.MoveType.NONE:
-            print('The initial board is given.')
-            return status | self.Status.OK
+            simple_explanation = 'The initial board is given.'
         elif move_type == Solver.MoveType.GUESSED:
-            print('A guess pulled from a solved version of the board.')
+            simple_explanation = 'A guess pulled from a solved version of the board.'
+        else:
+            # See if last-blank-in-{row,column,box} explanation is possible
+            simple_explanation = self._get_elimination_explanation()
+            if not simple_explanation and move_type == Solver.MoveType.ELIMINATION:
+                simple_explanation = 'It was the only possible number for the location.'
+
+        if simple_explanation:
+            self._print_simple_explanation(simple_explanation, move_type, move_row, move_col)
             return status | self.Status.OK
 
-        # See if a simple last-blank-in-{row,column,box} explanation is
-        # possible
-        elimination_explanation = self._get_elimination_explanation()
-        if elimination_explanation:
-            print(elimination_explanation)
-            return status | self.Status.OK
-        elif move_type == Solver.MoveType.ELIMINATION:
-            print('It was the only possible number for the location.')
-            return status | self.Status.OK
-
+        # No simple explanation; try to find a more complex one
         locations = set()
 
-        # `move_type` can change when searching for reasons for manual move
-        actual_move_type_is_manual = (move_type == Solver.MoveType.MANUAL)
-        if actual_move_type_is_manual:
+        # Move type for manual move to pretend to be so it can be explained
+        psuedo_move_type = move_type
+        if move_type == Solver.MoveType.MANUAL:
             # See if manual move is explainable by known deductive methods
             max_locations = 0
             for deductive_type in Solver.DEDUCTIVE_MOVE_TYPES:
@@ -950,30 +960,36 @@ class SolverController(object):
                     # means the manual and deduced explanation may differ)
                     max_locations = len(possible_reasons)
                     locations = possible_reasons
-                    move_type = deductive_type
+                    psuedo_move_type = deductive_type
         else:
             locations = self.solver.reasons()
 
-        if locations:
-            if actual_move_type_is_manual:
+        if locations and locations != {(move_row, move_col)}:
+            if move_type == Solver.MoveType.MANUAL:
                 # Here `move_type` is the move type to be used in
                 # interpreting the reasons found
-                self.print_puzzle(move_type=move_type, locations=locations,
+                self.print_puzzle(move_type=psuedo_move_type, locations=locations,
                                   treat_move_type_as_reason=True)
                 print('Possible reasons for manual move.')
             else:
                 # Here the move type to use for interpreting the reasons
                 # will simply be `self.solver.last_move_type()`
                 self.print_puzzle(move_type=Solver.MoveType.REASON, locations=locations)
-
             return status | self.Status.OK
 
-        #TODO: A manual move with no reasons except for its own location
-        # (e.g., `MoveType.ELIMINATION`) should output this, not the board
-        # with just the move itself highlighted
-        print('No reason found for ', end='')
-        print('{}move.'.format('manual ' if actual_move_type_is_manual else ''))
+        self._print_simple_explanation('No reason found for move.', move_type, move_row, move_col)
         return status | self.Status.OTHER
+
+    def _print_simple_explanation(self, explanation, move_type, move_row, move_col):
+        # Print puzzle with last move noted and given explanation below it
+        locations = [(move_row, move_col)]
+        if move_row is None or move_col is None:
+            locations = []
+        self.print_puzzle(move_type=move_type, locations=locations)
+        # Avoid printing extra newlines if `explanation` is empty
+        if explanation:
+            print(explanation)
+            print()
 
     def _get_elimination_explanation(self):
         _, row, col = self.solver.moves()[-1]
