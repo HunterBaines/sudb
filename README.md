@@ -31,7 +31,9 @@ $ cd sudb/
 $ sudo python setup.py install
 ```
 
-To test that everything worked, try this:
+Also installing `numpy` (see below for instructions) is
+[recommended](https://github.com/HunterBaines/sudb/blob/ab2947b2f43b25c2a18f8c7e60abfb2f8acbf04e/sudb/generator.py#L89),
+but not required. To test that everything worked, try this:
 
 ```shell
 $ sudb --auto --difference --file https://projecteuler.net/project/resources/p096_sudoku.txt
