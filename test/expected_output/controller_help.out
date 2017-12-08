@@ -46,6 +46,7 @@ quit -- Quit the solver.
 restart -- Restart from beginning or from state at a given checkpoint.
 set -- Generic command for setting options.
 set ascii -- Toggle whether to use UTF-8 in output.
+set explainsteps -- Toggle whether to always explain each step made.
 set guessbreak -- Toggle whether to break on guesses.
 set markview -- Toggle whether to always print the board with marks noted.
 set prompt -- Set the solver's prompt.
@@ -226,6 +227,7 @@ List of set subcommands:
 
 set -- Generic command for setting options.
 set ascii -- Toggle whether to use UTF-8 in output.
+set explainsteps -- Toggle whether to always explain each step made.
 set guessbreak -- Toggle whether to break on guesses.
 set markview -- Toggle whether to always print the board with marks noted.
 set prompt -- Set the solver's prompt.
@@ -233,6 +235,9 @@ set width -- Set the width to use for output.
 (sudb) help set ascii
 Toggle whether to use UTF-8 in output.
 Usage: set ascii
+(sudb) help set explainsteps
+Toggle whether to always explain each step made.
+Usage: set explainsteps
 (sudb) help set guessbreak
 Toggle whether to break on guesses.
 Usage: set guessbreak
