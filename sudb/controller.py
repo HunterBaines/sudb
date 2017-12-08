@@ -272,7 +272,8 @@ class SolverController(object):
         if not self.options.explainsteps:
             self.print_puzzle()
         else:
-            # This can occur if "set explainsteps" in ~/.sudbinit
+            # This can occur if "set explainsteps" in ~/.sudbinit or if
+            # `explainsteps` is set to True in `options` passed to class
             self._cmd_explain(['explain'])
 
         status = self.Status.NONE
@@ -494,15 +495,16 @@ class SolverController(object):
         width = 70 if not width else width
         print('\n'.join(textwrap.wrap(text, width=width)))
 
-    def print_puzzle(self, move_type=None, locations=None, solver=None, candidate_map=None,
-                     treat_move_type_as_reason=False):
+    def print_puzzle(self, move_type=None, locations=None, solver=None,
+                     candidate_map=None, reason_map=None):
         """Display the puzzle with a move number.
 
         Print the current state of the instance's `puzzle` and the `moveno`
         associated with that state. Optionally color the location tuples
         given in `locations` some unique color based on the type specified
-        in `move_type`, and display the candidates for a given location
-        within its corresponding cell.
+        in `move_type`, display the candidates given in `candidate_map`
+        within their corresponding cells, or indicate the reasons for the
+        last move based the information in `reason_map`.
 
         Parameters
         ----------
@@ -510,22 +512,27 @@ class SolverController(object):
             A move type, which tells the method what color to use on the
             location tuples in `locations` (default type of last move).
         locations : iterable of int tuple, optional
-            An iterable of row, column tuples that represent locations to
-            color (default None).
+            An iterable of *zero-indexed* row, column tuples that represent
+            locations to color (default None).
         solver : Solver instance, optional
-            The solver whose board and move count to use (default
+            The solver whose board and move count should be used (default
             `self.solver`).
         candidate_map : dict of tuple to int set
             A mapping of *zero-indexed* row, column locations to the set of
             numbers representing possible values for that location (default
             None).
-        treat_move_type_as_reason : bool, optional
-            True if `move_type` should be interpreted as `MoveType.REASON`
-            regardless of whether it actually is, which allows moves with a
-            `last_move_type` that is non-deductive (e.g.,
-            `MoveType.MANUAL`) to still display reasons by explicitly
-            naming in the parameter `move_type` which deductive move type
-            it should be treated as; False if not (default False).
+        reason_map : dict of MoveType constant to iterable of int tuple,
+                     optional
+            A mapping of MoveType constants to *zero-indexed* locations
+            that, in the context of that move type, represent reasons for
+            the last move (default None).
+
+        Notes
+        -----
+        If `reason_map` is None or empty, setting `move_type` to
+        `MoveType.REASON` and defining some locations in `locations` is
+        effectively the same as defining `reason_map` as
+        `{solver.last_move_type(): locations}`.
 
         """
         if solver is None:
@@ -538,13 +545,15 @@ class SolverController(object):
 
         separator = '\n'
         title = '   MOVE {}'.format(moveno)
-
         colormap = None
-        if locations and treat_move_type_as_reason or move_type == Solver.MoveType.REASON:
+
+        if not reason_map and move_type == Solver.MoveType.REASON and locations:
+            actual_move_type = solver.last_move_type()
+            reason_map = {actual_move_type: locations}
+
+        if reason_map:
             title += ' (reasons)'
-            # If `move_type` is `REASON`, the move type to use in
-            # interpreting the reasons is `self.solver.last_move_type()`
-            colormap = self._get_reasons_colormap(locations, move_type, solver=solver)
+            colormap = self._get_reasons_colormap(reason_map, solver)
         elif locations:
             if move_type == Solver.MoveType.GUESSED:
                 title += ' (guessed)'
@@ -578,34 +587,38 @@ class SolverController(object):
         output = separator + title + puzzle_str + '\n'
         print(output)
 
-    def _get_reasons_colormap(self, locations, reported_move_type, solver=None):
-        reason_color = self.options.move_type_colormap[Solver.MoveType.REASON]
-        nonviable_blank_color = frmt.Color.INVERT + reason_color
+    def _get_reasons_colormap(self, reason_map, solver):
+        try:
+            _, actual_row, actual_col, _, actual_move_type = solver.move_history[-1]
+        except IndexError:
+            # No moves have been made
+            return {}
 
-        if solver is None:
-            solver = self.solver
-
-        actual_move_type = solver.last_move_type()
-        if reported_move_type == Solver.MoveType.REASON:
-            reported_move_type = actual_move_type
-
-        colormap = frmt.get_colormap(locations, reason_color)
-        if actual_move_type == Solver.MoveType.NONE:
-            return colormap
-
-        _, original_row, original_col = solver.moves()[-1]
+        colormap = {}
+        for reported_move_type, locations in reason_map.items():
+            self._fill_reasons_colormap(colormap, solver, locations,
+                                        reported_move_type, actual_row, actual_col)
 
         # The color of the move to explain is always based on the actual
-        # move type
+        # move type (add this to `colormap` last so location cannot be
+        # overwritten by `_fill_reasons_colormap`)
         try:
             actual_color = self.options.move_type_colormap[actual_move_type]
         except KeyError:
             actual_color = self.options.default_color
-        colormap[(original_row, original_col)] = actual_color
+        colormap[(actual_row, actual_col)] = actual_color
 
-        # But the colors of the rest are based on the reported move type so
-        # a non-deductive `actual_move_type` (e.g., MANUAL) can still be
-        # explained via a deductive method (given in `reported_move_type`)
+        return colormap
+
+    def _fill_reasons_colormap(self, colormap, solver, locations,
+                               reported_move_type, original_row, original_col):
+        reason_color = self.options.move_type_colormap[Solver.MoveType.REASON]
+        nonviable_blank_color = frmt.Color.INVERT + reason_color
+
+        # Color the clues that made the move necessary
+        colormap.update(frmt.get_colormap(locations, reason_color))
+
+        # Color the blanks that those clues made nonviable
         if reported_move_type == Solver.MoveType.ROWWISE:
             original_band = Board.band_containing_cell(original_row, original_col)
             for row, col in locations:
@@ -643,14 +656,12 @@ class SolverController(object):
                 band = Board.band_containing_cell(row, col)
                 stack = Board.stack_containing_cell(row, col)
                 for box_row, box_col in box_cells:
-                    box_number = self.solver.puzzle.get_cell(box_row, box_col)
+                    box_number = solver.puzzle.get_cell(box_row, box_col)
                     if box_number == Board.BLANK:
                         if band == original_band and box_row == row:
                             colormap[(row, box_col)] = nonviable_blank_color
                         if stack == original_stack and box_col == col:
                             colormap[(box_row, col)] = nonviable_blank_color
-
-        return colormap
 
 
     # START OF COMMAND METHODS
@@ -923,67 +934,54 @@ class SolverController(object):
         # `_cmd`-style method can be called in the same way
         status = self.Status.REPEAT
 
-        move_type = self.solver.last_move_type()
         try:
-            move_num, move_row, move_col = self.solver.moves()[-1]
+            move_num, move_row, move_col, _, move_type = self.solver.move_history[-1]
         except IndexError:
+            # No move has been made yet
             move_num = move_row = move_col = None
-
-        if move_num and move_num == Board.BLANK:
-            # Don't try to explain moves that remove clues from board
-            self._print_simple_explanation('', move_type, move_row, move_col)
-            return status | self.Status.OK
+            move_type = Solver.MoveType.NONE
 
         # Try to find a simple explanation
-        simple_explanation = ''
-        if move_type == Solver.MoveType.NONE:
+        simple_explanation = None
+        if move_num is not None and move_num == Board.BLANK:
+            # Don't try to explain moves that remove clues from the board
+            simple_explanation = ''
+        elif move_type == Solver.MoveType.NONE:
             simple_explanation = 'The initial board is given.'
         elif move_type == Solver.MoveType.GUESSED:
             simple_explanation = 'A guess pulled from a solved version of the board.'
         else:
-            # See if last-blank-in-{row,column,box} explanation is possible
+            # See if "last blank in {row,column,box}" or "only possible
+            # number" explanation is possible (returns None if not)
             simple_explanation = self._get_elimination_explanation()
-            if not simple_explanation and move_type == Solver.MoveType.ELIMINATION:
-                simple_explanation = 'It was the only possible number for the location.'
 
-        if simple_explanation:
+        if simple_explanation is not None:
             self._print_simple_explanation(simple_explanation, move_type, move_row, move_col)
             return status | self.Status.OK
 
-        # No simple explanation; try to find a more complex one
-        locations = set()
-
-        # Move type for manual move to pretend to be so it can be explained
-        psuedo_move_type = move_type
+        # No simple explanation; look for reasons in other clues in puzzle
+        reason_map = {}
         if move_type == Solver.MoveType.MANUAL:
-            # See if manual move is explainable by known deductive methods
-            max_locations = 0
+            # Try to explain manual move by known deductive methods
             for deductive_type in Solver.DEDUCTIVE_MOVE_TYPES:
-                #TODO: max reasons does not necessarily equal best
-                # explanation: a single location may make nonviable all
-                # other locations in a box, whereas two location may make
-                # nonviable less than all locations in a column or row
+                if deductive_type == Solver.MoveType.ELIMINATION:
+                    # This will always just add the location of the move
+                    # itself to `reason_map`, which just complicates
+                    # determining if any actual reasons have been found
+                    continue
                 possible_reasons = self.solver.reasons(override_move_type=deductive_type)
-                if len(possible_reasons) > max_locations:
-                    # Try to find explanation with most locations (NB: this
-                    # means the manual and deduced explanation may differ)
-                    max_locations = len(possible_reasons)
-                    locations = possible_reasons
-                    psuedo_move_type = deductive_type
+                if possible_reasons:
+                    reason_map[deductive_type] = possible_reasons
         else:
-            locations = self.solver.reasons()
+            # For non-manual moves, there should always be reasons
+            reason_map[move_type] = self.solver.reasons()
 
-        if locations and locations != {(move_row, move_col)}:
+        if reason_map:
+            self.print_puzzle(reason_map=reason_map)
             if move_type == Solver.MoveType.MANUAL:
-                # Here `move_type` is the move type to be used in
-                # interpreting the reasons found
-                self.print_puzzle(move_type=psuedo_move_type, locations=locations,
-                                  treat_move_type_as_reason=True)
                 print('Possible reasons for manual move.')
-            else:
-                # Here the move type to use for interpreting the reasons
-                # will simply be `self.solver.last_move_type()`
-                self.print_puzzle(move_type=Solver.MoveType.REASON, locations=locations)
+                # Mimic padding in `_print_simple_explanation`
+                print()
             return status | self.Status.OK
 
         self._print_simple_explanation('No reason found for move.', move_type, move_row, move_col)
@@ -998,10 +996,15 @@ class SolverController(object):
         # Avoid printing extra newlines if `explanation` is empty
         if explanation:
             print(explanation)
+            # Extra padding to make grouping of board and explanation more
+            # apparent when many boards are listed one after the other
+            # (e.g., after calling `finish` when `explainsteps == True`)
             print()
 
     def _get_elimination_explanation(self):
-        _, row, col = self.solver.moves()[-1]
+        # Return explanation if possible and None if not
+        # This will raise an IndexError if no moves made yet
+        num, row, col, _, move_type = self.solver.move_history[-1]
         box, _ = Board.box_containing_cell(row, col)
 
         output = ''
@@ -1018,8 +1021,25 @@ class SolverController(object):
                 # I guess I'm anti-Oxford-comma now
                 output = output[:rightmost_comma] + ' and' + output[rightmost_comma+1:]
             output += '.'
+        else:
+            # Note that a deduced move will only be interpreted as
+            # `MoveType.ELIMINATION` if its move type is explicitly set to
+            # that, whereas a manual move will be interpreted that way
+            # whenever possible. The principle here is that a definite
+            # explanation should be prefered to a speculative one, which is
+            # what a manual move will get in `_cmd_explain` if this returns
+            # None
+            only_possible_number = 'It was the only possible number for the location.'
+            if move_type == Solver.MoveType.ELIMINATION:
+                output = only_possible_number
+            elif move_type == Solver.MoveType.MANUAL:
+                # See if `MANUAL` can be interpreted as `ELIMINATION`
+                temp_puzzle = self.puzzle.duplicate()
+                temp_puzzle.set_cell(Board.BLANK, row, col)
+                if temp_puzzle.possibilities(row, col) == {num}:
+                    output = only_possible_number
 
-        return output
+        return output if output else None
 
 
     @cmdhelp('Step until stuck or at solution or breakpoint.',
@@ -1594,7 +1614,7 @@ class SolverController(object):
             print('Move left board inconsistent. Ignored.')
             return self.Status.OTHER
 
-        if not self.options.explainsteps or number == Board.BLANK:
+        if not self.options.explainsteps:
             location = (actual_row, actual_col)
             self.print_puzzle(move_type=Solver.MoveType.MANUAL, locations=[location])
         else:
