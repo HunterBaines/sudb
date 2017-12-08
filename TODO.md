@@ -25,8 +25,8 @@ TODO
 * Python 3 compatibility: adapt to changes to `urllib` in Python 3 (note
   that Python 3's `urlretrieve` no longer handles filenames).
 
-* Python 3 compatibility: adapt to `random` not generating same values
-  given same seed across Python 2 and 3
+* a428a04: ~~Python 3 compatibility: adapt to `random` not generating same
+  values given same seed across Python 2 and 3~~
 
 * 9d2f13e: ~~Python 3 compatibility: figure out why the puzzle associated
   with a given seed is not stable in Python 3 (it definitely involves the
