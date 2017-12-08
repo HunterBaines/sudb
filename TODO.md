@@ -33,9 +33,9 @@ TODO
   Solver method `autosolve_without_history`---and ultimately, it seems, the
   backend `_exact_hitting_set` in particular)~~
 
-* Add a new `set` subcommand (maybe `set explainview`) that defaults to
-  printing the board with the reasons for the last move highlighted after
-  each step.
+* f02a105: ~~Add a new `set` subcommand (maybe `set explainview`) that
+  defaults to printing the board with the reasons for the last move
+  highlighted after each step.~~
 
 * 6a6ffc1: ~~Tab complete user-defined strings like checkpoint labels.~~
 
