@@ -165,6 +165,10 @@ class SolverController(object):
         assume_yes : bool
             True is all yes/no confirmations should be assumed to be "yes"
             and False if confirmation should be obtained each time.
+        explainsteps : bool
+            True if `step` commands (aside from `unstep`) should default to
+            printing the puzzle with the move and its explanation noted,
+            and False if they should just note the move.
         markview : bool
             True if the larger version of the board with user-defined
             candidates displayed should be the default, and False if the
@@ -204,6 +208,7 @@ class SolverController(object):
 
             self.ascii = False
             self.assume_yes = False
+            self.explainsteps = False
             self.markview = False
             self.guessbreak = False
 
@@ -264,7 +269,11 @@ class SolverController(object):
 
         name = '"{}"'.format(self.puzzle.name) if self.puzzle.name else hash(self.puzzle)
         print('Starting solver on puzzle with ID {}.'.format(name))
-        self.print_puzzle()
+        if not self.options.explainsteps:
+            self.print_puzzle()
+        else:
+            # This can occur if "set explainsteps" in ~/.sudbinit
+            self._cmd_explain(['explain'])
 
         status = self.Status.NONE
         while not status & self.Status.QUIT:
@@ -1429,6 +1438,17 @@ class SolverController(object):
         print('Break on guesses {}.'.format('enabled' if guessbreak else 'disabled'))
         return self.Status.OK
 
+    @cmdhelp('Toggle whether to always explain each step made.',
+             'set explainsteps')
+    def _subcmd_set_explainsteps(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
+        explainsteps = not self.options.explainsteps
+        self.options.explainsteps = explainsteps
+
+        print('Always explain steps {}.'.format('enabled' if explainsteps else 'disabled'))
+        return self.Status.OK
+
     @cmdhelp('Toggle whether to always print the board with marks noted.',
              'set markview')
     def _subcmd_set_markview(self, argv):
@@ -1528,7 +1548,10 @@ class SolverController(object):
                     return status | self.Status.STUCK
 
             move_type = self.solver.last_move_type()
-            self.print_puzzle(move_type=move_type, locations=[location])
+            if not self.options.explainsteps:
+                self.print_puzzle(move_type=move_type, locations=[location])
+            else:
+                self._cmd_explain(['explain'])
 
             # Check if at breakpoint
             user_location = self._zero_correct(*location, inverted=True)
@@ -1571,7 +1594,11 @@ class SolverController(object):
             print('Move left board inconsistent. Ignored.')
             return self.Status.OTHER
 
-        self.print_puzzle(move_type=Solver.MoveType.MANUAL, locations=[(actual_row, actual_col)])
+        if not self.options.explainsteps or number == Board.BLANK:
+            location = (actual_row, actual_col)
+            self.print_puzzle(move_type=Solver.MoveType.MANUAL, locations=[location])
+        else:
+            self._cmd_explain(['explain'])
 
         if self._is_breakpoint(row, col):
             return self.Status.BREAK
