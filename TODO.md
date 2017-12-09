@@ -56,6 +56,26 @@ TODO
   other locations whose own candidate lists suggest that they could help
   thin out the original lists if their clues could be determined.
 
+* Consider doing something about the same move being deduced in different
+  ways in the following command:
+  ```
+  $ sudb -l 000003017 015009008 060000000 100007000 009000200 000500004 000000020 500600340 340200000 -x 'set explainsteps' -x 'step' -x 'step' -x 'unstep' -x 'step'
+  ```
+  It is not really a bug, but it may be unexpected. It occurs because of
+  move caching in `Solver`; something like the following happens:
+    1. Move cache is filled during first call to `step`; the offending move
+       can be deduced at this point, but only using `BOXWISE` deduction. A
+       different move---3 at (2, 8)---is made.
+    2. The offending move---3 at (3, 3)---is made during the second call to
+       `step` using `BOXWISE` deduction.
+    3. The move is removed via `unstep`, which invalidates the move cache.
+    4. Seeing that the move cache is invalid, the final call to step
+       refills it, but this time another clue is on the board (thanks to
+       the first call to step), and now the offending move can be deduced
+       via a `ROWWISE` deduction, which `step` happens to always prefer
+       over `BOXWISE`. The offending move is now made again---but using
+       `ROWWISE`, not `BOXWISE` deduction.
+
 
 /test
 -----
