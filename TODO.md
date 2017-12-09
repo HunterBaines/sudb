@@ -91,4 +91,4 @@ TODO
 * Write output test for candidate-related commands: `x` and `print
   candidates`.
 
-* Write output test for `explain` command
+* 4e1b2f2: ~~Write output test for `explain` command~~
