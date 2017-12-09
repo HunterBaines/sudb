@@ -505,7 +505,7 @@ class Solver(object):
 
         cells = set(itertools.product(rows, columns))
         for box in boxes:
-            cells = cells.union(set(Board.cells_in_box(box)))
+            cells.update(Board.cells_in_box(box))
 
         for (row, col) in cells:
             if self.puzzle.get_cell(row, col) != Board.BLANK:
@@ -691,15 +691,15 @@ class Solver(object):
 
             for row in Board.SUDOKU_ROWS:
                 locations = self.possible_locations_in_row(number, row)
-                locations_for_number = locations_for_number.union(locations)
+                locations_for_number.update(locations)
 
             for col in Board.SUDOKU_COLS:
                 locations = self.possible_locations_in_column(number, col)
-                locations_for_number = locations_for_number.union(locations)
+                locations_for_number.update(locations)
 
             for box in Board.SUDOKU_BOXES:
                 locations = self.possible_locations_in_box(number, box)
-                locations_for_number = locations_for_number.union(locations)
+                locations_for_number.update(locations)
 
             for (row, col) in locations_for_number:
                 next_moves[(row, col)].add(number)
