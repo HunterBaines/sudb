@@ -102,3 +102,6 @@ ENV/
 
 # vim
 *.sw?
+
+# a custom directory for any files git doesn't need to care about
+/ignore/
