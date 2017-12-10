@@ -91,17 +91,6 @@ class PuzzleErrorLogger(ErrorLogger):
 def main():
     """Get puzzle(s) from file, user, or seed and solve each in turn.
 
-    Import puzzles from filenames given as commandline arguments, generate
-    them from seed, or (if neither files nor seeds given) create them from
-    lines manually entered by the user. If `-t` is given, reduce the number
-    of clues in each puzzle as much as possible, or if `-s` is given,
-    simplify the puzzle by filling in any cells that could not be deduced,
-    and then solve each in turn without interaction (unless the `-i`
-    argument is given). Output the end state of each board after attempting
-    to solve it, and mark differences between it and the original board if
-    the `-d` argument was used. Use only ASCII in the output if the `-a`
-    argument was given.
-
     """
     args = _get_parser().parse_args()
 
