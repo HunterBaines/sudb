@@ -28,7 +28,7 @@ $ cd sudb/
 
 # install the sudb package and copy the script 
 # invoking its main method into your PATH
-$ sudo python setup.py install
+$ python setup.py install --user
 ```
 
 Also installing `numpy` (see below for instructions) is
