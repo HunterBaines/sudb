@@ -96,11 +96,15 @@ def main():
 
     # Warn if the UTF-8 output will look like garbage on this terminal
     if not args.ascii and sys.stdout.encoding in ['ascii', 'ANSI_X3.4-1968']:
-        msg = 'your terminal does not seem to support UTF-8 output;'
-        msg += ' consider changing your terminal\'s character encoding'
-        msg += ' settings or calling this program with the --ascii option.'
-        msg += '\n'
-        error.error(msg, prelude='warning')
+        error.error('assuming --ascii since your terminal does not seem to'
+                    ' support UTF-8 output. To fix permanently, please set'
+                    " your locale environment variables and your terminal's"
+                    ' character encoding settings appropriately. To force'
+                    ' UTF-8 output temporarily, try calling this program'
+                    ' using "PYTHONIOENCODING=utf_8 sudb" instead of just'
+                    ' "sudb".\n',
+                    prelude='warning')
+        args.ascii = True
 
     init_commands = []
     if not args.no_init:
