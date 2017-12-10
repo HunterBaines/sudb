@@ -128,6 +128,17 @@ class TestControllerSet(OutputTester):
         command_queue.append('# One argument required')
         command_queue.append('{} width'.format(self.SET_CMD))
 
+        command_queue.append('# test showing all current settings')
+        command_queue.append('info {} # before changes'.format(self.SET_CMD))
+        command_queue.append('# make changes')
+        command_queue.append('{} ascii'.format(self.SET_CMD))
+        command_queue.append('{} explainsteps'.format(self.SET_CMD))
+        command_queue.append('{} guessbreak'.format(self.SET_CMD))
+        command_queue.append('{} markview'.format(self.SET_CMD))
+        command_queue.append('{} prompt (test) '.format(self.SET_CMD))
+        command_queue.append('{} width 70'.format(self.SET_CMD))
+        command_queue.append('info {} # after changes'.format(self.SET_CMD))
+
         # Tell controller to exit
         command_queue.append('quit')
 

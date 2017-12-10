@@ -825,6 +825,33 @@ Integer -1 out of range.
 (sudb) # One argument required
 (sudb) set width
 One argument required.
-(sudb) quit
+(sudb) # test showing all current settings
+(sudb) info set # before changes
+ascii = True
+explainsteps = False
+guessbreak = False
+markview = False
+prompt = (sudb) 
+width = 0
+(sudb) # make changes
+(sudb) set ascii
+UTF-8 output enabled.
+(sudb) set explainsteps
+Always explain steps enabled.
+(sudb) set guessbreak
+Break on guesses enabled.
+(sudb) set markview
+Always print marks enabled.
+(sudb) set prompt (test) 
+(test) set width 70
+Width set to 70 characters.
+(test) info set # after changes
+ascii = False
+explainsteps = True
+guessbreak = True
+markview = True
+prompt = (test) 
+width = 70
+(test) quit
 The puzzle has not been solved.
 Quit anyway? (y or n) [assumed Y]
