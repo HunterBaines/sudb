@@ -37,6 +37,7 @@ info -- Generic command for showing things about session.
 info breakpoints -- Show all or matching breakpoints.
 info checkpoints -- Show all or matching checkpoints.
 info marks -- Show all or matching user-defined candidates.
+info set -- Show the values for all settable options.
 mark -- Mark one or more numbers as candidates for the given cell.
 print -- Print the current state of the board.
 print candidates -- Print board with generated candidates noted.
@@ -144,6 +145,7 @@ info -- Generic command for showing things about session.
 info breakpoints -- Show all or matching breakpoints.
 info checkpoints -- Show all or matching checkpoints.
 info marks -- Show all or matching user-defined candidates.
+info set -- Show the values for all settable options.
 (sudb) help info breakpoints
 Show all or matching breakpoints.
 Usage: info break [BREAKNO [BREAKNO ...]]
@@ -162,6 +164,9 @@ Usage: info mark [ROW COL [ROW COL ...]]
 
 Show the candidates for each ROW COL location. If none given, show all
 user-defined candidates.
+(sudb) help info set
+Show the values for all settable options.
+Usage: info set
 (sudb) help mark
 Mark one or more numbers as candidates for the given cell.
 Usage: mark ROW COL NUMBER [NUMBER ...]
