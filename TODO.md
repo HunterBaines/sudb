@@ -25,13 +25,14 @@ TODO
 * Python 3 compatibility: adapt to changes to `urllib` in Python 3 (note
   that Python 3's `urlretrieve` no longer handles filenames).
 
-* Python 3 compatibility: Python 2 prints (possibly garbled) UTF-8 text
-  even if `sys.stdout.encoding` suggests only ASCII is supported, but
-  Python 3 raises a `UnicodeEncodeError`. Attempt to mimic the Python 2
-  behavior. A simple fix is to `export PYTHONIOENCODING="utf_8"`, but that
-  has to happen before the Python interpreter starts, and doing it prevents
-  the error message is "sudb/\_\_main\_\_.py" about all this, which is
-  still relevant, from being shown.
+* ca4c812: ~~Python 3 compatibility: Python 2 prints (possibly garbled)
+  UTF-8 text even if `sys.stdout.encoding` suggests only ASCII is
+  supported, but Python 3 raises a `UnicodeEncodeError`. Attempt to mimic
+  the Python 2 behavior. A simple fix is to `export
+  PYTHONIOENCODING="utf_8"`, but that has to happen before the Python
+  interpreter starts, and doing it prevents the error message is
+  "sudb/\_\_main\_\_.py" about all this, which is still relevant, from
+  being shown.~~
 
 * a428a04: ~~Python 3 compatibility: adapt to `random` not generating same
   values given same seed across Python 2 and 3~~
