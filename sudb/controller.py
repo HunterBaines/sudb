@@ -1278,6 +1278,28 @@ class SolverController(object):
 
         return self.Status.OK
 
+    @cmdhelp('Show the values for all settable options.',
+             'info set')
+    def _subcmd_info_set(self, argv):
+        # pylint: disable=unused-argument; argv included so every
+        # `_cmd`-style method can be called in the same way
+        set_prefix = 'set '
+        settable_options = []
+        for set_command in self.cmd.completions(set_prefix):
+            option_name = set_command[len(set_prefix):]
+            if option_name:
+                settable_options.append(option_name)
+        options_dict = self.options.__dict__
+        for option_name in sorted(settable_options):
+            # This assumes the attribute name in `Options` matches the name
+            # used to specify the `set` subcommand that updates that
+            # attribute (e.g., `set ascii` and `Options.ascii`)
+            try:
+                print('{} = {}'.format(option_name, options_dict[option_name]))
+            except KeyError:
+                pass
+        return self.Status.OK
+
     # INFO COMMANDS END
 
 
