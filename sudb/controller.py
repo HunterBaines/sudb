@@ -453,10 +453,10 @@ class SolverController(object):
                 # BREAKNO to delete).
                 print('Undefined command: "', end='')
                 try:
-                    print('{}'.format(command.split()[0]), end='')
+                    print(command.split()[0], end='')
                 except IndexError:
                     # Command is just whitespace
-                    print('{}'.format(command), end='')
+                    print(command, end='')
                 print('". Try "help".')
                 return None, command_args
 
