@@ -19,6 +19,7 @@ from sudb import error
 from sudb.logger import ErrorLogger
 from sudb.solver import Solver
 from sudb.controller import SolverController
+from sudb.board import Board
 
 
 INIT_FILE = '~/.sudbinit'
@@ -69,9 +70,13 @@ class PuzzleErrorLogger(ErrorLogger):
             self.log_error(puzzle, self.INCONSISTENT_BOARD)
             error_count += 1
             if report:
-                colormap = frmt.get_colormap(inconsistent_locations, frmt.Color.RED)
-                msg = 'puzzle has an inconsistent board:\n\n'
-                msg += frmt.strfboard(puzzle, colormap=colormap, ascii_mode=True)
+                # A blank board
+                inconsistent_board = Board()
+                for location in inconsistent_locations:
+                    num = puzzle.get_cell(*location)
+                    inconsistent_board.set_cell(num, *location)
+                msg = 'puzzle has inconsistencies:\n\n'
+                msg += frmt.strfboard(inconsistent_board, ascii_mode=True)
                 msg += '\n'
                 error.error(msg, prelude=name)
 
