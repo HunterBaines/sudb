@@ -544,7 +544,7 @@ def _cell_str(board, row, col, formatter, size_id,
         if size_id == 2:
             locations = [(0, 1), (0, 3), (1, 1), (1, 3)]
         else:
-            locations = [(row, col) for row in range(3) for col in range(3)]
+            locations = [(row_, col_) for row_ in range(3) for col_ in range(3)]
         blank_map = dict(zip(locations, cell_chars))
         cell_str = formatter.box(height, width, blank_map=blank_map)
 
