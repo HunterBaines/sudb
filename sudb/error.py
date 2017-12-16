@@ -48,7 +48,7 @@ class Error(object):
         return self.errno
 
 
-def error(message, prelude=None, status=0, maxline=70):
+def error(message, prelude=None, status=0, maxline=70, minwidth=20):
     """Print wrapped message to stderr and exit with status if nonzero.
 
     Print to stderr a message wrapped to `maxline`. The first line will be
@@ -68,19 +68,32 @@ def error(message, prelude=None, status=0, maxline=70):
     maxline : int, optional
         The max number of characters to include in each line of output
         counting the prelude and padding (default 70).
+    minwidth : int, optional
+        The minimum number of characters that should be reserved for
+        `message`; if `prelude` and its padding don't allow for this,
+        `message` will begin printing a line below `prelude` (default 20).
 
     """
     if prelude is None:
         prelude = 'error'
-
     prelude += ': '
+
+    width = maxline - len(prelude)
+    if width < minwidth:
+        # `prelude` is too long to use as prefix for each `message` line
+        for subline in textwrap.wrap(prelude, maxline):
+            print(subline, file=sys.stderr)
+        width = maxline
+        prelude = ''
+
     for line in message.split('\n'):
-        wrapped_line = textwrap.wrap(line, maxline - len(prelude))
+        wrapped_line = textwrap.wrap(line, width)
         if not wrapped_line:
-            sys.stderr.write('\n')
+            print(file=sys.stderr)
         for subline in wrapped_line:
-            sys.stderr.write('{}{}\n'.format(prelude, subline))
+            print(prelude, subline, sep='', file=sys.stderr)
             if ':' in prelude:
+                # Redefine `prelude` as padding
                 prelude = ' ' * len(prelude)
 
     if status:
