@@ -5,8 +5,8 @@ TODO
 -
 * 9e9c458: ~~Document `stepb`, `stepc`, and `stepr` in README~~
 
-* Transition as much as possible to python-3-style code without breaking
-  python 2 compatibility.
+* 81391e3: ~~Transition as much as possible to python-3-style code without
+  breaking python 2 compatibility.~~
 
 
 /sudb
