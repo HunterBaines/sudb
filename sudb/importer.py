@@ -210,7 +210,7 @@ def get_puzzles_from_file(filename=None):
 
     """
     lines = []
-    specify_lineno_in_name = False
+    specify_lineno_in_name = True
 
     if filename is not None:
         try:
@@ -225,6 +225,7 @@ def get_puzzles_from_file(filename=None):
             return []
 
         if _is_image(filename):
+            specify_lineno_in_name = False
             try:
                 from sudb import sudokuimg
                 lines = sudokuimg.puzzle_lines(filename)
@@ -232,7 +233,6 @@ def get_puzzles_from_file(filename=None):
                 error.error(err.message.lower(), prelude=filename)
                 return []
         else:
-            specify_lineno_in_name = True
             # If we made it past urllib.urlretrieve, this shouldn't raise
             # an IOError
             with open(filename, 'r') as puzzle_file:
