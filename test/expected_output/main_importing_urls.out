@@ -1,0 +1,64 @@
+$ sudb --no-init --file https://raw.githubusercontent.com/HunterBaines/sudb/master/test/data/normal_puzzle.txt --auto --difference
+1 puzzle to solve.
+
+End Board for Puzzle 1:
+┌───────┬───────┬───────┐
+│ [0;32m2[00m [0;32m9[00m 6 │ [0;32m1[00m 4 8 │ 7 [0;32m3[00m [0;32m5[00m │
+│ 8 [0;32m4[00m [0;32m5[00m │ [0;32m7[00m 3 [0;32m9[00m │ [0;32m2[00m 1 [0;32m6[00m │
+│ [0;32m3[00m [0;32m7[00m [0;32m1[00m │ [0;32m5[00m 2 6 │ 4 8 [0;32m9[00m │
+├───────┼───────┼───────┤
+│ 1 [0;32m8[00m 7 │ [0;32m3[00m [0;32m5[00m [0;32m4[00m │ [0;32m6[00m 9 2 │
+│ [0;32m6[00m [0;32m3[00m 4 │ [0;32m2[00m [0;32m9[00m [0;32m1[00m │ 5 [0;32m7[00m [0;32m8[00m │
+│ 5 2 [0;32m9[00m │ [0;32m6[00m [0;32m8[00m [0;32m7[00m │ 1 [0;32m4[00m 3 │
+├───────┼───────┼───────┤
+│ [0;32m7[00m 1 2 │ 8 6 [0;32m3[00m │ [0;32m9[00m [0;32m5[00m [0;32m4[00m │
+│ [0;32m9[00m 5 [0;32m3[00m │ [0;32m4[00m 1 [0;32m2[00m │ [0;32m8[00m [0;32m6[00m 7 │
+│ [0;32m4[00m [0;32m6[00m 8 │ 9 7 [0;32m5[00m │ 3 [0;32m2[00m [0;32m1[00m │
+└───────┴───────┴───────┘
+(/tmp/sudb_a80e4c3.txt:1)
+
+Solved 1 of 1.
+$ sudb --no-init --file https://raw.githubusercontent.com/HunterBaines/sudb/master/test/data/normal_puzzle.png --auto --difference
+warning: importing from image will likely work only on cleanly cropped
+         images with sharp text and a high-contrast grid, and even
+         then the resulting puzzle may have missing or incorrect
+         clues.
+
+1 puzzle to solve.
+
+End Board for Puzzle 1:
+┌───────┬───────┬───────┐
+│ [0;32m2[00m [0;32m9[00m 6 │ [0;32m1[00m 4 8 │ 7 [0;32m3[00m [0;32m5[00m │
+│ 8 [0;32m4[00m [0;32m5[00m │ [0;32m7[00m 3 [0;32m9[00m │ [0;32m2[00m 1 [0;32m6[00m │
+│ [0;32m3[00m [0;32m7[00m [0;32m1[00m │ [0;32m5[00m 2 6 │ 4 8 [0;32m9[00m │
+├───────┼───────┼───────┤
+│ 1 [0;32m8[00m 7 │ [0;32m3[00m [0;32m5[00m [0;32m4[00m │ [0;32m6[00m 9 2 │
+│ [0;32m6[00m [0;32m3[00m 4 │ [0;32m2[00m [0;32m9[00m [0;32m1[00m │ 5 [0;32m7[00m [0;32m8[00m │
+│ 5 2 [0;32m9[00m │ [0;32m6[00m [0;32m8[00m [0;32m7[00m │ 1 [0;32m4[00m 3 │
+├───────┼───────┼───────┤
+│ [0;32m7[00m 1 2 │ 8 6 [0;32m3[00m │ [0;32m9[00m [0;32m5[00m [0;32m4[00m │
+│ [0;32m9[00m 5 [0;32m3[00m │ [0;32m4[00m 1 [0;32m2[00m │ [0;32m8[00m [0;32m6[00m 7 │
+│ [0;32m4[00m [0;32m6[00m 8 │ 9 7 [0;32m5[00m │ 3 [0;32m2[00m [0;32m1[00m │
+└───────┴───────┴───────┘
+(/tmp/sudb_48415da.png)
+
+Solved 1 of 1.
+$ sudb --no-init --file raw.githubusercontent.com/HunterBaines/sudb/master/test/data --auto
+raw.githubusercontent.com/HunterBaines/sudb/master/test/data:
+no such file or directory
+
+0 puzzles to solve.
+Solved 0 of 0.
+
+Error Summary:
+1 case of import error
+$ sudb --no-init --file https://raw.githubusercontent.com/HunterBaines/sudb/master/test/data/this_file_does_not_exist.txt --auto
+https://raw.githubusercontent.com/HunterBaines/sudb/master/test/data/t
+his_file_does_not_exist.txt:
+not found
+
+0 puzzles to solve.
+Solved 0 of 0.
+
+Error Summary:
+1 case of import error
