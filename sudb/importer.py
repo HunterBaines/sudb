@@ -60,8 +60,11 @@ seed 0
 """
 from __future__ import absolute_import, division, print_function
 
+from hashlib import sha1
 from os import path
-import urllib
+from tempfile import gettempdir
+from urllib.error import URLError, HTTPError
+from urllib.request import urlretrieve
 
 from sudb import generator
 from sudb import error
@@ -213,15 +216,8 @@ def get_puzzles_from_file(filename=None):
     specify_lineno_in_name = True
 
     if filename is not None:
-        try:
-            # If path, it returns that; if url, it downloads then returns
-            # path to downloaded copy
-            filename = urllib.urlretrieve(filename)[0]
-        except IOError as err:
-            # pylint: disable=no-member; `strerror` as a `str` has `lower`
-            # `strerror` is more descriptive than `message` for the
-            # exceptions that have this attribute
-            error.error(err.strerror.lower(), prelude=filename)
+        filename = _retrieve_location(filename)
+        if filename is None:
             return []
 
         if _is_image(filename):
@@ -229,12 +225,10 @@ def get_puzzles_from_file(filename=None):
             try:
                 from sudb import sudokuimg
                 lines = sudokuimg.puzzle_lines(filename)
-            except ImportError as err:
-                error.error(err.message.lower(), prelude=filename)
+            except (ModuleNotFoundError, ImportError) as err:
+                error.error(str(err).lower(), prelude=filename)
                 return []
         else:
-            # If we made it past urllib.urlretrieve, this shouldn't raise
-            # an IOError
             with open(filename, 'r') as puzzle_file:
                 lines = puzzle_file.read().split('\n')
     else:
@@ -309,3 +303,47 @@ def get_puzzles_from_lines(lines, name=None, specify_lineno=False):
 def _is_image(filename):
     _, ext = path.splitext(filename)
     return ext.lower() in ['.png', '.jpg', '.jpeg', '.gif']
+
+
+def _retrieve_location(location):
+    # Return given path or, if URL given, path to file downloaded from URL.
+    io_error_msg = None
+
+    try:
+        # Assume `location` is local path and try to open it for reading
+        with open(location, 'r') as _:
+            pass
+        return location
+    except IOError as err:
+        # pylint: disable=no-member; `strerror` as a `str` has `lower`
+        # If treating `location` as a URL also fails, `io_error_msg` will
+        # be shown; `strerror` allows for nicer formatting than `str(err)`
+        io_error_msg = err.strerror.lower()
+
+    # A consistently named (to ease testing output) tempfile that includes
+    # the original extension (to ease detecting if an image)
+    ideal_location = _get_temp_filename(location)
+    try:
+        # Assume `location` is a URL
+        download_location, _ = urlretrieve(location, filename=ideal_location)
+    except ValueError as err:
+        if io_error_msg is None:
+            # This should never occur
+            io_error_msg = str(err).lower()
+        error.error(io_error_msg, prelude=location)
+        return None
+    except (URLError, HTTPError) as err:
+        # The `reason` attribute for these is not guaranteed to be a `str`
+        error.error(str(err.reason).lower(), prelude=location)
+        return None
+
+    return download_location
+
+
+def _get_temp_filename(location):
+    # Return a unique, consistent filename that preserves the extension.
+    _, location_ext = path.splitext(location)
+    location_hash = sha1(location.encode()).hexdigest()[:7]
+    location_filename = 'sudb_{hash}{ext}'.format(hash=location_hash, ext=location_ext)
+    location_directory = gettempdir()
+    return path.join(location_directory, location_filename)
