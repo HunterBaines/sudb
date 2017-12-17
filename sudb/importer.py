@@ -129,8 +129,8 @@ def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
             if not warned_about_image_import and _is_image(filename):
                 msg = 'importing from image will likely work only on cleanly'
                 msg += ' cropped images with sharp text and a high-contrast'
-                msg += ' grid, and even then sometimes the resultant puzzle'
-                msg += ' may have missing or incorrect clues.'
+                msg += ' grid, and even then the resulting puzzle may have'
+                msg += ' missing or incorrect clues.'
                 error.error(msg, prelude='warning')
                 warned_about_image_import = True
             file_puzzles = get_puzzles_from_file(filename)
@@ -176,12 +176,12 @@ def get_puzzles_from_seeds(seeds):
 
 
 def get_puzzles_from_file(filename=None):
-    """Return a list of puzzle lines drawn from a file or user input.
+    """Return a list of puzzles drawn from a file, URL, or user input.
 
-    If a filename is specified, determine if the file is an image or text
-    file. If a text file, construct the lines in each puzzle from lines in
-    the file of this form (where any non-numeric, non-whitespace character
-    can be used instead of 0 to represent blanks in the puzzle):
+    Return a list of puzzles from the path or URL given in `filename`. If a
+    text file, construct the lines in each puzzle from lines in the file of
+    this form (where any non-numeric, non-whitespace character can be used
+    instead of 0 to represent blanks in the puzzle):
 
     003020600
     900305001
@@ -198,7 +198,7 @@ def get_puzzles_from_file(filename=None):
     Parameters
     ----------
     filename : str, optional
-        The path to the image (PNG, JPEG, or GIF) file containing a
+        The path or URL to the image (PNG, JPEG, or GIF) file containing a
         puzzle or the text file containing one or more puzzles (default
         None).
 
