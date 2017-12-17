@@ -77,7 +77,7 @@ class PuzzleErrorLogger(ErrorLogger):
                     inconsistent_board.set_cell(num, *location)
                 msg = 'puzzle has inconsistencies:\n\n'
                 msg += frmt.strfboard(inconsistent_board, ascii_mode=True)
-                msg += '\n'
+                msg += '\n\n'
                 error.error(msg, prelude=name)
 
         # See the generator module for references on 17 being the minimum
@@ -86,8 +86,8 @@ class PuzzleErrorLogger(ErrorLogger):
             self.log_error(puzzle, self.TOO_FEW_CLUES)
             error_count += 1
             if report:
-                msg = 'puzzle contains fewer clues than the 17 required for a proper,'
-                msg += ' single-solution Sudoku board'
+                msg = 'puzzle contains fewer clues than the 17 required for'
+                msg += ' a proper, single-solution Sudoku board\n'
                 error.error(msg, prelude=name)
 
         return error_count
