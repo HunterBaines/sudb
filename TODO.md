@@ -22,8 +22,8 @@ TODO
 * c8b1852: ~~Python 3 compatibility: use `input`, not `raw_input`, e.g. by
   using `from builtins import input`.~~
 
-* Python 3 compatibility: adapt to changes to `urllib` in Python 3 (note
-  that Python 3's `urlretrieve` no longer handles filenames).
+* 81391e3: ~~Python 3 compatibility: adapt to changes to `urllib` in Python
+  3 (note that Python 3's `urlretrieve` no longer handles filenames).~~
 
 * ca4c812: ~~Python 3 compatibility: Python 2 prints (possibly garbled)
   UTF-8 text even if `sys.stdout.encoding` suggests only ASCII is
