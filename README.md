@@ -28,7 +28,7 @@ $ cd sudb/
 
 # install the sudb package and copy the script 
 # invoking its main method into your PATH
-$ python setup.py install --user
+$ python3 setup.py install --user
 ```
 
 Also installing `numpy` (see below for instructions) is
@@ -49,10 +49,10 @@ the following commands, for example:
 
 ```shell
 # using the Python package manager pip:
-$ sudo pip install numpy scipy pillow
+$ sudo pip3 install numpy scipy pillow
 
 # using the default package manager on Debian/Ubuntu:
-$ sudo apt install python-numpy python-scipy python-imaging
+$ sudo apt install python3-numpy python3-scipy python3-pil
 ```
 
 Then install the OCR engine used to recognize digits in the images and the
@@ -60,7 +60,7 @@ Python wrapper for that engine:
 
 ```shell
 $ sudo apt install tesseract-ocr
-$ sudo pip install pytesseract
+$ sudo pip3 install pytesseract
 ```
 
 
