@@ -13,21 +13,8 @@ FAILURE = '\033[1;31m' + 'Install cannot proceed.' + '\033[00m'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'install':
     # Check python version
-    if sys.version_info.major != 2:
-        sys.exit(FAILURE + ' Sorry, only Python 2 is supported.')
-
-    # Check if enum module is installed
-    try:
-        from enum import IntEnum, unique
-    except ImportError:
-        sys.exit(FAILURE + ' The package "enum34", the backport\n'\
-                 + 'of Enum from Python 3.4, is required. Please install it:\n'\
-                 + '\n'\
-                 + "# via your system's package manager, e.g.:\n"\
-                 + '$ sudo apt install python-enum34\n'\
-                 + '\n'\
-                 + "# or via Python's package manager:\n"\
-                 + '$ sudo pip install enum34\n')
+    if sys.version_info < (3, 4):
+        sys.exit(FAILURE + ' Sorry, Python 3.4 or above is required.')
 
 
 setup(name='sudb',
@@ -38,7 +25,6 @@ setup(name='sudb',
       license=sudb.__license__,
       packages=['sudb'],
       scripts=['scripts/sudb'],
-      requires=['enum'],
       classifiers=[
           'Development Status :: 4 - Beta',
           'Environment :: Console',
@@ -47,7 +33,7 @@ setup(name='sudb',
           'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
           'Operating System :: MacOS',
           'Operating System :: POSIX',
-          'Programming Language :: Python :: 2 :: Only',
+          'Programming Language :: Python :: 3 :: Only',
           'Topic :: Games/Entertainment :: Puzzle Games'
           ]
      )
