@@ -127,11 +127,11 @@ def get_puzzles(lines=None, filenames=None, seeds=None, logger=None):
         get_from_stdin = False
         for filename in filenames:
             if not warned_about_image_import and _is_image(filename):
-                msg = 'importing from image will likely work only on cleanly'
-                msg += ' cropped images with sharp text and a high-contrast'
-                msg += ' grid, and even then the resulting puzzle may have'
-                msg += ' missing or incorrect clues.'
-                error.error(msg, prelude='warning')
+                error.error('importing from image will likely work only on'
+                            ' cleanly cropped images with sharp text and a'
+                            ' high-contrast grid, and even then the resulting'
+                            ' puzzle may have missing or incorrect clues.\n',
+                            prelude='warning')
                 warned_about_image_import = True
             file_puzzles = get_puzzles_from_file(filename)
             if logger is not None and not file_puzzles:
