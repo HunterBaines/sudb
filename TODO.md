@@ -91,7 +91,7 @@ TODO
 
 /test
 -----
-* Write a README for testing
+* 3168895: ~~Write a README for testing~~
 
 * dcfcff3, 490e9cf, a35f249, a22056f, 024a036: ~~Write tests for
   "\_\_main\_\_.py" (specifically for its commandline options)~~
