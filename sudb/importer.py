@@ -225,7 +225,7 @@ def get_puzzles_from_file(filename=None):
             try:
                 from sudb import sudokuimg
                 lines = sudokuimg.puzzle_lines(filename)
-            except (ModuleNotFoundError, ImportError) as err:
+            except ImportError as err:
                 error.error(str(err).lower(), prelude=filename)
                 return []
         else:
