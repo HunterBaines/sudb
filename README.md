@@ -49,7 +49,7 @@ the following commands, for example:
 
 ```shell
 # using the Python package manager pip:
-$ sudo pip3 install numpy scipy pillow
+$ pip3 install numpy scipy pillow
 
 # using the default package manager on Debian/Ubuntu:
 $ sudo apt install python3-numpy python3-scipy python3-pil
@@ -60,7 +60,7 @@ Python wrapper for that engine:
 
 ```shell
 $ sudo apt install tesseract-ocr
-$ sudo pip3 install pytesseract
+$ pip3 install pytesseract
 ```
 
 
