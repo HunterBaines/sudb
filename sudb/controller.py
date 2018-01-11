@@ -22,16 +22,6 @@ from sudb.board import Board
 from sudb.solver import Solver
 
 
-# Redefine builtin `input` to equal `raw_input` like in Python 3
-try:
-    # Python 2
-    # pylint: disable=redefined-builtin,invalid-name
-    input = raw_input
-except NameError:
-    # Python 3
-    pass
-
-
 class SolverController(object):
     """An interactive 9x9 Sudoku solver modeled after a debugger.
 
