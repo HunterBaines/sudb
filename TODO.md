@@ -51,6 +51,10 @@ TODO
 
 * 6a6ffc1: ~~Tab complete user-defined strings like checkpoint labels.~~
 
+* Consider adding a decorator for `_cmd`- and `_subcmd`-style methods that
+  validates their name, arguments, and return value (as documented in
+  "controller.py")
+
 * Consider moving some static methods and inner classes to the module level
   instead of tucking them away inside the module's primary class.
 
