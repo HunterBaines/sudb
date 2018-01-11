@@ -2,8 +2,6 @@
 # Copyright: (C) 2017 Hunter Baines
 # License: GNU GPL version 3
 
-from __future__ import absolute_import, division, print_function
-
 import unittest
 
 from sudb.board import Board
