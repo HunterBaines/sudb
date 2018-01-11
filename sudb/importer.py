@@ -58,8 +58,6 @@ seed 0
 <BLANKLINE>
 
 """
-from __future__ import absolute_import, division, print_function
-
 from hashlib import sha1
 from os import path
 from tempfile import gettempdir

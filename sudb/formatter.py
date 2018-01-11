@@ -7,8 +7,6 @@
 """Functions for formatting Sudokus plus classes for colors and grid parts.
 
 """
-from __future__ import absolute_import, division, print_function
-
 import os
 import subprocess
 
