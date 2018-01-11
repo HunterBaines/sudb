@@ -8,8 +8,8 @@ TODO
 * 81391e3: ~~Transition as much as possible to python-3-style code without
   breaking python 2 compatibility.~~
 
-* Remove legacy code (e.g., imports from `__future__`, redefining `input`,
-  etc.)
+* 304e449, e8282f1, a2f4218: ~~Remove legacy code (e.g., imports from
+  `__future__`, redefining `input`, etc.)~~
 
 
 /sudb
